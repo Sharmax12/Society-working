@@ -34,7 +34,7 @@ model User {
 
   accounts     Account[]
   applications Application[] // Student's applications
-  
+
   // Societies managed if the user is an admin
   managedSocieties Society[] @relation("SocietyAdmins")
 
@@ -45,6 +45,8 @@ model User {
 model Account {
   id                String  @id @default(cuid()) @map("_id")
   userId            String  @map("user_id")
+  name              String? // Display name of the linked account/provider (optional)
+
   type              String
   provider          String
   providerAccountId String
@@ -81,14 +83,12 @@ model Society {
   updatedAt   DateTime      @updatedAt
 }
 
-// Custom application questions per society
-
-
 // Student's Application to a Society
 model Application {
   id          String            @id @default(cuid()) @map("_id")
+  name        String?           // Applicant's name at time of submission (denormalized snapshot)
   status      ApplicationStatus @default(PENDING)
-  
+
   studentId   String
   societyId   String
 
@@ -112,17 +112,18 @@ model Question {
   required  Boolean  @default(true)
 
   society   Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
-  answers   Answer[]           // add this
+  answers   Answer[]
 }
 
 model Answer {
   id            String      @id @default(cuid()) @map("_id")
   applicationId String
   questionId    String
+  name          String?     // Question label/prompt snapshot at time of answering
   response      String
 
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)  // add this
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([applicationId])
 }
