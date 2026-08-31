@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CampusCircle
 
-## Getting Started
+A campus society management platform. Students discover and apply to societies with one click; society admins review applications, ask custom questions, and manage decisions from a single dashboard.
 
-First, run the development server:
+## Features
+
+- **Google & GitHub OAuth** sign-in via Auth.js v5
+- **Student dashboard** — browse open societies, apply, and track application status (pending / accepted / rejected)
+- **Custom application forms** — each society defines its own set of required/optional questions
+- **Admin dashboard** — society admins create societies, review applications, and accept or reject students
+- **Role-based access** (`STUDENT` / `ADMIN`) enforced at the route level
+- Built on **MongoDB** via Prisma ORM
+
+## Tech stack
+
+| Layer      | Tech                                      |
+|------------|--------------------------------------------|
+| Framework  | Next.js 16 (App Router, Turbopack)         |
+| Auth       | Auth.js v5 (`next-auth`) + Prisma Adapter  |
+| Database   | MongoDB                                    |
+| ORM        | Prisma ORM 6                               |
+| UI         | Tailwind CSS, shadcn/ui, Radix Primitives  |
+| Notifications | Sonner (toasts)                         |
+
+## Getting started
+
+### 1. Clone and install
+
+```bash
+git clone https://github.com/Sharmax12/Society-working.git
+cd Society-working
+npm install
+```
+
+### 2. Environment variables
+
+Create a `.env` file in the project root:
+
+```bash
+DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<database>"
+AUTH_SECRET="generate-with-npx-auth-secret"
+
+AUTH_GOOGLE_ID="your-google-oauth-client-id"
+AUTH_GOOGLE_SECRET="your-google-oauth-client-secret"
+
+AUTH_GITHUB_ID="your-github-oauth-client-id"
+AUTH_GITHUB_SECRET="your-github-oauth-client-secret"
+```
+
+Generate an `AUTH_SECRET` with:
+
+```bash
+npx auth secret
+```
+
+### 3. Push the Prisma schema to MongoDB
+
+```bash
+npx prisma db push
+npx prisma generate
+```
+
+### 4. Run the dev server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+app/
+  (auth)/(root)/        # Public marketing home page + layout (Header/Footer)
+  auth/sign-in/          # Sign-in page
+  api/auth/[...nextauth] # Auth.js route handler
+  dashboard/              # Student dashboard
+  apply/[id]/             # Society application form
+  admin/                  # Admin dashboard
+  admin/societies/new/    # Create-society form
+  admin/societies/[id]/   # Review applications for a society
 
-## Learn More
+modules/
+  auth/                  # Sign-in/out actions & components
+  societies/             # Society queries, admin queries, create-society form
+  applications/          # Application submission & review actions/components
+  home/                  # Header, Footer
 
-To learn more about Next.js, take a look at the following resources:
+prisma/
+  schema.prisma          # User, Account, Society, Question, Application, Answer models
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Data model overview
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **User** — student or admin (`role`), linked to OAuth `Account`s
+- **Society** — created and managed by an admin, has custom `Question`s and a deadline
+- **Application** — a student's submission to a society, one per student per society
+- **Answer** — a student's response to a specific `Question` on an `Application`
 
-## Deploy on Vercel
+## Roles
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **STUDENT** (default) — can browse open societies, apply, and track their applications
+- **ADMIN** — can create societies, define application questions, and accept/reject applicants for societies they manage
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Role changes currently require a direct database update. Sign out and back in after changing a role so the session picks up the new value.
+
+## License
+
+Not yet licensed.
