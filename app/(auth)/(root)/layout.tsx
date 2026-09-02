@@ -4,10 +4,8 @@ import { Header } from "@/modules/home/header";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: {
-    template: "Society  ",
-    default: "Campus Circle",
-  },
+  title: "CampusCircle — Where Campus Societies Come Alive",
+  description: "Discover, apply, and manage college society applications in one place.",
 };
 export default function HomeLayout({
   children,
