@@ -20,7 +20,7 @@ export default async function AdminDashboardPage() {
       href="/admin/societies/new"
       className="inline-block mt-4 text-sm font-medium text-rose-600 hover:underline"
       >
-        + Create a new society\
+        + Create a new society
         </Link>
 
       {societies.length === 0 ? (
