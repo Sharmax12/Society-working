@@ -27,8 +27,8 @@ model User {
   name         String?
   image        String?
   email        String        @unique
-  rollNumber   String?       @unique // Student roll/registration number
-  phone        String?       @unique // Contact phone number
+  rollNumber   String?        // Student roll/registration number
+  phone        String?        // Contact phone number
   passwordHash String?       // Hashed password (never plaintext)
   role         Role          @default(STUDENT)
 
