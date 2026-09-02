@@ -11,7 +11,10 @@ export async function getOpenSocieties() {
 
 export async function getUserApplications(userId: string) {
   return db.application.findMany({
-    where: { studentId: userId },
+    where: {
+      studentId: userId,
+      society: { is: {} },
+    },
     include: { society: true },
     orderBy: { submittedAt: "desc" },
   })
