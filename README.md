@@ -45,6 +45,13 @@ AUTH_GOOGLE_SECRET="your-google-oauth-client-secret"
 
 AUTH_GITHUB_ID="your-github-oauth-client-id"
 AUTH_GITHUB_SECRET="your-github-oauth-client-secret"
+
+SMTP_HOST="smtp.example.com"
+SMTP_PORT="587"
+SMTP_SECURE="false"
+SMTP_USER="your-smtp-user"
+SMTP_PASSWORD="your-smtp-password"
+SMTP_FROM="CampusCircle <no-reply@example.com>"
 ```
 
 Generate an `AUTH_SECRET` with:

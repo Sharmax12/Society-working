@@ -2,6 +2,7 @@
 
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { sendApplicationNotifications } from "@/lib/mail"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -13,7 +14,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   const society = await db.society.findUnique({
     where: { id: societyId },
-    include: { questions: true },
+    include: { questions: true, admin: true },
   })
 
   if (!society) throw new Error("Society not found")
@@ -60,6 +61,18 @@ export async function submitApplication(societyId: string, formData: FormData) {
       answers: { create: answers },
     },
   })
+
+  try {
+    await sendApplicationNotifications({
+      applicantEmail: session.user.email,
+      applicantName: session.user.name,
+      societyName: society.name,
+      adminEmail: society.admin.email,
+      rollNumber,
+    })
+  } catch (error) {
+    console.error("Application email delivery failed", error)
+  }
 
   revalidatePath("/dashboard")
   redirect("/dashboard")

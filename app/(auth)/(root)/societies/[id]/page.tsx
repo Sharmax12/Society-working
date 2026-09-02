@@ -3,7 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 
-import { getSocietyWithQuestions } from "@/modules/societies/queries";
+import { auth } from "@/auth";
+import {
+  getExistingApplication,
+  getSocietyWithQuestions,
+} from "@/modules/societies/queries";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
@@ -47,6 +51,11 @@ export default async function SocietyDetailPage({ params }: Props) {
   const society = await getSocietyWithQuestions(id);
 
   if (!society) notFound();
+
+  const session = await auth();
+  const alreadyApplied = session?.user?.id
+    ? Boolean(await getExistingApplication(session.user.id, society.id))
+    : false;
 
   const deadline = new Date(society.deadline);
 
@@ -93,7 +102,11 @@ export default async function SocietyDetailPage({ params }: Props) {
       </div>
 
       <div className="mt-8">
-        {society.isOpen ? (
+        {alreadyApplied ? (
+          <Button variant="outline" size="lg" disabled>
+            Applied
+          </Button>
+        ) : society.isOpen ? (
           <Link href={`/apply/${society.id}`}>
             <Button variant="brand" size="lg">
               Apply Now
