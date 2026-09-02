@@ -3,9 +3,40 @@ import {Footer} from "@/modules/home/footer";
 import { Header } from "@/modules/home/header";
 import { Metadata } from "next";
 
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
+const SITE_TITLE = "CampusCircle — Where Campus Societies Come Alive";
+const SITE_DESCRIPTION =
+  "Discover, apply, and manage college society applications in one place.";
+
 export const metadata: Metadata = {
-  title: "CampusCircle — Where Campus Societies Come Alive",
-  description: "Discover, apply, and manage college society applications in one place.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "campus societies",
+    "college clubs",
+    "student organizations",
+    "club applications",
+    "society management",
+    "join a college club",
+  ],
+  alternates: { canonical: "/" },
+  robots: { index: true, follow: true },
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    siteName: "CampusCircle",
+    images: [{ url: "/logo.svg", width: 512, height: 512 }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: ["/logo.svg"],
+  },
 };
 export default function HomeLayout({
   children,

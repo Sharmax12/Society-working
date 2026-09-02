@@ -1,0 +1,206 @@
+diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/layout.tsx Society-working-main/app/(auth)/(root)/layout.tsx
+--- pristine/app/(auth)/(root)/layout.tsx	2026-09-02 08:27:15.000000000 +0000
++++ Society-working-main/app/(auth)/(root)/layout.tsx	2026-09-02 10:55:22.502025048 +0000
+@@ -3,9 +3,40 @@
+ import { Header } from "@/modules/home/header";
+ import { Metadata } from "next";
+ 
++const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
++const SITE_TITLE = "CampusCircle — Where Campus Societies Come Alive";
++const SITE_DESCRIPTION =
++  "Discover, apply, and manage college society applications in one place.";
++
+ export const metadata: Metadata = {
+-  title: "CampusCircle — Where Campus Societies Come Alive",
+-  description: "Discover, apply, and manage college society applications in one place.",
++  metadataBase: new URL(SITE_URL),
++  title: SITE_TITLE,
++  description: SITE_DESCRIPTION,
++  keywords: [
++    "campus societies",
++    "college clubs",
++    "student organizations",
++    "club applications",
++    "society management",
++    "join a college club",
++  ],
++  alternates: { canonical: "/" },
++  robots: { index: true, follow: true },
++  openGraph: {
++    title: SITE_TITLE,
++    description: SITE_DESCRIPTION,
++    url: "/",
++    siteName: "CampusCircle",
++    images: [{ url: "/logo.svg", width: 512, height: 512 }],
++    locale: "en_US",
++    type: "website",
++  },
++  twitter: {
++    card: "summary_large_image",
++    title: SITE_TITLE,
++    description: SITE_DESCRIPTION,
++    images: ["/logo.svg"],
++  },
+ };
+ export default function HomeLayout({
+   children,
+diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/page.tsx Society-working-main/app/(auth)/(root)/page.tsx
+--- pristine/app/(auth)/(root)/page.tsx	2026-09-02 08:27:15.000000000 +0000
++++ Society-working-main/app/(auth)/(root)/page.tsx	2026-09-02 10:55:36.269912200 +0000
+@@ -3,14 +3,39 @@
+ import { ArrowUpRight } from "lucide-react";
+ import Image from "next/image";
+ import Link from "next/link";
++
++const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
++
++// Organization/WebSite structured data helps Google understand the entity
++// behind the site and can unlock a sitelinks search box in results.
++const jsonLd = {
++  "@context": "https://schema.org",
++  "@type": "WebSite",
++  name: "CampusCircle",
++  url: SITE_URL,
++  description:
++    "Discover, apply, and manage college society applications in one place.",
++};
++
+ export default function Home() {
+-   
++
+   return (
+     <div className=" z-20 flex flex-col items-center justify-start min-h-screen py-2 mt-10">
+-      
++      <script
++        type="application/ld+json"
++        // eslint-disable-next-line react/no-danger
++        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
++      />
++
+       <div className="flex flex-col justify-center items-center my-5">
+-      <Image src={"/hero.svg"} alt="Hero-Section" height={500}  width={500}/>
+-      
++      <Image
++        src={"/hero.svg"}
++        alt="Students collaborating and discovering clubs on CampusCircle"
++        height={500}
++        width={500}
++        priority
++      />
++
+       <h1 className=" z-20 text-6xl mt-5 font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 dark:from-rose-400 dark:via-red-400 dark:to-pink-400 tracking-tight leading-[1.3] ">
+         Where Campus Societies Come Alive
+       </h1>
+@@ -20,12 +45,19 @@
+       <p className="mt-2 text-lg text-center text-gray-600 dark:text-gray-400 px-5 py-10 max-w-2xl">
+         One platform to discover clubs, apply in seconds, and run your society without the chaos of spreadsheets and DMs. Built for students who lead, and the ones ready to join them.
+       </p>
+-      <Link href={"/dashboard"}>
+-        <Button variant={"brand"} className="mb-4" size={"lg"}>
+-          Get Started
+-          <ArrowUpRight className="w-3.5 h-3.5" />
+-        </Button>
+-      </Link>
++      <div className="flex items-center gap-3 mb-4">
++        <Link href={"/dashboard"}>
++          <Button variant={"brand"} size={"lg"}>
++            Get Started
++            <ArrowUpRight className="w-3.5 h-3.5" />
++          </Button>
++        </Link>
++        <Link href={"/societies"}>
++          <Button variant={"outline"} size={"lg"}>
++            Browse Societies
++          </Button>
++        </Link>
++      </div>
+     </div>
+   );
+ }
+Only in Society-working-main/app/(auth)/(root): societies
+diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/layout.tsx Society-working-main/app/layout.tsx
+--- pristine/app/layout.tsx	2026-09-02 08:27:15.000000000 +0000
++++ Society-working-main/app/layout.tsx	2026-09-02 10:55:15.541289598 +0000
+@@ -18,8 +18,16 @@
+ });
+ 
+ export const metadata: Metadata = {
+-  title: "Create Next App",
+-  description: "Generated by create next app",
++  title: {
++    default: "CampusCircle — Where Campus Societies Come Alive",
++    template: "%s | CampusCircle",
++  },
++  description:
++    "Discover, apply, and manage college society applications in one place.",
++  // Safe default: most routes under this root layout (dashboard, admin,
++  // apply, sign-in) are authenticated app screens, not marketing pages.
++  // The public marketing group explicitly opts back in to indexing.
++  robots: { index: false, follow: false },
+ };
+ 
+ export default async function RootLayout({
+Only in Society-working-main/app: robots.ts
+Only in Society-working-main/app: sitemap.ts
+diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/middleware.tsx Society-working-main/middleware.tsx
+--- pristine/middleware.tsx	2026-09-02 08:27:15.000000000 +0000
++++ Society-working-main/middleware.tsx	2026-09-02 10:55:08.391786936 +0000
+@@ -4,6 +4,7 @@
+   DEFAULT_LOGIN_REDIRECT,
+   apiAuthPrefix,
+   publicRoutes,
++  publicRoutePrefixes,
+   authRoutes,
+ } from "@/routes";
+ import authConfig from "./auth.config";
+@@ -16,7 +17,9 @@
+ 
+   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+ 
+-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
++  const isPublicRoute =
++    publicRoutes.includes(nextUrl.pathname) ||
++    publicRoutePrefixes.some((prefix) => nextUrl.pathname.startsWith(prefix));
+ 
+   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+ 
+diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/modules/home/header.tsx Society-working-main/modules/home/header.tsx
+--- pristine/modules/home/header.tsx	2026-09-02 08:27:15.000000000 +0000
++++ Society-working-main/modules/home/header.tsx	2026-09-02 10:56:35.479669814 +0000
+@@ -49,6 +49,13 @@
+                   {/* Desktop Navigation Links */}
+                   <div className="hidden sm:flex items-center gap-4">
+                     <Link
++                      href="/societies"
++                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
++                    >
++                      Societies
++                    </Link>
++
++                    <Link
+                       href="/dashboard"
+                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                     >
+diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/routes.ts Society-working-main/routes.ts
+--- pristine/routes.ts	2026-09-02 08:27:15.000000000 +0000
++++ Society-working-main/routes.ts	2026-09-02 10:55:02.756637336 +0000
+@@ -9,6 +9,19 @@
+ ]
+ 
+ /**
++ * Route prefixes that are accessible to the public.
++ * Unlike `publicRoutes`, these match any path starting with the given
++ * prefix (e.g. "/societies" also covers "/societies/abc123").
++ * Used for indexable content pages — the *apply* flow under /apply
++ * intentionally stays out of this list so it still requires sign-in.
++ * @type {string[]}
++ */
++
++export const publicRoutePrefixes: string[] = [
++   "/societies",
++]
++
++/**
+  * An Array of routes that are protected
+  * These routes require authentication
+  * @type {string[]}
