@@ -22,7 +22,7 @@ export function Footer() {
           {socialLinks.map((link, index) => (
             <Link
               key={index}
-              href={link.href || "#"}
+              href="https://github.com/Sharmax12"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -34,6 +34,12 @@ export function Footer() {
         {/* Copyright Notice */}
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           &copy; {new Date().getFullYear()} CampusCircle. All rights reserved.
+        </p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Made with ❤️ by{" Aniruddh Sharma"}.
+        </p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Contact : aniruddhsharma669@gmail.com
         </p>
       </div>
     </footer>
