@@ -1,4 +1,4 @@
-diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/layout.tsx Society-working-main/app/(auth)/(root)/layout.tsx
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/layout.tsx Society-working-main/app/(auth)/(root)/layout.tsx
 --- pristine/app/(auth)/(root)/layout.tsx	2026-09-02 08:27:15.000000000 +0000
 +++ Society-working-main/app/(auth)/(root)/layout.tsx	2026-09-02 10:55:22.502025048 +0000
 @@ -3,9 +3,40 @@
@@ -44,7 +44,7 @@ diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root
  };
  export default function HomeLayout({
    children,
-diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/page.tsx Society-working-main/app/(auth)/(root)/page.tsx
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/page.tsx Society-working-main/app/(auth)/(root)/page.tsx
 --- pristine/app/(auth)/(root)/page.tsx	2026-09-02 08:27:15.000000000 +0000
 +++ Society-working-main/app/(auth)/(root)/page.tsx	2026-09-02 10:55:36.269912200 +0000
 @@ -3,14 +3,39 @@
@@ -117,8 +117,216 @@ diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root
      </div>
    );
  }
-Only in Society-working-main/app/(auth)/(root): societies
-diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/layout.tsx Society-working-main/app/layout.tsx
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/societies/[id]/page.tsx Society-working-main/app/(auth)/(root)/societies/[id]/page.tsx
+--- pristine/app/(auth)/(root)/societies/[id]/page.tsx	1970-01-01 00:00:00.000000000 +0000
++++ Society-working-main/app/(auth)/(root)/societies/[id]/page.tsx	2026-09-02 10:56:15.853553914 +0000
+@@ -0,0 +1,118 @@
++import type { Metadata } from "next";
++import Link from "next/link";
++import { notFound } from "next/navigation";
++import { ArrowUpRight, CalendarDays } from "lucide-react";
++
++import { getSocietyWithQuestions } from "@/modules/societies/queries";
++import { Button } from "@/components/ui/button";
++import { Badge } from "@/components/ui/badge";
++
++type Props = {
++  params: Promise<{ id: string }>;
++};
++
++// Per-society metadata: each society gets its own indexable title and
++// description built from real content, instead of every page sharing one
++// generic title.
++export async function generateMetadata({ params }: Props): Promise<Metadata> {
++  const { id } = await params;
++  const society = await getSocietyWithQuestions(id);
++
++  if (!society) {
++    return { title: "Society not found" };
++  }
++
++  const description = society.description.slice(0, 155);
++
++  return {
++    title: society.name,
++    description,
++    alternates: { canonical: `/societies/${society.id}` },
++    openGraph: {
++      title: `${society.name} | CampusCircle`,
++      description,
++      url: `/societies/${society.id}`,
++      type: "article",
++    },
++    twitter: {
++      card: "summary",
++      title: `${society.name} | CampusCircle`,
++      description,
++    },
++  };
++}
++
++export default async function SocietyDetailPage({ params }: Props) {
++  const { id } = await params;
++  const society = await getSocietyWithQuestions(id);
++
++  if (!society) notFound();
++
++  const deadline = new Date(society.deadline);
++
++  const jsonLd = {
++    "@context": "https://schema.org",
++    "@type": "Organization",
++    name: society.name,
++    description: society.description,
++    ...(society.category ? { knowsAbout: society.category } : {}),
++  };
++
++  return (
++    <div className="max-w-2xl mx-auto px-6 py-16">
++      <script
++        type="application/ld+json"
++        // eslint-disable-next-line react/no-danger
++        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
++      />
++
++      {society.category && (
++        <Badge variant="secondary" className="mb-3">
++          {society.category}
++        </Badge>
++      )}
++
++      <h1 className="text-4xl font-extrabold tracking-tight">
++        {society.name}
++      </h1>
++
++      <p className="text-muted-foreground mt-4 leading-relaxed">
++        {society.description}
++      </p>
++
++      <div className="flex items-center gap-2 text-sm text-muted-foreground mt-6">
++        <CalendarDays className="w-4 h-4" />
++        <span>
++          Applications close{" "}
++          {deadline.toLocaleDateString("en-US", {
++            month: "long",
++            day: "numeric",
++            year: "numeric",
++          })}
++        </span>
++      </div>
++
++      <div className="mt-8">
++        {society.isOpen ? (
++          <Link href={`/apply/${society.id}`}>
++            <Button variant="brand" size="lg">
++              Apply Now
++              <ArrowUpRight className="w-3.5 h-3.5" />
++            </Button>
++          </Link>
++        ) : (
++          <Button variant="outline" size="lg" disabled>
++            Applications Closed
++          </Button>
++        )}
++      </div>
++
++      <Link
++        href="/societies"
++        className="inline-block mt-10 text-sm text-muted-foreground hover:text-foreground transition-colors"
++      >
++        ← Back to all societies
++      </Link>
++    </div>
++  );
++}
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/(auth)/(root)/societies/page.tsx Society-working-main/app/(auth)/(root)/societies/page.tsx
+--- pristine/app/(auth)/(root)/societies/page.tsx	1970-01-01 00:00:00.000000000 +0000
++++ Society-working-main/app/(auth)/(root)/societies/page.tsx	2026-09-02 10:56:02.697553132 +0000
+@@ -0,0 +1,83 @@
++import type { Metadata } from "next";
++import Link from "next/link";
++import { ArrowUpRight } from "lucide-react";
++
++import { getOpenSocieties } from "@/modules/societies/queries";
++import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
++import { Badge } from "@/components/ui/badge";
++
++export const metadata: Metadata = {
++  title: "Browse Societies",
++  description:
++    "Explore open college societies and clubs on CampusCircle — find your community and apply in seconds.",
++  alternates: { canonical: "/societies" },
++  openGraph: {
++    title: "Browse Societies | CampusCircle",
++    description:
++      "Explore open college societies and clubs on CampusCircle — find your community and apply in seconds.",
++    url: "/societies",
++  },
++};
++
++// Revalidate periodically so newly created/opened societies show up without
++// needing a full redeploy, while still being served as static-ish content
++// for crawlers.
++export const revalidate = 3600;
++
++export default async function SocietiesPage() {
++  const societies = await getOpenSocieties();
++
++  return (
++    <div className="max-w-5xl mx-auto px-6 py-16">
++      <div className="max-w-2xl mx-auto text-center mb-12">
++        <h1 className="text-4xl font-extrabold tracking-tight">
++          Open Societies
++        </h1>
++        <p className="mt-3 text-lg text-gray-600 dark:text-gray-400">
++          Browse clubs and societies currently accepting applications. Pick
++          one to see details, deadlines, and what they&apos;re looking for.
++        </p>
++      </div>
++
++      {societies.length === 0 ? (
++        <p className="text-center text-muted-foreground">
++          No societies are open for applications right now — check back
++          soon.
++        </p>
++      ) : (
++        <div className="grid gap-5 sm:grid-cols-2">
++          {societies.map((society) => (
++            <Link key={society.id} href={`/societies/${society.id}`}>
++              <Card className="h-full transition-shadow hover:shadow-md">
++                <CardHeader>
++                  <div className="flex items-start justify-between gap-2">
++                    <CardTitle className="text-xl">{society.name}</CardTitle>
++                    <ArrowUpRight className="w-4 h-4 shrink-0 text-muted-foreground" />
++                  </div>
++                  {society.category && (
++                    <Badge variant="secondary" className="w-fit mt-1">
++                      {society.category}
++                    </Badge>
++                  )}
++                </CardHeader>
++                <CardContent>
++                  <p className="text-sm text-muted-foreground line-clamp-3">
++                    {society.description}
++                  </p>
++                  <p className="text-xs text-muted-foreground mt-4">
++                    Applications close{" "}
++                    {new Date(society.deadline).toLocaleDateString("en-US", {
++                      month: "short",
++                      day: "numeric",
++                      year: "numeric",
++                    })}
++                  </p>
++                </CardContent>
++              </Card>
++            </Link>
++          ))}
++        </div>
++      )}
++    </div>
++  );
++}
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/layout.tsx Society-working-main/app/layout.tsx
 --- pristine/app/layout.tsx	2026-09-02 08:27:15.000000000 +0000
 +++ Society-working-main/app/layout.tsx	2026-09-02 10:55:15.541289598 +0000
 @@ -18,8 +18,16 @@
@@ -140,9 +348,60 @@ diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/layout.tsx S
  };
  
  export default async function RootLayout({
-Only in Society-working-main/app: robots.ts
-Only in Society-working-main/app: sitemap.ts
-diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/middleware.tsx Society-working-main/middleware.tsx
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/robots.ts Society-working-main/app/robots.ts
+--- pristine/app/robots.ts	1970-01-01 00:00:00.000000000 +0000
++++ Society-working-main/app/robots.ts	2026-09-02 10:56:27.233554591 +0000
+@@ -0,0 +1,14 @@
++import type { MetadataRoute } from "next";
++
++const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
++
++export default function robots(): MetadataRoute.Robots {
++  return {
++    rules: {
++      userAgent: "*",
++      allow: ["/", "/societies"],
++      disallow: ["/dashboard", "/admin", "/apply", "/auth", "/api"],
++    },
++    sitemap: `${SITE_URL}/sitemap.xml`,
++  };
++}
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/app/sitemap.ts Society-working-main/app/sitemap.ts
+--- pristine/app/sitemap.ts	1970-01-01 00:00:00.000000000 +0000
++++ Society-working-main/app/sitemap.ts	2026-09-02 10:56:23.505554369 +0000
+@@ -0,0 +1,31 @@
++import type { MetadataRoute } from "next";
++import { getOpenSocieties } from "@/modules/societies/queries";
++
++const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
++
++export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
++  const societies = await getOpenSocieties();
++
++  const societyEntries: MetadataRoute.Sitemap = societies.map((society) => ({
++    url: `${SITE_URL}/societies/${society.id}`,
++    lastModified: society.updatedAt,
++    changeFrequency: "weekly",
++    priority: 0.7,
++  }));
++
++  return [
++    {
++      url: SITE_URL,
++      lastModified: new Date(),
++      changeFrequency: "weekly",
++      priority: 1,
++    },
++    {
++      url: `${SITE_URL}/societies`,
++      lastModified: new Date(),
++      changeFrequency: "daily",
++      priority: 0.9,
++    },
++    ...societyEntries,
++  ];
++}
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/middleware.tsx Society-working-main/middleware.tsx
 --- pristine/middleware.tsx	2026-09-02 08:27:15.000000000 +0000
 +++ Society-working-main/middleware.tsx	2026-09-02 10:55:08.391786936 +0000
 @@ -4,6 +4,7 @@
@@ -164,7 +423,7 @@ diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/middleware.tsx S
  
    const isAuthRoute = authRoutes.includes(nextUrl.pathname);
  
-diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/modules/home/header.tsx Society-working-main/modules/home/header.tsx
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/modules/home/header.tsx Society-working-main/modules/home/header.tsx
 --- pristine/modules/home/header.tsx	2026-09-02 08:27:15.000000000 +0000
 +++ Society-working-main/modules/home/header.tsx	2026-09-02 10:56:35.479669814 +0000
 @@ -49,6 +49,13 @@
@@ -181,7 +440,7 @@ diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/modules/home/hea
                        href="/dashboard"
                        className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                      >
-diff -ru '--exclude=node_modules' '--exclude=*.tar.gz' pristine/routes.ts Society-working-main/routes.ts
+diff -ruN '--exclude=node_modules' '--exclude=*.tar.gz' pristine/routes.ts Society-working-main/routes.ts
 --- pristine/routes.ts	2026-09-02 08:27:15.000000000 +0000
 +++ Society-working-main/routes.ts	2026-09-02 10:55:02.756637336 +0000
 @@ -9,6 +9,19 @@
