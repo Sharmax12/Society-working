@@ -54,6 +54,12 @@ export function Header() {
                     >
                       Societies
                     </Link>
+                    <Link
+                      href="/events"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Events
+                    </Link>
 
                     <Link
                       href="/dashboard"
@@ -89,6 +95,12 @@ export function Header() {
                   >
                     For Students
                   </Link>
+                  <Link
+                      href="/events"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Events
+                    </Link>
                   <Link
                     href="/admin"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"

@@ -81,6 +81,8 @@ model Society {
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  events      Event[] 
+  
 }
 
 // Student's Application to a Society
@@ -103,6 +105,25 @@ model Application {
   @@unique([studentId, societyId]) // Prevents multiple applications to the same society
   @@index([studentId])
   @@index([societyId])
+}
+
+model Event {
+  id          String   @id @default(cuid()) @map("_id")
+  title       String
+  description String
+  date        DateTime          // When the event happens
+  location    String?
+  imageUrl    String?           // Poster/banner image URL
+  inviteLink  String?           // RSVP / registration / invite link
+
+  societyId   String
+  society     Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([societyId])
+  @@index([date])
 }
 
 model Question {
