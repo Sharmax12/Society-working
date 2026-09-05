@@ -3,8 +3,8 @@ import {Footer} from "@/modules/home/footer";
 import { Header } from "@/modules/home/header";
 import { Metadata } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
-const SITE_TITLE = "CampusCircle — Where Campus Societies Come Alive";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
+const SITE_TITLE = "HallWayLoop — Where Campus Societies Come Alive";
 const SITE_DESCRIPTION =
   "Discover, apply, and manage college society applications in one place.";
 
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     url: "/",
-    siteName: "CampusCircle",
+    siteName: "HallWayLoop",
     images: [{ url: "/logo.svg", width: 512, height: 512 }],
     locale: "en_US",
     type: "website",

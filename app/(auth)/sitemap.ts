@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { getOpenSocieties } from "@/modules/societies/queries";
 import { getUpcomingEvents } from "@/modules/events/queries";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [societies, events] = await Promise.all([

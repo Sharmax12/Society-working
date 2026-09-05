@@ -4,14 +4,14 @@ import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://campuscircle.app";
+const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
 
 // Organization/WebSite structured data helps Google understand the entity
 // behind the site and can unlock a sitelinks search box in results.
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  name: "CampusCircle",
+  name: "HallWayLoop",
   url: SITE_URL,
   description:
     "Discover, apply, and manage college society applications in one place.",
@@ -30,14 +30,14 @@ export default function Home() {
       <div className="flex flex-col justify-center items-center my-5">
       <Image
         src={"/hero.svg"}
-        alt="Students collaborating and discovering clubs on CampusCircle"
+        alt="Students collaborating and discovering clubs on HallWayLoop"
         height={500}
         width={500}
         priority
       />
 
       <h1 className=" z-20 text-6xl mt-5 font-extrabold text-center bg-clip-text text-transparent bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 dark:from-rose-400 dark:via-red-400 dark:to-pink-400 tracking-tight leading-[1.3] ">
-        Where Campus Societies Come Alive
+        Your campus. Your people. Your conversations.
       </h1>
       </div>
      

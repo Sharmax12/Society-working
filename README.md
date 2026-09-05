@@ -1,110 +1,114 @@
-# CampusCircle
+# Hall Way Loop
 
-A campus society management platform. Students discover and apply to societies with one click; society admins review applications, ask custom questions, and manage decisions from a single dashboard.
+A web application for managing residential society / community operations — members, notices, complaints, and day‑to‑day admin — built with **Next.js**, **Prisma**, and **PostgreSQL**.
 
-## Features
+> This README was generated from the repository's structure and `package.json`. Update the sections marked below with project-specific details (exact features, screenshots, deployed URL, etc.).
 
-- **Google & GitHub OAuth** sign-in via Auth.js v5
-- **Student dashboard** — browse open societies, apply, and track application status (pending / accepted / rejected)
-- **Custom application forms** — each society defines its own set of required/optional questions
-- **Admin dashboard** — society admins create societies, review applications, and accept or reject students
-- **Role-based access** (`STUDENT` / `ADMIN`) enforced at the route level
-- Built on **MongoDB** via Prisma ORM
+## Tech Stack
 
-## Tech stack
+- **Framework:** [Next.js 16](https://nextjs.org) (App Router) with React 19
+- **Auth:** [NextAuth.js v5](https://authjs.dev) with the Prisma adapter
+- **Database / ORM:** PostgreSQL via [Prisma ORM](https://www.prisma.io) (`@prisma/client`, `@prisma/adapter-pg`)
+- **UI:** [Radix UI](https://www.radix-ui.com) primitives + [shadcn/ui](https://ui.shadcn.com), styled with [Tailwind CSS 4](https://tailwindcss.com)
+- **Forms & data:** `react-hook-form`, `date-fns`, `recharts` for charts
+- **Tooling:** TypeScript, ESLint, `babel-plugin-react-compiler`
 
-| Layer      | Tech                                      |
-|------------|--------------------------------------------|
-| Framework  | Next.js 16 (App Router, Turbopack)         |
-| Auth       | Auth.js v5 (`next-auth`) + Prisma Adapter  |
-| Database   | MongoDB                                    |
-| ORM        | Prisma ORM 6                               |
-| UI         | Tailwind CSS, shadcn/ui, Radix Primitives  |
-| Notifications | Sonner (toasts)                         |
-
-## Getting started
-
-### 1. Clone and install
-
-```bash
-git clone https://github.com/Sharmax12/Society-working.git
-cd Society-working
-npm install
-```
-
-### 2. Environment variables
-
-Create a `.env` file in the project root:
-
-```bash
-DATABASE_URL="mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<database>"
-AUTH_SECRET="generate-with-npx-auth-secret"
-
-AUTH_GOOGLE_ID="your-google-oauth-client-id"
-AUTH_GOOGLE_SECRET="your-google-oauth-client-secret"
-
-AUTH_GITHUB_ID="your-github-oauth-client-id"
-AUTH_GITHUB_SECRET="your-github-oauth-client-secret"
-```
-
-Generate an `AUTH_SECRET` with:
-
-```bash
-npx auth secret
-```
-
-### 3. Push the Prisma schema to MongoDB
-
-```bash
-npx prisma db push
-npx prisma generate
-```
-
-### 4. Run the dev server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
-## Project structure
+## Project Structure
 
 ```
-app/
-  (auth)/(root)/        # Public marketing home page + layout (Header/Footer)
-  auth/sign-in/          # Sign-in page
-  api/auth/[...nextauth] # Auth.js route handler
-  dashboard/              # Student dashboard
-  apply/[id]/             # Society application form
-  admin/                  # Admin dashboard
-  admin/societies/new/    # Create-society form
-  admin/societies/[id]/   # Review applications for a society
-
-modules/
-  auth/                  # Sign-in/out actions & components
-  societies/             # Society queries, admin queries, create-society form
-  applications/          # Application submission & review actions/components
-  home/                  # Header, Footer
-
-prisma/
-  schema.prisma          # User, Account, Society, Question, Application, Answer models
+app/            # Next.js App Router routes, layouts, and pages
+components/     # Shared/reusable UI components
+hooks/          # Custom React hooks
+lib/            # Utilities, config, and shared logic
+modules/        # Feature/domain modules
+prisma/         # Prisma schema and migrations
+public/         # Static assets
+auth.ts / auth.config.ts   # NextAuth configuration
+middleware.tsx  # Route middleware (e.g. auth guarding)
+routes.ts       # Route definitions/constants
 ```
 
-## Data model overview
+## Prerequisites
 
-- **User** — student or admin (`role`), linked to OAuth `Account`s
-- **Society** — created and managed by an admin, has custom `Question`s and a deadline
-- **Application** — a student's submission to a society, one per student per society
-- **Answer** — a student's response to a specific `Question` on an `Application`
+- Node.js 18+ (or a recent LTS)
+- A PostgreSQL database (local or hosted)
+- A package manager: `npm`, `yarn`, `pnpm`, or `bun`
 
-## Roles
+## Getting Started
 
-- **STUDENT** (default) — can browse open societies, apply, and track their applications
-- **ADMIN** — can create societies, define application questions, and accept/reject applicants for societies they manage
+1. **Clone the repository**
 
-Role changes currently require a direct database update. Sign out and back in after changing a role so the session picks up the new value.
+   ```bash
+   git clone https://github.com/Sharmax12/Society-working.git
+   cd Society-working
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   # or
+   bun install
+   ```
+
+3. **Configure environment variables**
+
+   Create a `.env` file in the project root with at least:
+
+   ```env
+   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
+   AUTH_SECRET="a-random-secret-string"
+   # Add any provider-specific NextAuth variables here, e.g.:
+   # AUTH_GOOGLE_ID=...
+   # AUTH_GOOGLE_SECRET=...
+   ```
+
+   > Check `auth.config.ts` / `auth.ts` for the exact environment variables your configured providers require.
+
+4. **Set up the database**
+
+   ```bash
+   npx prisma migrate dev
+   npx prisma generate
+   ```
+
+   (Prisma client generation also runs automatically on `npm install` via the `postinstall` script.)
+
+5. **Run the development server**
+
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   # or
+   bun dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Available Scripts
+
+| Script            | Description                          |
+| ----------------- | ------------------------------------ |
+| `npm run dev`     | Start the development server         |
+| `npm run build`   | Build the app for production         |
+| `npm run start`   | Start the production server          |
+| `npm run lint`    | Run ESLint                           |
+
+## Deployment
+
+The app is a standard Next.js project and can be deployed on [Vercel](https://vercel.com/new) or any Node.js hosting provider that supports Next.js. Make sure to configure `DATABASE_URL`, `AUTH_SECRET`, and any auth provider credentials in your hosting environment, and run `prisma migrate deploy` against your production database.
+
+## Contributing
+
+Contributions, issues, and feature requests are welcome. Feel free to open a pull request or file an issue.
 
 ## License
 
-Not yet licensed.
+No license has been specified for this repository yet. Add a `LICENSE` file to clarify usage terms.

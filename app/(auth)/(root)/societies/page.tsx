@@ -9,12 +9,12 @@ import { Badge } from "@/components/ui/badge";
 export const metadata: Metadata = {
   title: "Browse Societies",
   description:
-    "Explore open college societies and clubs on CampusCircle — find your community and apply in seconds.",
+    "Explore open college societies and clubs on HallWayLoop — find your community and apply in seconds.",
   alternates: { canonical: "/societies" },
   openGraph: {
-    title: "Browse Societies | CampusCircle",
+    title: "Browse Societies | HallWayLoop",
     description:
-      "Explore open college societies and clubs on CampusCircle — find your community and apply in seconds.",
+      "Explore open college societies and clubs on HallWayLoop — find your community and apply in seconds.",
     url: "/societies",
   },
 };
