@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: `/events/${event.id}` },
     openGraph: {
-      title: `${event.title} | CampusCircle`,
+      title: `${event.title} | HallWayLoop`,
       description,
       url: `/events/${event.id}`,
       type: "article",
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: event.imageUrl ? "summary_large_image" : "summary",
-      title: `${event.title} | CampusCircle`,
+      title: `${event.title} | HallWayLoop`,
       description,
     },
   };

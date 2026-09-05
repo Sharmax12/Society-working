@@ -42,7 +42,7 @@ export function Header() {
                     />
 
                     <span className="hidden sm:block font-extrabold text-lg">
-                      CampusCircle
+                      HallWayLoop
                     </span>
                   </Link>
                   <span className="text-zinc-300 dark:text-zinc-700">|</span>
