@@ -19,8 +19,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "CampusCircle — Where Campus Societies Come Alive",
-    template: "%s | CampusCircle",
+    default: "HallWayLoop — Where Campus Societies Come Alive",
+    template: "%s | HallWayLoop",
   },
   description:
     "Discover, apply, and manage college society applications in one place.",

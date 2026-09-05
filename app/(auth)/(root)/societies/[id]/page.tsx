@@ -33,14 +33,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: `/societies/${society.id}` },
     openGraph: {
-      title: `${society.name} | CampusCircle`,
+      title: `${society.name} | HallWayLoop`,
       description,
       url: `/societies/${society.id}`,
       type: "article",
     },
     twitter: {
       card: "summary",
-      title: `${society.name} | CampusCircle`,
+      title: `${society.name} | HallWayLoop`,
       description,
     },
   };

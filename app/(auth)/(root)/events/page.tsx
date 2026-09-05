@@ -9,12 +9,12 @@ import { Badge } from "@/components/ui/badge";
 export const metadata: Metadata = {
   title: "Events",
   description:
-    "See what's coming up across every society on CampusCircle — fests, workshops, and meetups.",
+    "See what's coming up across every society on HallWayLoop — fests, workshops, and meetups.",
   alternates: { canonical: "/events" },
   openGraph: {
-    title: "Events | CampusCircle",
+    title: "Events | HallWayLoop",
     description:
-      "See what's coming up across every society on CampusCircle — fests, workshops, and meetups.",
+      "See what's coming up across every society on HallWayLoop — fests, workshops, and meetups.",
     url: "/events",
   },
 };
