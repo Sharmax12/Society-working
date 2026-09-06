@@ -1,6 +1,6 @@
 # Hall Way Loop
 
-A web application for managing residential society / community operations — members, notices, complaints, and day‑to‑day admin — built with **Next.js**, **Prisma**, and **PostgreSQL**.
+A web application for managing residential society / community operations — members, notices, complaints, and day‑to‑day admin — built with **Next.js**, **Prisma**.
 
 
 ## Tech Stack
@@ -30,7 +30,7 @@ routes.ts       # Route definitions/constants
 ## Prerequisites
 
 - Node.js 18+ (or a recent LTS)
-- A PostgreSQL database (local or hosted)
+
 - A package manager: `npm`, `yarn`, `pnpm`, or `bun`
 
 ## Getting Started
@@ -58,15 +58,9 @@ routes.ts       # Route definitions/constants
 
    Create a `.env` file in the project root with at least:
 
-   ```env
-   DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-   AUTH_SECRET="a-random-secret-string"
-   # Add any provider-specific NextAuth variables here, e.g.:
-   # AUTH_GOOGLE_ID=...
-   # AUTH_GOOGLE_SECRET=...
-   ```
+   
 
-   > Check `auth.config.ts` / `auth.ts` for the exact environment variables your configured providers require.
+
 
 4. **Set up the database**
 
@@ -100,9 +94,7 @@ routes.ts       # Route definitions/constants
 | `npm run start`   | Start the production server          |
 | `npm run lint`    | Run ESLint                           |
 
-## Deployment
 
-The app is a standard Next.js project and can be deployed on [Vercel](https://vercel.com/new) or any Node.js hosting provider that supports Next.js. Make sure to configure `DATABASE_URL`, `AUTH_SECRET`, and any auth provider credentials in your hosting environment, and run `prisma migrate deploy` against your production database.
 
 ## Contributing
 
