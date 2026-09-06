@@ -2,7 +2,6 @@
 
 A web application for managing residential society / community operations — members, notices, complaints, and day‑to‑day admin — built with **Next.js**, **Prisma**, and **PostgreSQL**.
 
-> This README was generated from the repository's structure and `package.json`. Update the sections marked below with project-specific details (exact features, screenshots, deployed URL, etc.).
 
 ## Tech Stack
 
