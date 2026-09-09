@@ -85,11 +85,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token }) {
-      if (!token.sub) return token;
-
-      const existingUser = await getUserById(token.sub);
+      const existingUser =
+        (token.sub ? await getUserById(token.sub) : null) ??
+        (token.email ? await db.user.findUnique({ where: { email: token.email } }) : null);
       if (!existingUser) return token;
 
+      token.sub = existingUser.id;
       token.name = existingUser.name;
       token.email = existingUser.email;
       token.role = existingUser.role;
@@ -99,8 +100,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
     async session({ session, token }) {
       if (token.sub && session.user) {
+        const existingUser = await db.user.findUnique({
+          where: { id: token.sub },
+          select: { role: true },
+        });
+
         session.user.id = token.sub;
-        session.user.role = token.role;
+        session.user.role = existingUser?.role ?? token.role;
       }
 
       return session;
