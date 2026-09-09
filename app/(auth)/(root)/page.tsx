@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Compass, MessageCircle, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
-import { CampusScene } from "@/components/campus-scene";
+import CampusScene from "@/components/campus-scene";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
 const jsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "HallWayLoop", url: SITE_URL, description: "The campus platform for discovering societies, events, people and conversations." };
