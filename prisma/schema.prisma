@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -23,7 +23,7 @@ enum ApplicationStatus {
 
 // Primary User Model (Students & Admins)
 model User {
-  id           String        @id @default(cuid()) @map("_id")
+  id           String        @id @default(cuid())
   name         String?
   image        String?
   email        String        @unique
@@ -43,20 +43,20 @@ model User {
 }
 
 model Account {
-  id                String  @id @default(cuid()) @map("_id")
-  userId            String  @map("user_id")
+  id                String  @id @default(cuid())
+  userId            String  
   name              String? // Display name of the linked account/provider (optional)
 
   type              String
   provider          String
   providerAccountId String
-  refreshToken      String? @map("refresh_token")
-  accessToken       String? @map("access_token")
-  expiresAt         Int?    @map("expires_at")
-  tokenType         String? @map("token_type")
+  refreshToken      String? 
+  accessToken       String? 
+  expiresAt         Int?    
+  tokenType         String? 
   scope             String?
-  idToken           String? @map("id_token")
-  sessionState      String? @map("session_state")
+  idToken           String?
+  sessionState      String? 
 
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -66,7 +66,7 @@ model Account {
 
 // Society Entity managed by Admins
 model Society {
-  id          String        @id @default(cuid()) @map("_id")
+  id          String        @id @default(cuid()) 
   name        String        @unique
   description String
   category    String?
@@ -87,7 +87,7 @@ model Society {
 
 // Student's Application to a Society
 model Application {
-  id          String            @id @default(cuid()) @map("_id")
+  id          String            @id @default(cuid()) 
   name        String?           // Applicant's name at time of submission (denormalized snapshot)
   status      ApplicationStatus @default(PENDING)
 
@@ -108,7 +108,7 @@ model Application {
 }
 
 model Event {
-  id          String   @id @default(cuid()) @map("_id")
+  id          String   @id @default(cuid()) 
   title       String
   description String
   date        DateTime          // When the event happens
@@ -127,7 +127,7 @@ model Event {
 }
 
 model Question {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid()) 
   societyId String
   prompt    String
   required  Boolean  @default(true)
@@ -137,7 +137,7 @@ model Question {
 }
 
 model Answer {
-  id            String      @id @default(cuid()) @map("_id")
+  id            String      @id @default(cuid()) 
   applicationId String
   questionId    String
   name          String?     // Question label/prompt snapshot at time of answering
