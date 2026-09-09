@@ -1,13 +1,20 @@
-import NextAuth from "next-auth"
+import NextAuth from "next-auth";
 
-import authConfig from "./auth.config"
+import authConfig from "./auth.config";
 import { db } from "./lib/db";
 import { getUserById } from "./modules/auth/actions";
+
+function normalizeSessionState(value: unknown): string | null {
+  if (value == null) return null;
+  return typeof value === "string" ? value : JSON.stringify(value);
+}
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       if (!user || !account || !user.email) return false;
+
+      const sessionState = normalizeSessionState(account.session_state);
 
       const existingUser = await db.user.findUnique({
         where: { email: user.email },
@@ -30,7 +37,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 tokenType: account.token_type,
                 scope: account.scope,
                 idToken: account.id_token,
-                sessionState: account.session_state,
+                sessionState,
               },
             },
           },
@@ -69,7 +76,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             tokenType: account.token_type,
             scope: account.scope,
             idToken: account.id_token,
-            sessionState: account.session_state,
+            sessionState,
           },
         });
       }
