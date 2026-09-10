@@ -93,19 +93,19 @@ export function Header() {
                     href="/dashboard"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
-                    For Students
+                    Events
                   </Link>
                   <Link
-                      href="/events"
-                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                    >
-                      Events
-                    </Link>
-                  <Link
-                    href="/admin"
+                    href="/societies"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
-                    For Society Admins
+                    Societies
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                  >
+                    For Students
                   </Link>
                   <ThemeToggle />
                   <UserButton />
