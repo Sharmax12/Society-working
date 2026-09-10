@@ -1,6 +1,6 @@
 # Hall Way Loop
  
-A web application for managing residential/housing society operations, built with **Next.js 16** and a modern React stack. It uses **Prisma ORM** on top of PostgreSQL for data access and **Auth.js (NextAuth v5)** for authentication.
+A web application for managing college society operations, built with **Next.js 16** and a modern React stack. It uses **Prisma ORM** on top of PostgreSQL for data access and **Auth.js (NextAuth v5)** for authentication.
  
  
 ## Tech Stack
