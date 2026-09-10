@@ -4,7 +4,7 @@ import { Header } from "@/modules/home/header";
 import { Metadata } from "next";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
-const SITE_TITLE = "HallWayLoop — Where Campus Societies Come Alive";
+const SITE_TITLE = "HallWayLoop — Discover Belong Connect";
 const SITE_DESCRIPTION =
   "Discover, apply, and manage college society applications in one place.";
 
