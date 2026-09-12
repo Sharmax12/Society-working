@@ -65,7 +65,7 @@ export function Header() {
                       href="/dashboard"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                     >
-                      For Students
+                      Sign In
                     </Link>
                     
                     <Link
@@ -73,11 +73,16 @@ export function Header() {
                       target="_blank"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors flex items-center gap-2"
                     >
-                      For Society Admins
-                      
+                      Admin
+                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                        (Beta)
+                      </span>
                     </Link>
                   </div>
                 </div>
+                      
+                    
+              
 
                 {/* User Button and Theme Toggle */}
                 <div className="hidden sm:flex items-center gap-3">
@@ -105,7 +110,7 @@ export function Header() {
                     href="/dashboard"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
-                    For Students
+                    Sign In
                   </Link>
                   <ThemeToggle />
                   <UserButton />
