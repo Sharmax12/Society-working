@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
@@ -109,7 +110,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // re-fetching the user from the database on every session read.
       if (token.sub && session.user) {
         session.user.id = token.sub;
-        session.user.role = token.role;
+        session.user.role = token.role as Role;
       }
 
       return session;
