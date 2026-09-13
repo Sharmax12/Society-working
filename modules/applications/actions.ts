@@ -62,7 +62,11 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
 
   revalidatePath("/dashboard")
-  redirect("/dashboard")
+  // Note: don't call redirect() here — this action is invoked from a client
+  // component inside a try/catch (via useTransition), and redirect()'s throw
+  // would be swallowed by that catch, showing a false error toast even
+  // though the application was saved. Let the caller navigate instead.
+  return { redirectTo: "/dashboard" }
 }
 
 export async function updateApplicationStatus(

@@ -1,6 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { submitApplication } from "@/modules/applications/actions"
 import { toast } from "sonner"
@@ -11,12 +12,15 @@ export function ApplicationForm({
 }: {
   society: Society & { questions: Question[] }
 }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       try {
-        await submitApplication(society.id, formData)
+        const result = await submitApplication(society.id, formData)
+        toast.success("Application submitted!")
+        router.push(result.redirectTo)
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Something went wrong")
       }

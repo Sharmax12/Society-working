@@ -61,7 +61,10 @@ export async function createEvent(formData: FormData) {
 
   revalidatePath("/events")
   revalidatePath("/admin/events")
-  redirect(`/events/${event.id}`)
+  // Note: don't redirect() here — see application-form.tsx / actions.ts for why
+  // (this action is called from a client try/catch, which would swallow the
+  // redirect's throw and show a false error toast on success).
+  return { redirectTo: `/events/${event.id}` }
 }
 
 export async function deleteEvent(eventId: string) {

@@ -82,5 +82,8 @@ export async function createSociety(formData: FormData) {
   })
 
   revalidatePath("/admin")
-  redirect(`/admin/societies/${society.id}`)
+  // Note: don't redirect() here — see application-form.tsx / actions.ts for why
+  // (this action is called from a client try/catch, which would swallow the
+  // redirect's throw and show a false error toast on success).
+  return { redirectTo: `/admin/societies/${society.id}` }
 }

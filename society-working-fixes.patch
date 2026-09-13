@@ -1,0 +1,603 @@
+diff --git a/app/apply/[id]/page.tsx b/app/apply/[id]/page.tsx
+index e6fac84..0db8c75 100644
+--- a/app/apply/[id]/page.tsx
++++ b/app/apply/[id]/page.tsx
+@@ -18,12 +18,20 @@ export default async function ApplyPage({
+   const existing = await getExistingApplication(session.user.id, id)
+   if (existing) redirect("/dashboard")
+ 
++  const isClosed = !society.isOpen || society.deadline < new Date()
++
+   return (
+     <div className="max-w-2xl mx-auto px-6 py-12">
+       <h1 className="text-3xl font-bold tracking-tight">{society.name}</h1>
+       <p className="text-muted-foreground mt-2 mb-8">{society.description}</p>
+ 
+-      <ApplicationForm society={society} />
++      {isClosed ? (
++        <p className="text-sm text-muted-foreground border rounded-md p-4">
++          Applications for this society are closed.
++        </p>
++      ) : (
++        <ApplicationForm society={society} />
++      )}
+     </div>
+   )
+ }
+\ No newline at end of file
+diff --git a/components/providers/theme-providers.tsx b/components/providers/theme-providers.tsx
+deleted file mode 100644
+index e018a73..0000000
+--- a/components/providers/theme-providers.tsx
++++ /dev/null
+@@ -1,11 +0,0 @@
+-"use client"
+-
+-import * as React from "react"
+-import { ThemeProvider as NextThemesProvider } from "next-themes"
+-
+-export function ThemeProvider({
+-  children,
+-  ...props
+-}: React.ComponentProps<typeof NextThemesProvider>) {
+-  return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+-}
+\ No newline at end of file
+diff --git a/modules/applications/actions.ts b/modules/applications/actions.ts
+index af5bdf9..285dc71 100644
+--- a/modules/applications/actions.ts
++++ b/modules/applications/actions.ts
+@@ -69,7 +69,11 @@ export async function submitApplication(societyId: string, formData: FormData) {
+   })
+ 
+   revalidatePath("/dashboard")
+-  redirect("/dashboard")
++  // Note: don't call redirect() here — this action is invoked from a client
++  // component inside a try/catch (via useTransition), and redirect()'s throw
++  // would be swallowed by that catch, showing a false error toast even
++  // though the application was saved. Let the caller navigate instead.
++  return { redirectTo: "/dashboard" }
+ }
+ 
+ export async function updateApplicationStatus(
+diff --git a/modules/applications/components/application-form.tsx b/modules/applications/components/application-form.tsx
+index 82cd11e..fb4b448 100644
+--- a/modules/applications/components/application-form.tsx
++++ b/modules/applications/components/application-form.tsx
+@@ -1,6 +1,7 @@
+ "use client"
+ 
+ import { useTransition } from "react"
++import { useRouter } from "next/navigation"
+ import { Button } from "@/components/ui/button"
+ import { submitApplication } from "@/modules/applications/actions"
+ import { toast } from "sonner"
+@@ -11,12 +12,15 @@ export function ApplicationForm({
+ }: {
+   society: Society & { questions: Question[] }
+ }) {
++  const router = useRouter()
+   const [isPending, startTransition] = useTransition()
+ 
+   function handleSubmit(formData: FormData) {
+     startTransition(async () => {
+       try {
+-        await submitApplication(society.id, formData)
++        const result = await submitApplication(society.id, formData)
++        toast.success("Application submitted!")
++        router.push(result.redirectTo)
+       } catch (err) {
+         toast.error(err instanceof Error ? err.message : "Something went wrong")
+       }
+diff --git a/modules/events/admin-queries.ts b/modules/events/admin-queries.ts
+index 351a7f0..292752d 100644
+--- a/modules/events/admin-queries.ts
++++ b/modules/events/admin-queries.ts
+@@ -61,7 +61,10 @@ export async function createEvent(formData: FormData) {
+ 
+   revalidatePath("/events")
+   revalidatePath("/admin/events")
+-  redirect(`/events/${event.id}`)
++  // Note: don't redirect() here — see application-form.tsx / actions.ts for why
++  // (this action is called from a client try/catch, which would swallow the
++  // redirect's throw and show a false error toast on success).
++  return { redirectTo: `/events/${event.id}` }
+ }
+ 
+ export async function deleteEvent(eventId: string) {
+diff --git a/modules/events/components/create-event-form.tsx b/modules/events/components/create-event-form.tsx
+index 21f33d8..f6ae1ec 100644
+--- a/modules/events/components/create-event-form.tsx
++++ b/modules/events/components/create-event-form.tsx
+@@ -1,6 +1,7 @@
+ "use client"
+ 
+ import { useTransition } from "react"
++import { useRouter } from "next/navigation"
+ import { Button } from "@/components/ui/button"
+ import { createEvent } from "@/modules/events/admin-queries"
+ import { toast } from "sonner"
+@@ -8,12 +9,15 @@ import { toast } from "sonner"
+ type Society = { id: string; name: string }
+ 
+ export function CreateEventForm({ societies }: { societies: Society[] }) {
++  const router = useRouter()
+   const [isPending, startTransition] = useTransition()
+ 
+   function handleSubmit(formData: FormData) {
+     startTransition(async () => {
+       try {
+-        await createEvent(formData)
++        const result = await createEvent(formData)
++        toast.success("Event created!")
++        router.push(result.redirectTo)
+       } catch (err) {
+         toast.error(err instanceof Error ? err.message : "Something went wrong")
+       }
+diff --git a/modules/societies/components/create-society-form.tsx b/modules/societies/components/create-society-form.tsx
+index 5e86c4c..de0883d 100644
+--- a/modules/societies/components/create-society-form.tsx
++++ b/modules/societies/components/create-society-form.tsx
+@@ -1,6 +1,7 @@
+ "use client"
+ 
+ import { useState, useTransition } from "react"
++import { useRouter } from "next/navigation"
+ import { Button } from "@/components/ui/button"
+ import { createSociety } from "@/modules/societies/queries"
+ import { toast } from "sonner"
+@@ -9,6 +10,7 @@ import { Plus, Trash2 } from "lucide-react"
+ type Question = { prompt: string; required: boolean }
+ 
+ export function CreateSocietyForm() {
++  const router = useRouter()
+   const [questions, setQuestions] = useState<Question[]>([
+     { prompt: "", required: true },
+   ])
+@@ -32,7 +34,9 @@ export function CreateSocietyForm() {
+     formData.set("questions", JSON.stringify(questions))
+     startTransition(async () => {
+       try {
+-        await createSociety(formData)
++        const result = await createSociety(formData)
++        toast.success("Society created!")
++        router.push(result.redirectTo)
+       } catch (err) {
+         toast.error(err instanceof Error ? err.message : "Something went wrong")
+       }
+diff --git a/modules/societies/queries.ts b/modules/societies/queries.ts
+index 99e85ec..5733263 100644
+--- a/modules/societies/queries.ts
++++ b/modules/societies/queries.ts
+@@ -82,5 +82,8 @@ export async function createSociety(formData: FormData) {
+   })
+ 
+   revalidatePath("/admin")
+-  redirect(`/admin/societies/${society.id}`)
++  // Note: don't redirect() here — see application-form.tsx / actions.ts for why
++  // (this action is called from a client try/catch, which would swallow the
++  // redirect's throw and show a false error toast on success).
++  return { redirectTo: `/admin/societies/${society.id}` }
+ }
+\ No newline at end of file
+diff --git a/next-auth.d.ts b/next-auth.d.ts
+index e14b220..6432b45 100644
+--- a/next-auth.d.ts
++++ b/next-auth.d.ts
+@@ -1,9 +1,9 @@
+-import { UserRole } from "@prisma/client";
++import { Role } from "@prisma/client";
+ import NextAuth , {type DefaultSession} from "next-auth"
+ 
+ 
+ export type ExtendedUser = DefaultSession["user"] & {
+-    role:UserRole
++    role:Role
+ }
+ 
+ declare module "next-auth"{
+@@ -17,6 +17,6 @@ import {JWT} from "next-auth/jwt";
+ 
+ declare module "next-auth/jwt"{
+     interface JWT{
+-        role:UserRole;
++        role:Role;
+     }
+ }
+\ No newline at end of file
+diff --git a/package-lock.json b/package-lock.json
+index 22d4665..af638a2 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1262,9 +1262,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1281,9 +1278,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1300,9 +1294,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1319,9 +1310,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1338,9 +1326,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1357,9 +1342,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1376,9 +1358,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1395,9 +1374,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "LGPL-3.0-or-later",
+       "optional": true,
+       "os": [
+@@ -1414,9 +1390,6 @@
+       "cpu": [
+         "arm"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1439,9 +1412,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1464,9 +1434,6 @@
+       "cpu": [
+         "ppc64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1489,9 +1456,6 @@
+       "cpu": [
+         "riscv64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1514,9 +1478,6 @@
+       "cpu": [
+         "s390x"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1539,9 +1500,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1564,9 +1522,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1589,9 +1544,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "Apache-2.0",
+       "optional": true,
+       "os": [
+@@ -1934,9 +1886,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -1953,9 +1902,6 @@
+       "cpu": [
+         "arm64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -1972,9 +1918,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -1991,9 +1934,6 @@
+       "cpu": [
+         "x64"
+       ],
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3844,9 +3784,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3864,9 +3801,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3884,9 +3818,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -3904,9 +3835,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4660,9 +4588,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4677,9 +4602,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4694,9 +4616,6 @@
+         "loong64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4711,9 +4630,6 @@
+         "loong64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4728,9 +4644,6 @@
+         "ppc64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4745,9 +4658,6 @@
+         "riscv64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4762,9 +4672,6 @@
+         "riscv64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4779,9 +4686,6 @@
+         "s390x"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4796,9 +4700,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -4813,9 +4714,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MIT",
+       "optional": true,
+       "os": [
+@@ -9171,9 +9069,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -9195,9 +9090,6 @@
+         "arm64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -9219,9 +9111,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "glibc"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+@@ -9243,9 +9132,6 @@
+         "x64"
+       ],
+       "dev": true,
+-      "libc": [
+-        "musl"
+-      ],
+       "license": "MPL-2.0",
+       "optional": true,
+       "os": [
+diff --git a/package.json b/package.json
+index 9bd5cb5..b1c974e 100644
+--- a/package.json
++++ b/package.json
+@@ -56,7 +56,6 @@
+     "next": "16.3.3",
+     "next-auth": "^5.0.0-beta.32",
+     "next-themes": "^0.4.6",
+-    "p": "^0.2.0",
+     "react": "19.2.8",
+     "react-day-picker": "^10.0.1",
+     "react-dom": "19.2.8",

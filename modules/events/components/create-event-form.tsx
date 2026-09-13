@@ -1,6 +1,7 @@
 "use client"
 
 import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { createEvent } from "@/modules/events/admin-queries"
 import { toast } from "sonner"
@@ -8,12 +9,15 @@ import { toast } from "sonner"
 type Society = { id: string; name: string }
 
 export function CreateEventForm({ societies }: { societies: Society[] }) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
 
   function handleSubmit(formData: FormData) {
     startTransition(async () => {
       try {
-        await createEvent(formData)
+        const result = await createEvent(formData)
+        toast.success("Event created!")
+        router.push(result.redirectTo)
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Something went wrong")
       }
