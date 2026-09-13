@@ -1,86 +1,31 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Search, Sparkles, Users } from "lucide-react";
+import { ArrowUpRight, Search, Sparkles, Users, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
-type Society = {
-  id: string;
-  name: string;
-  description: string;
-  category: string | null;
-  deadline: Date;
-};
+type Society = { id: string; name: string; description: string; category: string | null; deadline: Date };
 
 export function SocietyDirectory({ societies }: { societies: Society[] }) {
   const [search, setSearch] = useState("");
   const normalizedSearch = search.trim().toLowerCase();
-  const filteredSocieties = societies.filter((society) =>
-    [society.name, society.description, society.category].some((value) =>
-      value?.toLowerCase().includes(normalizedSearch),
-    ),
-  );
+  const filteredSocieties = societies.filter((society) => [society.name, society.description, society.category].some((value) => value?.toLowerCase().includes(normalizedSearch)));
 
-  return (
-    <>
-      <section className="border-b bg-gradient-to-b from-rose-500/[.07] via-background to-background">
-        <div className="mx-auto max-w-6xl px-6 pb-14 pt-16">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-rose-500"><Sparkles className="h-4 w-4" /> Campus discovery</div>
-          <div className="mt-5 flex flex-col justify-between gap-8 md:flex-row md:items-end">
-            <div><h1 className="text-4xl font-black tracking-[-.04em] sm:text-6xl">Find your <span className="text-rose-500">people.</span></h1><p className="mt-4 max-w-xl text-muted-foreground">Explore societies accepting applications and find the communities where you can learn, build and belong.</p></div>
-            <label className="mx-auto flex h-11 w-full max-w-sm items-center gap-2 rounded-xl border bg-background/70 px-3 shadow-sm">
-  <Search className="h-4 w-4 text-muted-foreground" />
-  <input
-    type="search"
-    value={search}
-    onChange={(event) => setSearch(event.target.value)}
-    placeholder="Search societies..."
-    aria-label="Search societies"
-    className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
-  />
-</label>
-          </div>
+  return <>
+    <section className="relative overflow-hidden border-b border-foreground/10 surface-grid">
+      <div className="absolute right-0 top-0 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
+      <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-14 sm:px-8 lg:px-10 lg:pt-20">
+        <div className="flex items-center gap-2 text-[11px] font-black uppercase tracking-[.2em] text-primary"><Sparkles className="h-4 w-4" /> Campus discovery</div>
+        <div className="mt-5 grid gap-10 lg:grid-cols-[1fr_420px] lg:items-end">
+          <div><h1 className="text-balance text-5xl font-black tracking-[-.065em] sm:text-7xl">Find your <span className="bg-gradient-to-r from-primary to-fuchsia-500 bg-clip-text text-transparent">people.</span></h1><p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Explore communities built around ideas, skills, culture and everything that makes campus yours.</p></div>
+          <label className="flex h-14 items-center gap-3 rounded-2xl border border-foreground/10 bg-background/80 px-4 shadow-xl backdrop-blur-xl"><Search className="h-5 w-5 text-primary" /><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search societies, interests..." aria-label="Search societies" className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" /><span className="hidden rounded-lg bg-muted px-2 py-1 text-[10px] font-bold text-muted-foreground sm:block">⌘ K</span></label>
         </div>
-      </section>
-
-      <div className="mx-auto max-w-6xl px-6 py-10">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold">Open for applications</h2>
-            <p className="text-sm text-muted-foreground">Choose a community that feels like you.</p>
-          </div>
-          <Badge variant="secondary">{filteredSocieties.length} open</Badge>
-        </div>
-        {filteredSocieties.length === 0 ? (
-          <div className="rounded-3xl border border-dashed p-14 text-center text-muted-foreground">
-            No societies match your search.
-          </div>
-        ) : (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {filteredSocieties.map((society) => (
-              <Link
-                key={society.id}
-                href={`/societies/${society.id}`}
-                className="group rounded-3xl border bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-rose-300 hover:shadow-xl"
-              >
-                <div className="mb-7 flex items-start justify-between">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-500">
-                    <Users className="h-5 w-5" />
-                  </div>
-                  <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                </div>
-                {society.category && <Badge variant="secondary" className="mb-3 capitalize">{society.category}</Badge>}
-                <h3 className="text-xl font-bold tracking-tight">{society.name}</h3>
-                <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">{society.description}</p>
-                <div className="mt-6 border-t pt-4 text-xs text-muted-foreground">
-                  Applications close {new Date(society.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
       </div>
-    </>
-  );
+    </section>
+    <div className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:px-10">
+      <div className="mb-7 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><div className="flex items-center gap-2"><h2 className="text-2xl font-black tracking-tight">Open for applications</h2><Badge className="rounded-full">{filteredSocieties.length}</Badge></div><p className="mt-1 text-sm text-muted-foreground">Find a room where your interests have a home.</p></div><div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground"><SlidersHorizontal className="h-4 w-4" /> All communities</div></div>
+      {filteredSocieties.length === 0 ? <div className="rounded-[2rem] border border-dashed p-20 text-center text-muted-foreground">No societies match your search.</div> : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{filteredSocieties.map((society, index) => <Link key={society.id} href={`/societies/${society.id}`} className="group relative overflow-hidden rounded-[1.6rem] border border-foreground/10 bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-2xl hover:shadow-primary/5"><div className="absolute right-0 top-0 h-28 w-28 rounded-full bg-primary/5 blur-2xl transition group-hover:bg-primary/10" /><div className="relative"><div className="mb-8 flex items-start justify-between"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary"><Users className="h-5 w-5" /></div><span className="text-[10px] font-black text-muted-foreground">{String(index + 1).padStart(2, "0")}</span></div>{society.category && <Badge variant="secondary" className="mb-3 rounded-full capitalize">{society.category}</Badge>}<h3 className="text-xl font-black tracking-tight">{society.name}</h3><p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">{society.description}</p><div className="mt-7 flex items-center justify-between border-t border-foreground/10 pt-4 text-xs text-muted-foreground"><span>Closes {new Date(society.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span><span className="flex items-center gap-1 font-bold text-foreground">View <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span></div></div></Link>)}</div>}
+    </div>
+  </>;
 }
