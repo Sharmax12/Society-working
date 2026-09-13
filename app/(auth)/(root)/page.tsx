@@ -2,13 +2,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Compass, MessageCircle, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import CampusScene from "@/components/campus-scene";
+import { jsonLdString } from "@/lib/utils";
+import { buildWebsiteJsonLd } from "@/lib/seo";
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
-const jsonLd = { "@context": "https://schema.org", "@type": "WebSite", name: "HallWayLoop", url: SITE_URL, description: "The campus platform for discovering societies, events, people and conversations." };
+const jsonLd = buildWebsiteJsonLd();
 
 export default function Home() {
   return <main className="relative overflow-hidden bg-[#08080b] text-white">
-    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }} />
     <section className="relative min-h-[calc(100vh-80px)] flex items-center">
       <CampusScene />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,transparent_0%,#08080b_72%)]" />
@@ -18,7 +19,7 @@ export default function Home() {
         <p className="mx-auto mt-7 max-w-2xl text-base leading-7 text-white/55 sm:text-lg">HallWayLoop brings college societies, events and students into one living campus network — discover what matters, join communities, and stay connected.</p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <Link href="/societies"><Button size="lg" variant="brand" className="h-12 rounded-full px-7">Explore societies <ArrowRight className="ml-1 h-4 w-4" /></Button></Link>
-          <Link href="/events"><Button size="lg" variant="outline" className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-white hover:bg-white/10">See what's happening</Button></Link>
+          <Link href="/events"><Button size="lg" variant="outline" className="h-12 rounded-full border-white/15 bg-white/5 px-7 text-white hover:bg-white/10">See what&apos;s happening</Button></Link>
         </div>
         <div className="mx-auto mt-16 grid max-w-3xl grid-cols-1 gap-3 text-left sm:grid-cols-3">
           {[{icon:Compass,title:"Discover",text:"Find societies that match your interests."},{icon:Users,title:"Belong",text:"Meet students who share your curiosity."},{icon:MessageCircle,title:"Connect",text:"A social layer designed for campus conversations."}].map((item)=><div key={item.title} className="rounded-2xl border border-white/10 bg-white/[.045] p-5 backdrop-blur-xl"><item.icon className="mb-4 h-5 w-5 text-rose-400"/><h2 className="font-semibold">{item.title}</h2><p className="mt-1 text-sm leading-6 text-white/45">{item.text}</p></div>)}

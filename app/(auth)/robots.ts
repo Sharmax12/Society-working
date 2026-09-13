@@ -1,14 +1,13 @@
 import type { MetadataRoute } from "next";
-
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
+import { siteConfig, robotsConfig } from "@/lib/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/societies"],
-      disallow: ["/dashboard", "/admin", "/apply", "/auth", "/api"],
+      allow: [...robotsConfig.allow],
+      disallow: [...robotsConfig.disallow],
     },
-    sitemap: `${SITE_URL}/sitemap.xml`,
+    sitemap: `${siteConfig.url}/sitemap.xml`,
   };
 }

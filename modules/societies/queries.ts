@@ -1,6 +1,8 @@
 "use server"
 import { db } from "@/lib/db"
-
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 
 export async function getOpenSocieties() {
   return db.society.findMany({
@@ -11,10 +13,7 @@ export async function getOpenSocieties() {
 
 export async function getUserApplications(userId: string) {
   return db.application.findMany({
-    where: {
-      studentId: userId,
-      society: { is: {} },
-    },
+    where: { studentId: userId },
     include: { society: true },
     orderBy: { submittedAt: "desc" },
   })
@@ -33,11 +32,6 @@ export async function getExistingApplication(studentId: string, societyId: strin
   })
 }
 
-
-
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
-import { revalidatePath } from "next/cache"
 
 type QuestionInput = { prompt: string; required: boolean }
 
@@ -82,5 +76,5 @@ export async function createSociety(formData: FormData) {
   })
 
   revalidatePath("/admin")
-  redirect(`/admin/societies/${society.id}`)
+  redirect(`/admin/societies/${society.id}/created`)
 }

@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
@@ -84,7 +85,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return true;
     },
 
-    async jwt({ token }) {
+    async jwt({ token, trigger }) {
+      // The token already carries everything we need after the first
+      // pass, so only hit the database on sign-in / explicit refresh
+      // instead of on every request that calls auth(). This avoids
+      // 2-3 extra DB round trips per page load across the whole app.
+      if (token.role && trigger !== "update") return token;
+
       const existingUser =
         (token.sub ? await getUserById(token.sub) : null) ??
         (token.email ? await db.user.findUnique({ where: { email: token.email } }) : null);
@@ -99,14 +106,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async session({ session, token }) {
+      // Reuse what the jwt callback already resolved instead of
+      // re-fetching the user from the database on every session read.
       if (token.sub && session.user) {
-        const existingUser = await db.user.findUnique({
-          where: { id: token.sub },
-          select: { role: true },
-        });
-
         session.user.id = token.sub;
-        session.user.role = existingUser?.role ?? token.role;
+        session.user.role = token.role as Role;
       }
 
       return session;

@@ -5,8 +5,24 @@ import { Button } from "@/components/ui/button"
 import { StatusBadge } from "@/components/ui/status-badge"
 import { updateApplicationStatus } from "@/modules/applications/actions"
 import { toast } from "sonner"
+import type { ApplicationStatus } from "@prisma/client"
 
-export function ApplicationReviewCard({ application }: { application: any }) {
+type ReviewApplication = {
+  id: string
+  status: ApplicationStatus
+  student: {
+    name: string | null
+    email: string
+    rollNumber: string | null
+  }
+  answers: {
+    id: string
+    response: string
+    question: { prompt: string }
+  }[]
+}
+
+export function ApplicationReviewCard({ application }: { application: ReviewApplication }) {
   const [isPending, startTransition] = useTransition()
 
   function handleUpdate(status: "ACCEPTED" | "REJECTED") {
@@ -36,7 +52,7 @@ export function ApplicationReviewCard({ application }: { application: any }) {
       </div>
 
       <div className="space-y-2 text-sm">
-        {application.answers.map((a: any) => (
+        {application.answers.map((a) => (
           <div key={a.id}>
             <p className="text-muted-foreground">{a.question.prompt}</p>
             <p>{a.response}</p>

@@ -69,7 +69,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
 
   revalidatePath("/dashboard")
-  redirect("/dashboard")
+  redirect(`/apply/${societyId}/submitted`)
 }
 
 export async function updateApplicationStatus(

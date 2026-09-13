@@ -30,7 +30,7 @@ export default async function NewEventPage() {
     <div className="max-w-2xl mx-auto px-6 py-12">
       <h1 className="text-3xl font-bold tracking-tight">Create an event</h1>
       <p className="text-muted-foreground mt-1 mb-8">
-        Publish an event listing with a photo and invite link — it'll be
+        Publish an event listing with a photo and invite link — it&apos;ll be
         visible to everyone on the public Events page.
       </p>
       <CreateEventForm societies={societies} />

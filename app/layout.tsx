@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import { auth } from "../auth";
 import { ThemeProvider } from "../components/ui/theme-providers";
 import { Toaster } from "../components/ui/sonner";
+import { siteConfig } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +20,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "HallWayLoop — Where Campus Societies Come Alive",
-    template: "%s | HallWayLoop",
+    default: siteConfig.app.title,
+    template: siteConfig.app.titleTemplate,
   },
-  description:
-    "Discover, apply, and manage college society applications in one place.",
+  description: siteConfig.app.description,
   // Safe default: most routes under this root layout (dashboard, admin,
   // apply, sign-in) are authenticated app screens, not marketing pages.
   // The public marketing group explicitly opts back in to indexing.

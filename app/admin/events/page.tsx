@@ -26,7 +26,7 @@ export default async function AdminEventsPage() {
 
       {events.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No events yet. Create one to let students know what's coming up.
+          No events yet. Create one to let students know what&apos;s coming up.
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">

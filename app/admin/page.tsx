@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
 
       {societies.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          You don't manage any societies yet.
+          You don&apos;t manage any societies yet.
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">
