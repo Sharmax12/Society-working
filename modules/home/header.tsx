@@ -1,125 +1,41 @@
 import Link from "next/link";
 import Image from "next/image";
-
+import { ArrowUpRight, CalendarDays, Compass, ShieldCheck } from "lucide-react";
 import UserButton from "../auth/components/user-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
+const links = [
+  { href: "/societies", label: "Discover", icon: Compass },
+  { href: "/events", label: "Events", icon: CalendarDays },
+];
+
 export function Header() {
   return (
-    <>
-      <div className="sticky top-0 left-0 right-0 z-50">
-        <div className="bg-white dark:bg-black/5 w-full">
-          {/* Rest of the header content */}
-          <div className="flex items-center justify-center w-full flex-col">
-            <div
-              className={`
-                            flex items-center justify-between
-                            bg-linear-to-b from-white/90 via-gray-50/90 to-white/90
-                            dark:from-zinc-900/90 dark:via-zinc-800/90 dark:to-zinc-900/90
-                            shadow-[0_2px_20px_-2px_rgba(0,0,0,0.1)]
-                            backdrop-blur-md
-                            border-x border-b 
-                            border-[rgba(230,230,230,0.7)] dark:border-[rgba(70,70,70,0.7)]
-                            w-full sm:min-w-[800px] sm:max-w-[1200px]
-                            rounded-b-[28px]
-                            px-4 py-2.5
-                            relative
-                            transition-all duration-300 ease-in-out
-                        `}
-            >
-              <div className="relative z-10 flex items-center justify-between w-full gap-2">
-                {/* Logo Section with Navigation Links */}
-                <div className="flex items-center gap-6 justify-center">
-                  <Link
-                    href="/"
-                    className="flex items-center gap-2 justify-center"
-                  >
-                    <Image
-                      src={"/logo.svg"}
-                      alt="Logo"
-                      height={60}
-                      width={60}
-                    />
-
-                    <span className="hidden sm:block font-extrabold text-lg">
-                      HallWayLoop
-                    </span>
-                  </Link>
-                  <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                  {/* Desktop Navigation Links */}
-                  <div className="hidden sm:flex items-center gap-4">
-                    <Link
-                      href="/societies"
-                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                    >
-                      Societies
-                    </Link>
-                    <Link
-                      href="/events"
-                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                    >
-                      Events
-                    </Link>
-
-                    <Link
-                      href="/dashboard"
-                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                    >
-                      Sign In
-                    </Link>
-                    
-                    <Link
-                      href="/admin" 
-                      target="_blank"
-                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors flex items-center gap-2"
-                    >
-                      Admin
-                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                        (Beta)
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-                      
-                    
-              
-
-                {/* User Button and Theme Toggle */}
-                <div className="hidden sm:flex items-center gap-3">
-                  <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                 
-                  <ThemeToggle />
-                  <UserButton />
-                </div>
-
-                
-                <div className="flex sm:hidden items-center gap-4">
-                 <Link
-                      href="/events"
-                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                    >
-                      Events
-                    </Link>
-                  <Link
-                    href="/societies"
-                    className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                  >
-                    Societies
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                  >
-                    Sign In
-                  </Link>
-                  <ThemeToggle />
-                  <UserButton />
-                </div>
-              </div>
-            </div>
+    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5">
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between rounded-2xl border border-foreground/10 bg-background/80 px-3 shadow-[0_18px_50px_-28px_rgba(0,0,0,.45)] backdrop-blur-2xl sm:px-5">
+        <div className="flex items-center gap-7">
+          <Link href="/" className="group flex items-center gap-2.5">
+            <span className="grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-foreground">
+              <Image src="/logo.svg" alt="HallWayLoop" height={30} width={30} className="invert dark:invert-0" />
+            </span>
+            <span className="hidden text-[15px] font-black tracking-[-.03em] sm:block">HallWayLoop<span className="text-primary">.</span></span>
+          </Link>
+          <div className="hidden items-center gap-1 rounded-xl bg-muted/70 p-1 sm:flex">
+            {links.map(({ href, label, icon: Icon }) => (
+              <Link key={href} href={href} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-background hover:text-foreground">
+                <Icon className="h-3.5 w-3.5" /> {label}
+              </Link>
+            ))}
           </div>
         </div>
-      </div>
-    </>
+        <div className="flex items-center gap-1.5">
+          <Link href="/admin" target="_blank" className="hidden items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-muted hover:text-foreground md:flex">
+            <ShieldCheck className="h-3.5 w-3.5" /> Admin <ArrowUpRight className="h-3 w-3" />
+          </Link>
+          <ThemeToggle />
+          <UserButton />
+        </div>
+      </nav>
+    </header>
   );
 }
