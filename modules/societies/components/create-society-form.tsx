@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { createSociety } from "@/modules/societies/queries"
 import { toast } from "sonner"
@@ -10,7 +9,6 @@ import { Plus, Trash2 } from "lucide-react"
 type Question = { prompt: string; required: boolean }
 
 export function CreateSocietyForm() {
-  const router = useRouter()
   const [questions, setQuestions] = useState<Question[]>([
     { prompt: "", required: true },
   ])
@@ -34,9 +32,7 @@ export function CreateSocietyForm() {
     formData.set("questions", JSON.stringify(questions))
     startTransition(async () => {
       try {
-        const result = await createSociety(formData)
-        toast.success("Society created!")
-        router.push(result.redirectTo)
+        await createSociety(formData)
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Something went wrong")
       }

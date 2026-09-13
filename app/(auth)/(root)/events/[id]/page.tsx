@@ -6,6 +6,7 @@ import { CalendarDays, MapPin, ArrowUpRight } from "lucide-react";
 import { getEvent } from "@/modules/events/queries";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { jsonLdString } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -71,8 +72,7 @@ export default async function EventDetailPage({ params }: Props) {
     <div className="max-w-2xl mx-auto px-6 py-16">
       <script
         type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }}
       />
 
       {event.imageUrl && (

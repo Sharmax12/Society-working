@@ -26,6 +26,11 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
   if (existing) throw new Error("You've already applied to this society")
 
+  const student = await db.user.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  })
+
   const rollNumber = formData.get("rollNumber") as string
   const phone = formData.get("phone") as string
 
@@ -40,6 +45,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   const answers = society.questions.map((q) => ({
     questionId: q.id,
+    name: q.prompt,
     response: (formData.get(`question-${q.id}`) as string) ?? "",
   }))
 
@@ -55,6 +61,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   await db.application.create({
     data: {
+      name: student?.name,
       studentId,
       societyId,
       answers: { create: answers },
@@ -62,11 +69,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
 
   revalidatePath("/dashboard")
-  // Note: don't call redirect() here — this action is invoked from a client
-  // component inside a try/catch (via useTransition), and redirect()'s throw
-  // would be swallowed by that catch, showing a false error toast even
-  // though the application was saved. Let the caller navigate instead.
-  return { redirectTo: "/dashboard" }
+  redirect(`/apply/${societyId}/submitted`)
 }
 
 export async function updateApplicationStatus(

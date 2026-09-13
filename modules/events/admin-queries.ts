@@ -4,6 +4,21 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 
+// Only allow http(s) links for admin-supplied URLs — these get rendered
+// as <img src> / <a href> for every visitor, so reject schemes like
+// "javascript:" that could otherwise run in a viewer's browser.
+function assertSafeUrl(value: string, label: string) {
+  let parsed: URL
+  try {
+    parsed = new URL(value)
+  } catch {
+    throw new Error(`${label} must be a valid URL`)
+  }
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error(`${label} must be an http:// or https:// link`)
+  }
+}
+
 // Societies the current admin manages, with how many events each has —
 // used to pick which society an event belongs to.
 export async function getManagedSocietiesForEvents(adminId: string) {
@@ -40,6 +55,8 @@ export async function createEvent(formData: FormData) {
   if (!title?.trim()) throw new Error("Event title is required")
   if (!description?.trim()) throw new Error("Description is required")
   if (!date) throw new Error("Event date is required")
+  if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
+  if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
 
   // Make sure this admin actually manages the society they're posting to.
   const society = await db.society.findFirst({
@@ -61,10 +78,7 @@ export async function createEvent(formData: FormData) {
 
   revalidatePath("/events")
   revalidatePath("/admin/events")
-  // Note: don't redirect() here — see application-form.tsx / actions.ts for why
-  // (this action is called from a client try/catch, which would swallow the
-  // redirect's throw and show a false error toast on success).
-  return { redirectTo: `/events/${event.id}` }
+  redirect(`/events/${event.id}`)
 }
 
 export async function deleteEvent(eventId: string) {

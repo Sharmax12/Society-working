@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FaGithub } from "react-icons/fa";
+import { siteConfig } from "@/lib/seo";
 
 
 
@@ -7,7 +8,7 @@ import { FaGithub } from "react-icons/fa";
 export function Footer() {
   const socialLinks = [
     {
-      href: "#",
+      href: siteConfig.social.github,
       icon: (
         <FaGithub className="w-5 h-5 text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors" />
       ),
@@ -22,7 +23,7 @@ export function Footer() {
           {socialLinks.map((link, index) => (
             <Link
               key={index}
-              href="https://github.com/Sharmax12"
+              href={link.href}
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -33,13 +34,13 @@ export function Footer() {
 
         {/* Copyright Notice */}
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          &copy; {new Date().getFullYear()} HallWayLoop. All rights reserved.
+          &copy; {new Date().getFullYear()} {siteConfig.name}. All rights reserved.
         </p>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Made with ❤️ by{" Aniruddh Sharma"}.
+          Made with ❤️ by{" "}{siteConfig.author}.
         </p>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Contact : aniruddhsharma669@gmail.com
+          Contact : {siteConfig.contactEmail}
         </p>
       </div>
     </footer>

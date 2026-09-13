@@ -65,7 +65,7 @@ export function Header() {
                       href="/dashboard"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                     >
-                      For Students
+                      Sign In
                     </Link>
                     
                     <Link
@@ -73,39 +73,44 @@ export function Header() {
                       target="_blank"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors flex items-center gap-2"
                     >
-                      For Society Admins
-                      
+                      Admin
+                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                        (Beta)
+                      </span>
                     </Link>
                   </div>
                 </div>
+                      
+                    
+              
 
-                {/* Right side items */}
+                {/* User Button and Theme Toggle */}
                 <div className="hidden sm:flex items-center gap-3">
                   <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                  {/* <HeaderPro /> */}
+                 
                   <ThemeToggle />
                   <UserButton />
                 </div>
 
                 
                 <div className="flex sm:hidden items-center gap-4">
-                  <Link
-                    href="/dashboard"
-                    className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                  >
-                    For Students
-                  </Link>
-                  <Link
+                 <Link
                       href="/events"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                     >
                       Events
                     </Link>
                   <Link
-                    href="/admin"
+                    href="/societies"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
-                    For Society Admins
+                    Societies
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                  >
+                    Sign In
                   </Link>
                   <ThemeToggle />
                   <UserButton />

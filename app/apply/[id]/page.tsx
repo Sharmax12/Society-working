@@ -18,20 +18,12 @@ export default async function ApplyPage({
   const existing = await getExistingApplication(session.user.id, id)
   if (existing) redirect("/dashboard")
 
-  const isClosed = !society.isOpen || society.deadline < new Date()
-
   return (
     <div className="max-w-2xl mx-auto px-6 py-12">
       <h1 className="text-3xl font-bold tracking-tight">{society.name}</h1>
       <p className="text-muted-foreground mt-2 mb-8">{society.description}</p>
 
-      {isClosed ? (
-        <p className="text-sm text-muted-foreground border rounded-md p-4">
-          Applications for this society are closed.
-        </p>
-      ) : (
-        <ApplicationForm society={society} />
-      )}
+      <ApplicationForm society={society} />
     </div>
   )
 }
