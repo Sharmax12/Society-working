@@ -39,7 +39,7 @@ export function Footer() {
           Made with ❤️ by{" Aniruddh Sharma"}.
         </p>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          Contact : aniruddhsharma669@gmail.com
+          Contact : info@hallwayloop.com
         </p>
       </div>
     </footer>

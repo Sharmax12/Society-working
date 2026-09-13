@@ -1,8 +1,7 @@
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils";
-import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { ArrowRight, Compass, MessageCircle, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
+import CampusScene from "@/components/campus-scene";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
 
@@ -58,6 +57,6 @@ export default function Home() {
           </Button>
         </Link>
       </div>
-    </div>
-  );
+    </section>
+  </main>;
 }

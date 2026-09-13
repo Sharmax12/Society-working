@@ -5,10 +5,17 @@ import { getUpcomingEvents } from "@/modules/events/queries";
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [societies, events] = await Promise.all([
-    getOpenSocieties(),
-    getUpcomingEvents(),
-  ]);
+  let societies: Awaited<ReturnType<typeof getOpenSocieties>> = [];
+  let events: Awaited<ReturnType<typeof getUpcomingEvents>> = [];
+
+  try {
+    [societies, events] = await Promise.all([
+      getOpenSocieties(),
+      getUpcomingEvents(),
+    ]);
+  } catch (error) {
+    console.error("Unable to load database-backed sitemap entries", error);
+  }
 
   const societyEntries: MetadataRoute.Sitemap = societies.map((society) => ({
     url: `${SITE_URL}/societies/${society.id}`,

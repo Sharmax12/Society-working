@@ -26,6 +26,11 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
   if (existing) throw new Error("You've already applied to this society")
 
+  const student = await db.user.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  })
+
   const rollNumber = formData.get("rollNumber") as string
   const phone = formData.get("phone") as string
 
@@ -40,6 +45,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   const answers = society.questions.map((q) => ({
     questionId: q.id,
+    name: q.prompt,
     response: (formData.get(`question-${q.id}`) as string) ?? "",
   }))
 
@@ -55,6 +61,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   await db.application.create({
     data: {
+      name: student?.name,
       studentId,
       societyId,
       answers: { create: answers },

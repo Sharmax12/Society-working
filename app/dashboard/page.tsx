@@ -1,135 +1,21 @@
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
-import Link from "next/link"
-import { getOpenSocieties, getUserApplications } from "@/modules/societies/queries"
-import { StatusBadge } from "@/components/ui/status-badge"
-import { ArrowUpRight } from "lucide-react"
-import { SignOutButton } from "@/modules/auth/components/sign-out"
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { ArrowRight, CalendarDays, Compass, MessageCircle, Sparkles, Users } from "lucide-react";
+import { getOpenSocieties, getUserApplications } from "@/modules/societies/queries";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Badge } from "@/components/ui/badge";
+import { SignOutButton } from "@/modules/auth/components/sign-out";
 
 export default async function DashboardPage() {
-  const session = await auth()
-  if (!session?.user?.id) redirect("/auth/sign-in")
-
-  const [societies, applications] = await Promise.all([
-    getOpenSocieties(),
-    getUserApplications(session.user.id),
-  ])
-
-  const appliedSocietyIds = new Set(applications.map((a) => a.societyId))
-
-  
-  return (
-    <div className="max-w-5xl mx-auto px-6 py-12 space-y-12">
-      {/* Apply to a society section */}
-    <div className="flex items-center justify-between">
-        <div>
-            <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-            <p className="text-muted-foreground mt-1">
-                Welcome back, {session.user.name}
-            </p>
-        </div>
-        <SignOutButton />
-    </div>
-      <section>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Apply to a society
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Browse open societies and submit your application.
-          </p>
-        </div>
-
-        {societies.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center bg-muted/20">
-            <p className="text-sm text-muted-foreground">
-              No societies are currently accepting applications.
-            </p>
-          </div>
-        ) : (
-          <div className="grid sm:grid-cols-2 gap-4">
-            {societies.map((society) => {
-              const alreadyApplied = appliedSocietyIds.has(society.id)
-              return (
-                <div
-                  key={society.id}
-                  className="group relative border rounded-xl p-5 flex flex-col justify-between bg-card text-card-foreground shadow-sm hover:shadow-md hover:border-rose-300 transition-all duration-200"
-                >
-                  <div>
-                    {society.category && (
-                      <span className="inline-block text-xs uppercase tracking-wider text-rose-600 font-semibold mb-1">
-                        {society.category}
-                      </span>
-                    )}
-                    <h3 className="font-semibold text-lg text-foreground">
-                      {society.name}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2 leading-relaxed">
-                      {society.description}
-                    </p>
-                  </div>
-
-                  <div className="pt-4 mt-2 border-t border-border/50 flex items-center justify-between">
-                    {alreadyApplied ? (
-                      <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md">
-                        Already applied
-                      </span>
-                    ) : (
-                      <Link
-                        href={`/apply/${society.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-rose-600 hover:text-rose-700 transition-colors group-hover:translate-x-0.5 transform duration-150"
-                      >
-                        Apply now <ArrowUpRight className="w-4 h-4" />
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
-      </section>
-
-      {/* My applications section */}
-      <section>
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            My applications
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Track the status of societies you've applied to.
-          </p>
-        </div>
-
-        {applications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed p-8 text-center bg-muted/20">
-            <p className="text-sm text-muted-foreground">
-              You haven't applied to any societies yet.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {applications.map((app) => (
-              <div
-                key={app.id}
-                className="border rounded-xl p-4 flex items-center justify-between bg-card shadow-sm hover:border-border transition-colors"
-              >
-                <div className="space-y-1">
-                  <p className="font-semibold text-foreground">{app.society.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Applied on {new Date(app.submittedAt).toLocaleDateString(undefined, {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric',
-                    })}
-                  </p>
-                </div>
-                <StatusBadge status={app.status} />
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
-  )
+  const session = await auth();
+  if (!session?.user?.id) redirect("/auth/sign-in");
+  const [societies, applications] = await Promise.all([getOpenSocieties(), getUserApplications(session.user.id)]);
+  const appliedSocietyIds = new Set(applications.map((a) => a.societyId));
+  return <main className="min-h-screen bg-background"><div className="mx-auto max-w-6xl px-6 py-10 md:py-14">
+    <header className="flex flex-col justify-between gap-5 border-b pb-8 sm:flex-row sm:items-end"><div><div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-rose-500"><Sparkles className="h-4 w-4" /> Student space</div><h1 className="text-4xl font-black tracking-[-.04em]">Welcome back, {session.user.name?.split(" ")[0] ?? "student"}.</h1><p className="mt-2 text-muted-foreground">Discover what's happening and find your next community.</p></div><SignOutButton /></header>
+    <div className="grid gap-4 py-8 sm:grid-cols-3"><Link href="/societies" className="group rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"><Compass className="mb-8 h-5 w-5 text-rose-500"/><p className="text-lg font-bold">Discover societies</p><p className="mt-1 text-sm text-muted-foreground">Find communities worth joining.</p><ArrowRight className="mt-5 h-4 w-4 transition-transform group-hover:translate-x-1"/></Link><Link href="/events" className="group rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"><CalendarDays className="mb-8 h-5 w-5 text-orange-500"/><p className="text-lg font-bold">Campus events</p><p className="mt-1 text-sm text-muted-foreground">See what your campus is doing.</p><ArrowRight className="mt-5 h-4 w-4 transition-transform group-hover:translate-x-1"/></Link><div className="rounded-2xl border border-dashed bg-muted/30 p-5"><MessageCircle className="mb-8 h-5 w-5 text-violet-500"/><p className="text-lg font-bold">Campus chat</p><Badge className="mt-2" variant="secondary">Coming soon</Badge><p className="mt-2 text-sm text-muted-foreground">Conversations built for students and societies.</p></div></div>
+    <section><div className="mb-6 flex items-end justify-between"><div><h2 className="text-2xl font-bold tracking-tight">Find your community</h2><p className="mt-1 text-sm text-muted-foreground">Societies currently accepting applications.</p></div><Link href="/societies" className="hidden text-sm font-semibold text-rose-500 sm:block">View all</Link></div>{societies.length === 0 ? <div className="rounded-3xl border border-dashed p-12 text-center text-muted-foreground">No societies are open right now.</div> : <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">{societies.slice(0,6).map(society => <div key={society.id} className="rounded-3xl border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div className="flex items-start justify-between"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500"><Users className="h-4 w-4"/></div>{society.category && <Badge variant="secondary" className="capitalize">{society.category}</Badge>}</div><h3 className="mt-5 text-lg font-bold">{society.name}</h3><p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{society.description}</p><div className="mt-5 flex items-center justify-between border-t pt-4">{appliedSocietyIds.has(society.id) ? <StatusBadge status={applications.find(a=>a.societyId===society.id)?.status ?? "PENDING"}/> : <Link href={`/apply/${society.id}`} className="text-sm font-semibold text-rose-500">Apply now →</Link>}<span className="text-xs text-muted-foreground">Open</span></div></div>)}</div>}</section>
+    <section className="mt-14"><div className="mb-5"><h2 className="text-2xl font-bold">My applications</h2><p className="mt-1 text-sm text-muted-foreground">Keep track of where you stand.</p></div>{applications.length === 0 ? <div className="rounded-3xl border border-dashed p-10 text-center text-sm text-muted-foreground">No applications yet. Your next community could be one click away.</div> : <div className="space-y-3">{applications.map(app => <div key={app.id} className="flex items-center justify-between rounded-2xl border bg-card p-4"><div><p className="font-semibold">{app.society.name}</p><p className="mt-1 text-xs text-muted-foreground">Applied {new Date(app.submittedAt).toLocaleDateString()}</p></div><StatusBadge status={app.status}/></div>)}</div>}</section>
+  </div></main>;
 }

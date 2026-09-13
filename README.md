@@ -110,5 +110,8 @@ The app is a standard Next.js project and can be deployed on [Vercel](https://ve
 Contributions, issues, and feature requests are welcome. Feel free to open a pull request or file an issue.
 
 ## License
+ 
+No license has been specified yet for this repository. Consider adding a `LICENSE` file to clarify how others can use this project.
+ 
 
 No license has been specified for this repository yet. Add a `LICENSE` file to clarify usage terms.
