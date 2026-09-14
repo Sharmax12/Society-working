@@ -28,7 +28,7 @@ export function Header() {
           </div>
         </div>
         <div className="flex items-center gap-1.5">
-          <Link href="/admin" target="_blank" rel="noreferrer" className="hidden items-center gap-1.5 rounded-xl border border-transparent px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-foreground/10 hover:bg-muted hover:text-foreground md:flex"><ShieldCheck className="h-3.5 w-3.5"/> Admin <ArrowUpRight className="h-3 w-3"/></Link>
+          <Link href="/admin" target="_blank" rel="noreferrer" className="hidden items-center gap-1.5 rounded-xl border border-transparent px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-foreground/10 hover:bg-muted hover:text-foreground md:flex"><ShieldCheck className="h-3.5 w-3.5"/> DashBoard <ArrowUpRight className="h-3 w-3"/></Link>
           <ThemeToggle />
           <UserButton />
         </div>
