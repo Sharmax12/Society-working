@@ -3,7 +3,7 @@ import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, ArrowUpRight, ClipboardList, Users } from "lucide-react"
 import { getSocietyApplications } from "@/modules/societies/admin-queries"
-import { ApplicationReviewCard } from "@/modules/applications/components/application-review-card"
+import { ApplicationReviewList } from "@/modules/applications/components/application-review-list"
 
 export default async function SocietyApplicationsPage({
   params,
@@ -23,7 +23,7 @@ export default async function SocietyApplicationsPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
-      <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground">
+      <Link href="/admin" className="inline-flex items-center gap-1.5 text-sm font-semibold text-muted-foreground transition hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">
         <ArrowLeft className="h-4 w-4" /> Admin workspace
       </Link>
 
@@ -35,7 +35,7 @@ export default async function SocietyApplicationsPage({
               <ClipboardList className="h-3.5 w-3.5 text-primary" /> Application review
             </div>
             <h1 className="text-3xl font-black tracking-[-0.035em] sm:text-4xl">{society.name}</h1>
-            <p className="mt-2 text-sm text-muted-foreground">Review students who want to join your community.</p>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">Review, filter, and action students who want to join your community.</p>
           </div>
           <div className="flex gap-2">
             <div className="rounded-xl border bg-background/70 px-4 py-3 text-center backdrop-blur">
@@ -52,7 +52,7 @@ export default async function SocietyApplicationsPage({
 
       <div className="mb-4 mt-8 flex items-center justify-between">
         <div className="flex items-center gap-2 text-sm font-semibold"><Users className="h-4 w-4 text-primary" /> Applicants</div>
-        <Link href="/societies" className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary">View public directory <ArrowUpRight className="h-3.5 w-3.5" /></Link>
+        <Link href="/societies" className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">View public directory <ArrowUpRight className="h-3.5 w-3.5" /></Link>
       </div>
 
       {applications.length === 0 ? (
@@ -62,11 +62,7 @@ export default async function SocietyApplicationsPage({
           <p className="mt-1 text-sm text-muted-foreground">Once students apply, their responses will appear here.</p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {applications.map((app) => (
-            <ApplicationReviewCard key={app.id} application={app} />
-          ))}
-        </div>
+        <ApplicationReviewList applications={applications} />
       )}
     </main>
   )
