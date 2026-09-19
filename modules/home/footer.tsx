@@ -22,7 +22,7 @@ export function Footer() {
             <div><p className="text-[10px] font-black uppercase tracking-widest opacity-40">Social</p><Link href={siteConfig.social.github} target="_blank" rel="noopener noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm opacity-75 transition hover:opacity-100"><FaGithub className="h-4 w-4"/> GitHub</Link></div>
           </div>
         </div>
-        <div className="flex flex-col gap-2 border-t border-background/10 px-8 py-5 text-[11px] opacity-45 sm:flex-row sm:items-center sm:justify-between sm:px-12"><span>© {new Date().getFullYear()} {siteConfig.name}</span><span>Made with ❤️ by {siteConfig.author}</span></div>
+        <div className="flex flex-col gap-2 border-t border-background/10 px-8 py-5 text-[11px] opacity-45 sm:flex-row sm:items-center sm:justify-between sm:px-12"><span>© {new Date().getFullYear()} {siteConfig.name}</span><span></span></div>
       </div>
     </footer>
   );

@@ -39,19 +39,13 @@ export default function Home() {
               <Link href="/events"><Button size="lg" variant="outline" className="h-13 rounded-2xl border-foreground/15 bg-background/65 px-7 backdrop-blur hover:bg-background">Browse events</Button></Link>
             </div>
           </div>
-          <div className="mt-16 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4">
-            {[ ["01", "Discover", "societies"], ["24/7", "Explore", "events"], ["∞", "Connect", "students"], ["1", "Campus", "network"] ].map(([stat, label, sub]) => (
-              <div key={label} className="rounded-2xl border border-foreground/10 bg-background/65 p-4 backdrop-blur-xl">
-                <div className="text-2xl font-black tracking-tight">{stat}</div><div className="mt-1 text-xs font-bold">{label}</div><div className="text-[10px] text-muted-foreground">{sub}</div>
-              </div>
-            ))}
-          </div>
+          
         </div>
       </section>
 
       <section className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:px-10">
         <div className="grid gap-12 lg:grid-cols-[.8fr_1.4fr]">
-          <div><p className="text-xs font-black uppercase tracking-[.2em] text-primary">01 / Why HallWayLoop</p><h2 className="mt-4 max-w-md text-4xl font-black tracking-[-.05em] sm:text-5xl">Your campus has a pulse. We make it visible.</h2></div>
+          <div><p className="text-xs font-black uppercase tracking-[.2em] text-primary">01 / Why HallWayLoop ? </p><h2 className="mt-4 max-w-md text-4xl font-black tracking-[-.05em] sm:text-5xl">Your campus has a pulse. We make it visible.</h2></div>
           <div className="grid gap-3 sm:grid-cols-3">
             {features.map(({ icon: Icon, number, title, text }) => <div key={title} className="group rounded-3xl border border-foreground/10 bg-card p-6 transition duration-300 hover:-translate-y-1 hover:shadow-xl"><div className="flex items-center justify-between"><span className="text-xs font-black text-muted-foreground">{number}</span><Icon className="h-5 w-5 text-primary" /></div><h3 className="mt-12 text-lg font-black">{title}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></div>)}
           </div>
