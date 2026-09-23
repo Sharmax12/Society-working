@@ -6,7 +6,13 @@ import { revalidatePath } from "next/cache"
 
 export async function getOpenSocieties() {
   return db.society.findMany({
-    where: { isOpen: true },
+    where: { isOpen: true, deadline: { gt: new Date() } },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export async function getSocietiesForDirectory() {
+  return db.society.findMany({
     orderBy: { createdAt: "desc" },
   })
 }
