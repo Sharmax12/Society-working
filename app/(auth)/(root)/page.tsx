@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, CalendarDays, Compass, MessageCircle, Sparkles, Users, Zap } from "lucide-react";
+import { ArrowRight, CalendarDays, Compass, MessageCircle, Sparkles, Zap } from "lucide-react";
 import Link from "next/link";
 import CampusScene from "@/components/campus-scene";
 import { jsonLdString } from "@/lib/utils";
@@ -29,7 +29,7 @@ export default function Home() {
             <h1 className="text-balance text-5xl font-black leading-[.92] tracking-[-.065em] sm:text-7xl lg:text-[7.5rem]">
               Campus life,
               <br />
-              <span className="bg-gradient-to-r from-primary via-fuchsia-500 to-orange-400 bg-clip-text text-transparent">finally connected.</span>
+              <span className="bg-gradient-to-r from-primary via-[#e96c4d] to-[#f0a36b] bg-clip-text text-transparent">finally connected.</span>
             </h1>
             <p className="mt-8 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
               HallWayLoop brings societies, events and students into one living campus network. Discover your people, find your next thing, and make college feel smaller.
@@ -39,7 +39,6 @@ export default function Home() {
               <Link href="/events"><Button size="lg" variant="outline" className="h-13 rounded-2xl border-foreground/15 bg-background/65 px-7 backdrop-blur hover:bg-background">Browse events</Button></Link>
             </div>
           </div>
-          
         </div>
       </section>
 
@@ -53,13 +52,19 @@ export default function Home() {
       </section>
 
       <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8 lg:px-10">
-        <div className="relative overflow-hidden rounded-[2rem] border border-foreground/10 bg-foreground p-8 text-background sm:p-12 lg:p-16">
-          <div className="absolute -right-20 -top-32 h-72 w-72 rounded-full bg-primary/30 blur-3xl" />
-          <div className="absolute -bottom-32 left-1/3 h-72 w-72 rounded-full bg-orange-400/20 blur-3xl" />
-          <div className="relative grid items-end gap-10 lg:grid-cols-[1fr_auto]">
-            <div><div className="mb-4 flex items-center gap-2 text-xs font-bold uppercase tracking-[.18em] opacity-60"><Zap className="h-4 w-4" /> Built for student life</div><h2 className="max-w-2xl text-4xl font-black tracking-[-.05em] sm:text-6xl">Stop scrolling past campus.</h2><p className="mt-5 max-w-xl text-sm leading-6 opacity-65">There&apos;s always something happening. Make the next thing you attend the beginning of something bigger.</p></div>
-            <Link href="/societies"><Button size="lg" className="h-13 rounded-2xl bg-background px-7 text-foreground hover:bg-background/90">Start exploring <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
+        <div className="group relative isolate overflow-hidden rounded-[2rem] border border-[#b94131]/20 bg-[#fbe8e2] text-[#302724] shadow-[0_24px_80px_-40px_rgba(185,65,49,.45)] transition-shadow duration-500 hover:shadow-[0_30px_90px_-38px_rgba(185,65,49,.55)] dark:border-[#ff806b]/25 dark:bg-[#291d1b] dark:text-[#fff4ed]">
+          <div aria-hidden="true" className="pointer-events-none absolute -right-20 -top-28 -z-10 h-80 w-80 rounded-full bg-[#d95743]/20 blur-3xl dark:bg-[#ff806b]/15" />
+          <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 left-[38%] -z-10 h-72 w-72 rounded-full bg-[#e9a17f]/25 blur-3xl dark:bg-[#8f3c31]/25" />
+          <div className="relative grid items-center gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_auto] lg:gap-16 lg:p-14">
+            <div>
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-[#d95743]/25 bg-white/45 px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[.18em] text-[#a83e2e] dark:border-[#ff806b]/25 dark:bg-black/15 dark:text-[#ff9a88]"><Zap className="h-3.5 w-3.5" /> A little more campus, a lot less scrolling</div>
+              <h2 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-[-.055em] sm:text-6xl">Stop scrolling past campus<span className="text-[#d95743] dark:text-[#ff806b]">.</span></h2>
+              <p className="mt-5 max-w-xl text-sm leading-7 text-[#765b52] dark:text-[#cdb7ae]">The club you didn&apos;t know existed. The event your friends will talk about. Your next favourite corner of campus is closer than you think.</p>
+              <p className="mt-5 text-xs font-semibold tracking-wide text-[#a17d70] dark:text-[#aa8c81]">Discover · Belong · Connect</p>
+            </div>
+            <Link href="/societies" className="shrink-0"><Button size="lg" className="h-13 rounded-2xl bg-[#d95743] px-7 text-white shadow-lg shadow-[#b94131]/20 transition hover:-translate-y-0.5 hover:bg-[#b94131] dark:bg-[#ff806b] dark:text-[#271714] dark:hover:bg-[#ff9a88]">Find your people <ArrowRight className="ml-2 h-4 w-4" /></Button></Link>
           </div>
+          <div className="flex items-center justify-between border-t border-[#b94131]/15 px-7 py-4 text-[10px] font-bold uppercase tracking-[.16em] text-[#a17d70] dark:border-[#ff806b]/15 dark:text-[#aa8c81]"><span>Made for the in-between moments</span><span className="hidden sm:inline">Your campus, in full colour ↗</span></div>
         </div>
       </section>
     </main>
