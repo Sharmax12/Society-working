@@ -37,20 +37,10 @@ export default async function SuperAdminPage() {
       </section>
 
       <section className="mt-6 grid gap-4 sm:grid-cols-4">
-        {[
-          ["Societies", societies.length, Building2],
-          ["Pending review", pending, ShieldCheck],
-          ["Users", users, Users],
-          ["Platform ops", "—", LifeBuoy],
-        ].map(([label, value, Icon]) => (
-          <div key={String(label)} className="rounded-2xl border bg-card/80 p-5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">{String(label)}</p>
-              <Icon className="h-4 w-4 text-primary" />
-            </div>
-            <p className="mt-2 text-2xl font-black tracking-tight">{String(value)}</p>
-          </div>
-        ))}
+        <div className="rounded-2xl border bg-card/80 p-5 shadow-sm"><div className="flex items-center justify-between"><p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Societies</p><Building2 className="h-4 w-4 text-primary" /></div><p className="mt-2 text-2xl font-black tracking-tight">{societies.length}</p></div>
+        <div className="rounded-2xl border bg-card/80 p-5 shadow-sm"><div className="flex items-center justify-between"><p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Pending review</p><ShieldCheck className="h-4 w-4 text-primary" /></div><p className="mt-2 text-2xl font-black tracking-tight">{pending}</p></div>
+        <div className="rounded-2xl border bg-card/80 p-5 shadow-sm"><div className="flex items-center justify-between"><p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Users</p><Users className="h-4 w-4 text-primary" /></div><p className="mt-2 text-2xl font-black tracking-tight">{users}</p></div>
+        <div className="rounded-2xl border bg-card/80 p-5 shadow-sm"><div className="flex items-center justify-between"><p className="text-xs font-bold uppercase tracking-[0.14em] text-muted-foreground">Platform ops</p><LifeBuoy className="h-4 w-4 text-primary" /></div><p className="mt-2 text-2xl font-black tracking-tight">—</p></div>
       </section>
 
       <section className="mt-10">
