@@ -95,6 +95,20 @@ model Society {
   
 }
 
+// Tenant-scoped society administrators. A society can have multiple admins.
+model SocietyAdmin {
+  id        String   @id @default(cuid())
+  societyId String
+  userId    String
+  society   Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([societyId, userId])
+  @@index([userId])
+  @@index([societyId])
+}
+
 // Student's Application to a Society
 model Application {
   id          String            @id @default(cuid()) 
