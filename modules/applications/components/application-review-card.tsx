@@ -58,7 +58,11 @@ export function ApplicationReviewCard({ application }: { application: ReviewAppl
   function handleInform() {
     startInformTransition(async () => {
       try {
-        await sendInterviewInvitation(application.id)
+        const result = await sendInterviewInvitation(application.id)
+        if (!result.emailSent) {
+          toast.error("Email could not be sent. Verify your Resend domain and EMAIL_FROM settings.")
+          return
+        }
         setInterviewSent(true)
         setInformOpen(false)
         toast.success("Interview invitation sent")
