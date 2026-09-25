@@ -37,7 +37,7 @@ async function sendEmail({
     const response = await fetch(RESEND_API_URL, {
       method: "POST",
       headers: {
-        Authorization: \`Bearer \${apiKey}\`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "Idempotency-Key": idempotencyKey,
       },
@@ -81,23 +81,23 @@ export async function sendApplicationReceivedEmail({
 
   return sendEmail({
     to: applicantEmail,
-    subject: \`Application received — \${societyName}\`,
-    idempotencyKey: \`application-received-\${applicationId}\`,
-    text: \`Hi \${name},
+    subject: `Application received — ${societyName}`,
+    idempotencyKey: `application-received-${applicationId}`,
+    text: `Hi ${name},
 
-We have received your application to join \${societyName}.
+We have received your application to join ${societyName}.
 
 Your application is now under review. You will receive another email when your application is reviewed.
 
 Regards,
-\${societyName} Team\`,
-    html: \`<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
+${societyName} Team`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
       <h2 style="margin-bottom:8px">Application received</h2>
-      <p>Hi \${safeName},</p>
-      <p>We have received your application to join <strong>\${safeSociety}</strong>.</p>
+      <p>Hi ${safeName},</p>
+      <p>We have received your application to join <strong>${safeSociety}</strong>.</p>
       <p>Your application is now under review. You will receive another email when your application is reviewed.</p>
-      <p style="margin-top:24px">Regards,<br />\${safeSociety} Team</p>
-    </div>\`,
+      <p style="margin-top:24px">Regards,<br />${safeSociety} Team</p>
+    </div>`,
   })
 }
 
@@ -118,23 +118,23 @@ export async function sendApplicationAcceptedEmail({
 
   return sendEmail({
     to: applicantEmail,
-    subject: \`Application accepted — \${societyName}\`,
-    idempotencyKey: \`application-accepted-\${applicationId}\`,
-    text: \`Hi \${name},
+    subject: `Application accepted — ${societyName}`,
+    idempotencyKey: `application-accepted-${applicationId}`,
+    text: `Hi ${name},
 
-Your application to join \${societyName} has been accepted.
+Your application to join ${societyName} has been accepted.
 
 We are excited to have you as part of the community. Further information about joining and upcoming activities will be shared with you soon.
 
 Regards,
-\${societyName} Team\`,
-    html: \`<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
+${societyName} Team`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
       <h2 style="margin-bottom:8px">Application accepted</h2>
-      <p>Hi \${safeName},</p>
-      <p>Your application to join <strong>\${safeSociety}</strong> has been accepted.</p>
+      <p>Hi ${safeName},</p>
+      <p>Your application to join <strong>${safeSociety}</strong> has been accepted.</p>
       <p>We are excited to have you as part of the community. Further information about joining and upcoming activities will be shared with you soon.</p>
-      <p style="margin-top:24px">Regards,<br />\${safeSociety} Team</p>
-    </div>\`,
+      <p style="margin-top:24px">Regards,<br />${safeSociety} Team</p>
+    </div>`,
   })
 }
 
@@ -155,22 +155,22 @@ export async function sendInterviewInvitationEmail({
 
   return sendEmail({
     to: applicantEmail,
-    subject: \`Interview invitation — \${societyName}\`,
-    idempotencyKey: \`interview-invitation-\${applicationId}\`,
-    text: \`Hi \${name},
+    subject: `Interview invitation — ${societyName}`,
+    idempotencyKey: `interview-invitation-${applicationId}`,
+    text: `Hi ${name},
 
-Thank you for applying to \${societyName}.
+Thank you for applying to ${societyName}.
 
 We would like to invite you for an interview. Further details regarding the interview will be shared with you shortly.
 
 Regards,
-\${societyName} Team\`,
-    html: \`<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
+${societyName} Team`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
       <h2 style="margin-bottom:8px">Interview invitation</h2>
-      <p>Hi \${safeName},</p>
-      <p>Thank you for applying to <strong>\${safeSociety}</strong>.</p>
+      <p>Hi ${safeName},</p>
+      <p>Thank you for applying to <strong>${safeSociety}</strong>.</p>
       <p>We would like to invite you for an interview. Further details regarding the interview will be shared with you shortly.</p>
-      <p style="margin-top:24px">Regards,<br />\${safeSociety} Team</p>
-    </div>\`,
+      <p style="margin-top:24px">Regards,<br />${safeSociety} Team</p>
+    </div>`,
   })
 }
