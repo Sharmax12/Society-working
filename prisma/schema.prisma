@@ -16,7 +16,7 @@ enum Role {
 }
 
 // Application status workflow
-enum ApplicationStatus {
+enum SocietyVerificationStatus {\n  PENDING\n  VERIFIED\n  SUSPENDED\n}\n\nenum ApplicationStatus {
   PENDING
   ACCEPTED
   REJECTED
@@ -73,7 +73,7 @@ model Society {
   description String
   category    String?
   deadline    DateTime      // Checked server-side during submission
-  isOpen      Boolean       @default(true)
+  isOpen      Boolean       @default(true)\n  verificationStatus SocietyVerificationStatus @default(PENDING)
 
   adminId     String
   admin       User          @relation("SocietyOwner", fields: [adminId], references: [id])
