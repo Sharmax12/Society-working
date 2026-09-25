@@ -58,7 +58,7 @@ export async function addSocietyAdminFromForm(formData: FormData) {
   const { auth } = await import("@/auth")
   const { revalidatePath } = await import("next/cache")
   const session = await auth()
-  if (!session?.user?.id || session.user.role !== "ADMIN") throw new Error("Not authorized")
+  if (!session?.user?.id) throw new Error("Not authorized")
   const societyId = String(formData.get("societyId") ?? "")
   const email = String(formData.get("email") ?? "")
   await addSocietyAdmin(societyId, email, session.user.id)
@@ -90,8 +90,8 @@ export async function addSocietyAdmin(
     select: { id: true, role: true },
   })
 
-  if (!user || user.role !== "ADMIN") {
-    throw new Error("The user must already have an Admin account")
+  if (!user) {
+    throw new Error("No registered user found with that email")
   }
 
   await db.societyAdmin.upsert({
