@@ -56,15 +56,15 @@ export async function submitApplication(societyId: string, formData: FormData) {
   const answers = society.questions.map((q) => ({
     questionId: q.id,
     name: q.prompt,
-    response: (formData.get(\`question-\${q.id}\`) as string) ?? "",
+    response: (formData.get(`question-${q.id}`) as string) ?? "",
   }))
 
   // Validate required questions were answered
   for (const q of society.questions) {
     if (q.required) {
-      const answer = formData.get(\`question-\${q.id}\`) as string
+      const answer = formData.get(`question-${q.id}`) as string
       if (!answer?.trim()) {
-        throw new Error(\`Please answer: "\${q.prompt}"\`)
+        throw new Error(`Please answer: "${q.prompt}"`)
       }
     }
   }
@@ -89,7 +89,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
 
   revalidatePath("/dashboard")
-  redirect(\`/apply/\${societyId}/submitted\`)
+  redirect(`/apply/${societyId}/submitted`)
 }
 
 export async function updateApplicationStatus(
@@ -129,7 +129,7 @@ export async function updateApplicationStatus(
     })
   }
 
-  revalidatePath(\`/admin/societies/\${application.societyId}\`)
+  revalidatePath(`/admin/societies/${application.societyId}`)
 
   return { status, emailSent }
 }
