@@ -1,5 +1,4 @@
 import { db } from "@/lib/db"
-import { canManageSociety } from "@/modules/auth/authorization"
 
 function managedSocietyWhere(userId: string) {
   return {
