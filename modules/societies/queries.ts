@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache"
 
 export async function getOpenSocieties() {
   return db.society.findMany({
-    where: { isOpen: true, deadline: { gt: new Date() } },
+    where: { verificationStatus: "VERIFIED", isOpen: true, deadline: { gt: new Date() } },
     orderBy: { createdAt: "desc" },
   })
 }
