@@ -22,7 +22,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
 
   if (!society) throw new Error("Society not found")
-  if (!society.isOpen || society.deadline < new Date()) {
+  if (society.verificationStatus !== "VERIFIED" || !society.isOpen || society.deadline < new Date()) {
     throw new Error("Applications for this society are closed")
   }
 
