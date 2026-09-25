@@ -41,8 +41,6 @@ export async function getManagedEvents(adminId: string) {
 export async function createEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") throw new Error("Not authorized")
-
   const societyId = formData.get("societyId") as string
   const title = formData.get("title") as string
   const description = formData.get("description") as string
@@ -84,8 +82,6 @@ export async function createEvent(formData: FormData) {
 export async function deleteEvent(eventId: string) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") throw new Error("Not authorized")
-
   const event = await db.event.findFirst({
     where: { id: eventId, society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
   })
