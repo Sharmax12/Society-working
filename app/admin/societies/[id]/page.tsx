@@ -50,8 +50,8 @@ export default async function SocietyApplicationsPage({
         </div>
       </section>
 
-      <div className="mb-4 mt-8 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm font-semibold"><Users className="h-4 w-4 text-primary" /> Applicants</div>
+      <div className="mb-4 mt-8 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-sm font-semibold"><Users className="h-4 w-4 text-primary" /> Applicants</div>\n        <Link href={`/admin/societies/${id}/admins`} className="inline-flex items-center gap-1.5 rounded-xl border bg-card px-3 py-2 text-xs font-bold transition hover:border-primary/30 hover:text-primary">Manage admins</Link>
         <Link href="/societies" className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40">View public directory <ArrowUpRight className="h-3.5 w-3.5" /></Link>
       </div>
 
