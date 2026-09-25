@@ -7,7 +7,8 @@ import { getManagedEvents } from "@/modules/events/admin-queries"
 export default async function AdminEventsPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") redirect("/dashboard")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
 
   const events = await getManagedEvents(session.user.id)
 
