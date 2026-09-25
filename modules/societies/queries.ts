@@ -13,6 +13,7 @@ export async function getOpenSocieties() {
 
 export async function getSocietiesForDirectory() {
   return db.society.findMany({
+    where: { verificationStatus: "VERIFIED" },
     orderBy: { createdAt: "desc" },
   })
 }
@@ -27,7 +28,7 @@ export async function getUserApplications(userId: string) {
 
 export async function getSocietyWithQuestions(societyId: string) {
   return db.society.findUnique({
-    where: { id: societyId },
+    where: { id: societyId, verificationStatus: "VERIFIED" },
     include: { questions: true },
   })
 }
