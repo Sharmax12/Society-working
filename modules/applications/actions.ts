@@ -161,9 +161,5 @@ export async function sendInterviewInvitation(applicationId: string) {
     societyName: application.society.name,
   })
 
-  if (!emailSent) {
-    throw new Error("Interview invitation could not be sent. Check RESEND_API_KEY and EMAIL_FROM.")
-  }
-
-  return { emailSent: true }
+  return { emailSent }
 }
