@@ -12,6 +12,7 @@ type ReviewApplication = {
   student: {
     name: string | null
     email: string
+    phone: string | null
     rollNumber: string | null
   }
   answers: {
@@ -51,6 +52,7 @@ export function ApplicationReviewList({ applications }: { applications: ReviewAp
       return [
         application.student.name,
         application.student.email,
+        application.student.phone,
         application.student.rollNumber,
       ].some((value) => value?.toLowerCase().includes(normalized))
     })
@@ -70,7 +72,7 @@ export function ApplicationReviewList({ applications }: { applications: ReviewAp
                   role="tab"
                   aria-selected={active}
                   onClick={() => setFilter(value)}
-                  className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${active ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                  className={\`inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 \${active ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}\`}
                 >
                   <Icon className="h-3.5 w-3.5" />
                   {label}
@@ -118,7 +120,7 @@ export function ApplicationReviewList({ applications }: { applications: ReviewAp
         <div className="rounded-2xl border border-dashed bg-card/60 px-6 py-14 text-center">
           <Search className="mx-auto h-8 w-8 text-muted-foreground/50" />
           <h2 className="mt-4 font-bold">No matching applicants</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Try a different name, email, roll number, or status.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Try a different name, email, phone, roll number, or status.</p>
           <button
             type="button"
             onClick={() => { setQuery(""); setFilter("ALL") }}
