@@ -12,6 +12,7 @@ datasource db {
 enum Role {
   STUDENT
   ADMIN
+  SUPER_ADMIN
 }
 
 // Application status workflow
@@ -36,7 +37,8 @@ model User {
   applications Application[] // Student's applications
 
   // Societies managed if the user is an admin
-  managedSocieties Society[] @relation("SocietyAdmins")
+  managedSocieties Society[] @relation("SocietyOwner")
+  societyAdminMemberships SocietyAdmin[]
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -74,7 +76,8 @@ model Society {
   isOpen      Boolean       @default(true)
 
   adminId     String
-  admin       User          @relation("SocietyAdmins", fields: [adminId], references: [id])
+  admin       User          @relation("SocietyOwner", fields: [adminId], references: [id])
+  admins      SocietyAdmin[]
 
   questions   Question[]    // Application questions defined by the society
   applications Application[]
