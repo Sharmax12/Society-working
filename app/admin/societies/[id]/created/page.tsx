@@ -28,8 +28,7 @@ export default async function SocietyCreatedPage({
       </h1>
       <p className="mt-3 text-muted-foreground">
         <span className="font-medium text-foreground">{society.name}</span>{" "}
-        is live and open for applications. You can review submissions as
-        they come in, or publish an event for it right away.
+        has been created and is awaiting platform verification. Once verified, it can appear publicly and accept applications.
       </p>
 
       <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
