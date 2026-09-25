@@ -7,7 +7,8 @@ import { getManagedSocieties } from "@/modules/societies/admin-queries"
 export default async function AdminDashboardPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") redirect("/dashboard")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
 
   const societies = await getManagedSocieties(session.user.id)
   const applicationCount = societies.reduce((total, society) => total + society._count.applications, 0)
