@@ -47,7 +47,7 @@ export function ApplicationReviewCard({ application }: { application: ReviewAppl
         if (status === "ACCEPTED" && !result.emailSent) {
           toast.warning("Application accepted, but the acceptance email could not be sent.")
         } else {
-          toast.success(\`Application \${status.toLowerCase()}\`)
+          toast.success(`Application ${status.toLowerCase()}`)
         }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Something went wrong")
@@ -85,11 +85,11 @@ export function ApplicationReviewCard({ application }: { application: ReviewAppl
             </div>
             <div className="min-w-0">
               <p className="truncate font-bold tracking-tight">{application.student.name ?? "Unnamed applicant"}</p>
-              <a href={\`mailto:\${application.student.email}\`} className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground transition hover:text-primary">
+              <a href={`mailto:${application.student.email}`} className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground transition hover:text-primary">
                 <Mail className="h-3 w-3 shrink-0" /> {application.student.email}
               </a>
               {application.student.phone && (
-                <a href={\`tel:\${application.student.phone}\`} className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground transition hover:text-primary">
+                <a href={`tel:${application.student.phone}`} className="mt-0.5 flex items-center gap-1.5 truncate text-xs text-muted-foreground transition hover:text-primary">
                   <Phone className="h-3 w-3 shrink-0" /> {application.student.phone}
                 </a>
               )}
