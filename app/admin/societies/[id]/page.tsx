@@ -13,7 +13,8 @@ export default async function SocietyApplicationsPage({
   const { id } = await params
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") redirect("/dashboard")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
 
   const data = await getSocietyApplications(id, session.user.id)
   if (!data) notFound()
