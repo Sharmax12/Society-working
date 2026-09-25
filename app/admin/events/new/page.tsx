@@ -8,7 +8,8 @@ import { CreateEventForm } from "@/modules/events/components/create-event-form"
 export default async function NewEventPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") redirect("/dashboard")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
   const societies = await getManagedSocietiesForEvents(session.user.id)
 
   if (societies.length === 0) return <main className="mx-auto flex min-h-[70vh] w-full max-w-3xl items-center px-4 py-12 sm:px-6"><div className="w-full rounded-[2rem] border border-dashed bg-card/70 p-8 text-center sm:p-14"><div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><CalendarPlus className="h-6 w-6" /></div><h1 className="mt-5 text-2xl font-black">Create your first society first</h1><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Events belong to societies. Set up your community and you&apos;ll be ready to publish.</p><Link href="/admin/societies/new" className="mt-6 inline-flex rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">Create society</Link></div></main>
