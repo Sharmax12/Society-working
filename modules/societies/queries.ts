@@ -44,7 +44,7 @@ type QuestionInput = { prompt: string; required: boolean }
 export async function createSociety(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") throw new Error("Not authorized")
+  if (session.user.role !== "ADMIN") throw new Error("Only society admins can create societies")
 
   const name = formData.get("name") as string
   const description = formData.get("description") as string
@@ -72,6 +72,7 @@ export async function createSociety(formData: FormData) {
       category: category?.trim() || undefined,
       deadline: new Date(deadline),
       adminId: session.user.id,
+      admins: { create: { userId: session.user.id } },
       questions: {
         create: validQuestions.map((q) => ({
           prompt: q.prompt.trim(),
