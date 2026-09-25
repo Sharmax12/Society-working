@@ -4,7 +4,7 @@ import { db } from "@/lib/db"
 // Events happening now or in the future, soonest first.
 export async function getUpcomingEvents() {
   return db.event.findMany({
-    where: { date: { gte: new Date() } },
+    where: { date: { gte: new Date() }, society: { verificationStatus: "VERIFIED" } },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "asc" },
   })
@@ -14,7 +14,7 @@ export async function getUpcomingEvents() {
 // the page isn't empty between event seasons and to show activity history.
 export async function getPastEvents() {
   return db.event.findMany({
-    where: { date: { lt: new Date() } },
+    where: { date: { lt: new Date() }, society: { verificationStatus: "VERIFIED" } },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
     take: 12,
@@ -23,7 +23,7 @@ export async function getPastEvents() {
 
 export async function getEvent(eventId: string) {
   return db.event.findUnique({
-    where: { id: eventId },
+    where: { id: eventId, society: { verificationStatus: "VERIFIED" } },
     include: { society: { select: { id: true, name: true } } },
   })
 }
