@@ -23,7 +23,7 @@ function assertSafeUrl(value: string, label: string) {
 // used to pick which society an event belongs to.
 export async function getManagedSocietiesForEvents(adminId: string) {
   return db.society.findMany({
-    where: { adminId },
+    where: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
     include: { _count: { select: { events: true } } },
     orderBy: { createdAt: "desc" },
   })
@@ -32,7 +32,7 @@ export async function getManagedSocietiesForEvents(adminId: string) {
 // All events (past + upcoming) across the societies this admin manages.
 export async function getManagedEvents(adminId: string) {
   return db.event.findMany({
-    where: { society: { adminId } },
+    where: { society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
   })
@@ -60,7 +60,7 @@ export async function createEvent(formData: FormData) {
 
   // Make sure this admin actually manages the society they're posting to.
   const society = await db.society.findFirst({
-    where: { id: societyId, adminId: session.user.id },
+    where: { id: societyId, OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] },
   })
   if (!society) throw new Error("You don't manage this society")
 
@@ -87,7 +87,7 @@ export async function deleteEvent(eventId: string) {
   if (session.user.role !== "ADMIN") throw new Error("Not authorized")
 
   const event = await db.event.findFirst({
-    where: { id: eventId, society: { adminId: session.user.id } },
+    where: { id: eventId, society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
   })
   if (!event) throw new Error("Event not found")
 
