@@ -6,7 +6,7 @@ function managedSocietyWhere(userId: string) {
       { adminId: userId },
       { admins: { some: { userId } } },
     ],
-  } as const
+  }
 }
 
 export async function getManagedSociety(societyId: string, adminId: string) {
