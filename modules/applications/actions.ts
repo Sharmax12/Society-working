@@ -146,7 +146,7 @@ export async function sendInterviewInvitation(applicationId: string) {
     },
   })
 
-  if (!application || application.society.adminId !== session.user.id) {
+  if (!application || !((application.society.adminId === session.user.id) || (await db.societyAdmin.findUnique({ where: { societyId_userId: { societyId: application.societyId, userId: session.user.id } } })))) {
     throw new Error("Not authorized to contact this applicant")
   }
 
