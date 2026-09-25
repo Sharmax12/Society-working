@@ -53,6 +53,30 @@ export async function getSocietyApplications(societyId: string, adminId: string)
   return { society, applications }
 }
 
+export async function addSocietyAdminFromForm(formData: FormData) {
+  "use server"
+  const { auth } = await import("@/auth")
+  const { revalidatePath } = await import("next/cache")
+  const session = await auth()
+  if (!session?.user?.id || session.user.role !== "ADMIN") throw new Error("Not authorized")
+  const societyId = String(formData.get("societyId") ?? "")
+  const email = String(formData.get("email") ?? "")
+  await addSocietyAdmin(societyId, email, session.user.id)
+  revalidatePath(`/admin/societies/${societyId}/admins`)
+}
+
+export async function removeSocietyAdminFromForm(formData: FormData) {
+  "use server"
+  const { auth } = await import("@/auth")
+  const { revalidatePath } = await import("next/cache")
+  const session = await auth()
+  if (!session?.user?.id || session.user.role !== "ADMIN") throw new Error("Not authorized")
+  const societyId = String(formData.get("societyId") ?? "")
+  const userId = String(formData.get("userId") ?? "")
+  await removeSocietyAdmin(societyId, userId, session.user.id)
+  revalidatePath(`/admin/societies/${societyId}/admins`)
+}
+
 export async function addSocietyAdmin(
   societyId: string,
   email: string,
