@@ -23,9 +23,7 @@ export default auth((req) => {
 
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-  if (isApiAuthRoute) {
-    return null;
-  }
+  if (isApiAuthRoute) return null;
 
   if (isAuthRoute) {
     if (isLoggedIn) {
@@ -42,6 +40,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  // copied from clerk
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };

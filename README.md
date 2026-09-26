@@ -46,7 +46,7 @@ Built with **Next.js 16** and a modern React stack, using **Prisma ORM** on top 
 └── routes.ts              # App route definitions
 ```
 
-## Getting Started
+**Discover. Belong. Connect.**
 
 ### Prerequisites
 

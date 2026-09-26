@@ -44,7 +44,6 @@ export async function submitApplication(societyId: string, formData: FormData) {
   if (!rollNumber) throw new Error("Roll number is required")
   if (!phone) throw new Error("Phone number is required")
 
-  // Keep the student's profile info up to date
   await db.user.update({
     where: { id: studentId },
     data: {
@@ -59,7 +58,6 @@ export async function submitApplication(societyId: string, formData: FormData) {
     response: (formData.get(`question-${q.id}`) as string) ?? "",
   }))
 
-  // Validate required questions were answered
   for (const q of society.questions) {
     if (q.required) {
       const answer = formData.get(`question-${q.id}`) as string
