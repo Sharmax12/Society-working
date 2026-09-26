@@ -16,16 +16,24 @@ export default async function AdminDashboardPage() {
       <p className="text-muted-foreground mt-1 mb-8">
         Review applications for the societies you manage.
       </p>
-      <Link
-      href="/admin/societies/new"
-      className="inline-block mt-4 text-sm font-medium text-rose-600 hover:underline"
-      >
-        + Create a new society\
+      <div className="flex items-center gap-4 mt-4">
+        <Link
+          href="/admin/societies/new"
+          className="text-sm font-medium text-rose-600 hover:underline"
+        >
+          + Create a new society
         </Link>
+        <Link
+          href="/admin/events"
+          className="text-sm font-medium text-rose-600 hover:underline"
+        >
+          Manage events →
+        </Link>
+      </div>
 
       {societies.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          You don't manage any societies yet.
+          You don&apos;t manage any societies yet.
         </p>
       ) : (
         <div className="grid sm:grid-cols-2 gap-4">

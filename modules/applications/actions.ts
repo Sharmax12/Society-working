@@ -13,7 +13,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   const society = await db.society.findUnique({
     where: { id: societyId },
-    include: { questions: true },
+    include: { questions: true, admin: true },
   })
 
   if (!society) throw new Error("Society not found")
@@ -25,6 +25,11 @@ export async function submitApplication(societyId: string, formData: FormData) {
     where: { studentId_societyId: { studentId, societyId } },
   })
   if (existing) throw new Error("You've already applied to this society")
+
+  const student = await db.user.findUnique({
+    where: { id: studentId },
+    select: { name: true },
+  })
 
   const rollNumber = formData.get("rollNumber") as string
   const phone = formData.get("phone") as string
@@ -40,6 +45,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   const answers = society.questions.map((q) => ({
     questionId: q.id,
+    name: q.prompt,
     response: (formData.get(`question-${q.id}`) as string) ?? "",
   }))
 
@@ -55,6 +61,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   await db.application.create({
     data: {
+      name: student?.name,
       studentId,
       societyId,
       answers: { create: answers },
@@ -62,7 +69,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
   })
 
   revalidatePath("/dashboard")
-  redirect("/dashboard")
+  redirect(`/apply/${societyId}/submitted`)
 }
 
 export async function updateApplicationStatus(

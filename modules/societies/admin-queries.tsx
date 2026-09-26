@@ -1,5 +1,11 @@
 import { db } from "@/lib/db"
 
+export async function getManagedSociety(societyId: string, adminId: string) {
+  return db.society.findFirst({
+    where: { id: societyId, adminId },
+  })
+}
+
 export async function getManagedSocieties(adminId: string) {
   const societies = await db.society.findMany({
     where: { adminId },
