@@ -20,6 +20,7 @@ export const publicRoutes: string[] = [
 export const publicRoutePrefixes: string[] = [
    "/societies",
    "/events",
+   "/Connect",
 ]
 
 /**
