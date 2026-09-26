@@ -13,7 +13,7 @@ export async function submitApplication(societyId: string, formData: FormData) {
 
   const society = await db.society.findUnique({
     where: { id: societyId },
-    include: { questions: true },
+    include: { questions: true, admin: true },
   })
 
   if (!society) throw new Error("Society not found")

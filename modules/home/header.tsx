@@ -42,33 +42,39 @@ export function Header() {
                     />
 
                     <span className="hidden sm:block font-extrabold text-lg">
-                      CampusCircle
+                      HallWayLoop
                     </span>
                   </Link>
                   <span className="text-zinc-300 dark:text-zinc-700">|</span>
                   {/* Desktop Navigation Links */}
                   <div className="hidden sm:flex items-center gap-4">
                     <Link
-                      href="/docs/components/background-paths"
+                      href="/societies"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Societies
+                    </Link>
+                    <Link
+                      href="/events"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Events
+                    </Link>
+
+                    <Link
+                      href="/dashboard"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                     >
                       For Students
                     </Link>
-                    {/* <Link
-                                            href="/pricing"
-                                            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                                        >
-                                            Pricing
-                                        </Link> */}
+                    
                     <Link
                       href="/admin" 
                       target="_blank"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors flex items-center gap-2"
                     >
                       For Society Admins
-                      <span className="text-green-500 dark:text-green-400 border border-green-500 dark:border-green-400 rounded-lg px-1 py-0.5 text-xs">
-                        New
-                      </span>
+                      
                     </Link>
                   </div>
                 </div>
@@ -81,16 +87,22 @@ export function Header() {
                   <UserButton />
                 </div>
 
-                {/* Mobile Navigation remains unchanged */}
+                
                 <div className="flex sm:hidden items-center gap-4">
                   <Link
-                    href="/docs/components/action-search-bar"
+                    href="/dashboard"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
                     For Students
                   </Link>
                   <Link
-                    href="/pricing"
+                      href="/events"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Events
+                    </Link>
+                  <Link
+                    href="/admin"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
                     For Society Admins

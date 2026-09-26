@@ -26,6 +26,11 @@ export function ApplicationReviewCard({ application }: { application: any }) {
         <div>
           <p className="font-medium">{application.student.name}</p>
           <p className="text-xs text-muted-foreground">{application.student.email}</p>
+          {application.student.rollNumber && (
+            <p className="text-xs text-muted-foreground">
+              Roll No: {application.student.rollNumber}
+            </p>
+          )}
         </div>
         <StatusBadge status={application.status} />
       </div>
