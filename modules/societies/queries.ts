@@ -1,10 +1,19 @@
 "use server"
 import { db } from "@/lib/db"
-
+import { auth } from "@/auth"
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
 
 export async function getOpenSocieties() {
   return db.society.findMany({
-    where: { isOpen: true },
+    where: { verificationStatus: "VERIFIED", isOpen: true, deadline: { gt: new Date() } },
+    orderBy: { createdAt: "desc" },
+  })
+}
+
+export async function getSocietiesForDirectory() {
+  return db.society.findMany({
+    where: { verificationStatus: "VERIFIED" },
     orderBy: { createdAt: "desc" },
   })
 }
@@ -19,7 +28,7 @@ export async function getUserApplications(userId: string) {
 
 export async function getSocietyWithQuestions(societyId: string) {
   return db.society.findUnique({
-    where: { id: societyId },
+    where: { id: societyId, verificationStatus: "VERIFIED" },
     include: { questions: true },
   })
 }
@@ -31,17 +40,12 @@ export async function getExistingApplication(studentId: string, societyId: strin
 }
 
 
-
-import { auth } from "@/auth"
-import { redirect } from "next/navigation"
-import { revalidatePath } from "next/cache"
-
 type QuestionInput = { prompt: string; required: boolean }
 
 export async function createSociety(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") throw new Error("Not authorized")
+  if (session.user.role !== "ADMIN") throw new Error("Only society admins can create societies")
 
   const name = formData.get("name") as string
   const description = formData.get("description") as string
@@ -69,6 +73,7 @@ export async function createSociety(formData: FormData) {
       category: category?.trim() || undefined,
       deadline: new Date(deadline),
       adminId: session.user.id,
+      admins: { create: { userId: session.user.id } },
       questions: {
         create: validQuestions.map((q) => ({
           prompt: q.prompt.trim(),
@@ -79,5 +84,5 @@ export async function createSociety(formData: FormData) {
   })
 
   revalidatePath("/admin")
-  redirect(`/admin/societies/${society.id}`)
+  redirect(`/admin/societies/${society.id}/created`)
 }

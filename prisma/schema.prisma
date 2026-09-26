@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,9 +12,16 @@ datasource db {
 enum Role {
   STUDENT
   ADMIN
+  SUPER_ADMIN
 }
 
 // Application status workflow
+enum SocietyVerificationStatus {
+  PENDING
+  VERIFIED
+  SUSPENDED
+}
+
 enum ApplicationStatus {
   PENDING
   ACCEPTED
@@ -23,38 +30,41 @@ enum ApplicationStatus {
 
 // Primary User Model (Students & Admins)
 model User {
-  id           String        @id @default(cuid()) @map("_id")
+  id           String        @id @default(cuid())
   name         String?
   image        String?
   email        String        @unique
-  rollNumber   String?       @unique // Student roll/registration number
-  phone        String?       @unique // Contact phone number
+  rollNumber   String?        // Student roll/registration number
+  phone        String?        // Contact phone number
   passwordHash String?       // Hashed password (never plaintext)
   role         Role          @default(STUDENT)
 
   accounts     Account[]
   applications Application[] // Student's applications
-  
+
   // Societies managed if the user is an admin
-  managedSocieties Society[] @relation("SocietyAdmins")
+  managedSocieties Society[] @relation("SocietyOwner")
+  societyAdminMemberships SocietyAdmin[]
 
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 }
 
 model Account {
-  id                String  @id @default(cuid()) @map("_id")
-  userId            String  @map("user_id")
+  id                String  @id @default(cuid())
+  userId            String  
+  name              String? // Display name of the linked account/provider (optional)
+
   type              String
   provider          String
   providerAccountId String
-  refreshToken      String? @map("refresh_token")
-  accessToken       String? @map("access_token")
-  expiresAt         Int?    @map("expires_at")
-  tokenType         String? @map("token_type")
+  refreshToken      String? 
+  accessToken       String? 
+  expiresAt         Int?    
+  tokenType         String? 
   scope             String?
-  idToken           String? @map("id_token")
-  sessionState      String? @map("session_state")
+  idToken           String?
+  sessionState      String? 
 
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -64,31 +74,47 @@ model Account {
 
 // Society Entity managed by Admins
 model Society {
-  id          String        @id @default(cuid()) @map("_id")
+  id          String        @id @default(cuid()) 
   name        String        @unique
   description String
   category    String?
   deadline    DateTime      // Checked server-side during submission
   isOpen      Boolean       @default(true)
+  verificationStatus SocietyVerificationStatus @default(PENDING)
 
   adminId     String
-  admin       User          @relation("SocietyAdmins", fields: [adminId], references: [id])
+  admin       User          @relation("SocietyOwner", fields: [adminId], references: [id])
+  admins      SocietyAdmin[]
 
   questions   Question[]    // Application questions defined by the society
   applications Application[]
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
+  events      Event[] 
+  
 }
 
-// Custom application questions per society
+// Tenant-scoped society administrators. A society can have multiple admins.
+model SocietyAdmin {
+  id        String   @id @default(cuid())
+  societyId String
+  userId    String
+  society   Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
 
+  @@unique([societyId, userId])
+  @@index([userId])
+  @@index([societyId])
+}
 
 // Student's Application to a Society
 model Application {
-  id          String            @id @default(cuid()) @map("_id")
+  id          String            @id @default(cuid()) 
+  name        String?           // Applicant's name at time of submission (denormalized snapshot)
   status      ApplicationStatus @default(PENDING)
-  
+
   studentId   String
   societyId   String
 
@@ -105,24 +131,44 @@ model Application {
   @@index([societyId])
 }
 
+model Event {
+  id          String   @id @default(cuid()) 
+  title       String
+  description String
+  date        DateTime          // When the event happens
+  location    String?
+  imageUrl    String?           // Poster/banner image URL
+  inviteLink  String?           // RSVP / registration / invite link
+
+  societyId   String
+  society     Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([societyId])
+  @@index([date])
+}
+
 model Question {
-  id        String   @id @default(cuid()) @map("_id")
+  id        String   @id @default(cuid()) 
   societyId String
   prompt    String
   required  Boolean  @default(true)
 
   society   Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
-  answers   Answer[]           // add this
+  answers   Answer[]
 }
 
 model Answer {
-  id            String      @id @default(cuid()) @map("_id")
+  id            String      @id @default(cuid()) 
   applicationId String
   questionId    String
+  name          String?     // Question label/prompt snapshot at time of answering
   response      String
 
   application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)  // add this
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@index([applicationId])
 }
