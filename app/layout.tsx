@@ -24,9 +24,6 @@ export const metadata: Metadata = {
     template: siteConfig.app.titleTemplate,
   },
   description: siteConfig.app.description,
-  // Safe default: most routes under this root layout (dashboard, admin,
-  // apply, sign-in) are authenticated app screens, not marketing pages.
-  // The public marketing group explicitly opts back in to indexing.
   robots: { index: false, follow: false },
 };
 
@@ -35,31 +32,25 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const session = await auth()
+  const session = await auth();
 
   return (
     <SessionProvider session={session}>
-    <html lang="en"  suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-         <ThemeProvider
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
           >
-            <div className="flex flex-col min-h-screen">
-              <Toaster/>
-    <div className="flex-1">
-{children}
-    </div>
+            <div className="flex min-h-screen flex-col">
+              <Toaster />
+              <div className="flex-1">{children}</div>
             </div>
-        
-        </ThemeProvider>
-      </body>
-    </html>
+          </ThemeProvider>
+        </body>
+      </html>
     </SessionProvider>
   );
 }
