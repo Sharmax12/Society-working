@@ -2,133 +2,111 @@
 
 **Discover. Belong. Connect.**
 
-HallWayLoop is a campus social platform that brings college societies, clubs, and events into one place. Students can discover communities that match their interests, submit applications to join them, and keep up with what's happening across campus — all from a single, modern web app.
+HallWayLoop is a campus platform for finding societies, keeping up with events, and handling society applications without jumping between notice boards, group chats, and separate forms.
 
 Live demo: [campuscircle-seven.vercel.app](https://campuscircle-seven.vercel.app/)
 
-Built with **Next.js 16** and a modern React stack, using **Prisma ORM** on top of PostgreSQL for data access and **Auth.js (NextAuth v5)** for authentication.
+## What the app does
 
-## Features
+A student can:
 
-- **Discover societies** — Browse all active campus societies and clubs (`/societies`), grouped by category (Technical, Cultural, Social Service, Entrepreneurship & Finance, Dramatics, and more), with a quick command-palette search (`⌘K`).
-- **Society profiles** — Each society has its own page describing what it does, whether it's currently open for applications, and the application deadline.
-- **Apply to join** — A short, guided application flow (`/apply/[societyId]`) lets students apply to a society directly from its profile page.
-- **Campus events** — An events hub (`/events`) showing upcoming events to attend and a look back at past ones, each linked to the hosting society, with its own detail page (`/events/[eventId]`).
-- **Admin panel** — An admin area (`/admin`) for managing societies, applications, and events.
-- **Authentication** — Sign-in flow powered by Auth.js, with route protection via middleware.
-- **Society chat (coming soon)** — In-app chat for society members to coordinate, planned as a future feature.
+- browse verified societies and filter them by interest
+- open a society page and see its application deadline
+- apply once and track the application from the dashboard
+- browse upcoming and past campus events
 
-## Tech Stack
+Society admins can:
 
-- **Framework:** [Next.js 16](https://nextjs.org) (App Router) with React 19 and TypeScript
-- **Styling / UI:** Tailwind CSS 4, [shadcn/ui](https://ui.shadcn.com), Radix UI primitives, `lucide-react` icons
-- **Auth:** [NextAuth.js v5 (Auth.js)](https://authjs.dev) with the Prisma adapter
-- **Database / ORM:** [Prisma](https://www.prisma.io) 6 with the PostgreSQL driver adapter (`@prisma/adapter-pg`) and Prisma Accelerate extension
-- **Forms & Data:** `react-hook-form`, `date-fns`, `recharts` for charts
-- **Other UI utilities:** `embla-carousel-react`, `cmdk`, `sonner` (toasts), `vaul` (drawers), `react-resizable-panels`
+- create societies and application questions
+- review applications and change their status
+- invite applicants to interviews
+- create and remove society admins
+- publish events for the societies they manage
 
-## Project Structure
+The public directory and event pages only expose verified societies. Admin access is also scoped so a society admin only manages the societies they have been assigned to.
 
-```
-.
-├── app/            # Next.js App Router routes, layouts, and pages
-├── components/     # Reusable UI components
-├── hooks/          # Custom React hooks
-├── lib/            # Shared utilities, helpers, and clients
-├── modules/        # Feature-specific modules/domain logic
-├── prisma/         # Prisma schema and migrations
-├── public/         # Static assets
-├── auth.ts               # Auth.js configuration/handlers
-├── auth.config.ts        # Auth.js providers/config
-├── middleware.tsx         # Route middleware (e.g. auth-protected routes)
-├── next-auth.d.ts         # NextAuth type augmentations
-├── prisma.config.ts       # Prisma configuration
-└── routes.ts              # App route definitions
-```
+## Why the project is structured this way
 
-## Getting Started
+The main idea is to keep the student experience simple while keeping the rules on the server.
 
-### Prerequisites
+The database contains the campus relationships: users, societies, admins, applications, questions, answers, and events. Server actions handle changes to that data, while the App Router pages focus on showing the current state.
 
-- Node.js 18.18+ (or a version compatible with Next.js 16)
-- A PostgreSQL database
-- npm, yarn, pnpm, or bun
+Authentication is handled by Auth.js with Google and GitHub sign-in. Prisma is used for PostgreSQL access.
 
-### 1. Clone the repository
+## Stack
+
+- Next.js 16 and React 19
+- TypeScript
+- Tailwind CSS 4
+- shadcn/ui and Radix UI
+- Auth.js / NextAuth
+- Prisma with PostgreSQL
+- Recharts, Sonner, cmdk, and a few small UI utilities
+
+## Project layout
 
 ```
+app/          Next.js routes and pages
+components/   Shared UI pieces
+hooks/        Reusable React hooks
+lib/          Database, email, SEO, and utility code
+modules/      Feature-specific queries, actions, and components
+prisma/       Schema and migrations
+public/       Static assets
+```
+
+## Run it locally
+
+You need Node.js 20.19+ and a PostgreSQL database.
+
+```bash
 git clone https://github.com/Sharmax12/Society-working.git
 cd Society-working
-```
-
-### 2. Install dependencies
-
-```
 npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
 ```
 
-The `postinstall` script automatically runs `prisma generate`.
+Create a `.env` file with the database and Auth.js values:
 
-### 3. Configure environment variables
-
-Create a `.env` file in the project root with at least:
-
-```
+```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
 
-# Auth.js
-AUTH_SECRET="generate-a-random-secret"
-# Add any OAuth provider credentials your auth.config.ts requires
+AUTH_SECRET="your-secret"
+AUTH_GITHUB_ID="your-github-client-id"
+AUTH_GITHUB_SECRET="your-github-client-secret"
+AUTH_GOOGLE_ID="your-google-client-id"
+AUTH_GOOGLE_SECRET="your-google-client-secret"
+
+# Optional email notifications
+RESEND_API_KEY=""
+EMAIL_FROM="Society <onboarding@resend.dev>"
 ```
 
-> Tip: You can generate an `AUTH_SECRET` with `npx auth secret`.
+Then:
 
-### 4. Set up the database
-
-Apply the Prisma schema to your database:
-
-```
+```bash
 npx prisma migrate dev
-```
-
-(Or `npx prisma db push` if you're not using migrations.)
-
-### 5. Run the development server
-
-```
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open <http://localhost:3000> with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Available Scripts
+## A few implementation notes
 
-| Script          | Description                          |
-| --------------- | ------------------------------------ |
-| `npm run dev`   | Start the Next.js development server |
-| `npm run build` | Build the app for production         |
-| `npm run start` | Start the production server          |
-| `npm run lint`  | Run ESLint                           |
+- Applications are unique per student and society.
+- A society has a primary owner plus optional scoped admins.
+- Unverified societies are hidden from the public society and event pages.
+- Application and interview emails are best-effort; an email provider failure does not undo the database change.
+- The Connect area is currently a placeholder for the next part of the product.
 
-## Contributing
+## Available scripts
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/my-feature`)
-3. Commit your changes
-4. Push to the branch and open a Pull Request
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+```
 
 ## License
 
-This project is licensed under the GNU GENERAL PUBLIC License — see the [LICENSE](LICENSE) file for details.
+GNU General Public License. See [LICENSE](LICENSE).

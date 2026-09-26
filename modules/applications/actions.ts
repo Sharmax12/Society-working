@@ -44,7 +44,6 @@ export async function submitApplication(societyId: string, formData: FormData) {
   if (!rollNumber) throw new Error("Roll number is required")
   if (!phone) throw new Error("Phone number is required")
 
-  // Keep the student's profile info up to date
   await db.user.update({
     where: { id: studentId },
     data: {
@@ -59,7 +58,6 @@ export async function submitApplication(societyId: string, formData: FormData) {
     response: (formData.get(`question-${q.id}`) as string) ?? "",
   }))
 
-  // Validate required questions were answered
   for (const q of society.questions) {
     if (q.required) {
       const answer = formData.get(`question-${q.id}`) as string
@@ -79,8 +77,6 @@ export async function submitApplication(societyId: string, formData: FormData) {
     include: { society: { select: { name: true } } },
   })
 
-  // Email delivery is secondary to successful submission. A provider
-  // configuration issue should not invalidate the application itself.
   await sendApplicationReceivedEmail({
     applicationId: application.id,
     applicantName: student.name,
@@ -107,7 +103,20 @@ export async function updateApplicationStatus(
     },
   })
 
-  if (!application || !((application.society.adminId === session.user.id) || (await db.societyAdmin.findUnique({ where: { societyId_userId: { societyId: application.societyId, userId: session.user.id } } })))) {
+  if (
+    !application ||
+    !(
+      application.society.adminId === session.user.id ||
+      (await db.societyAdmin.findUnique({
+        where: {
+          societyId_userId: {
+            societyId: application.societyId,
+            userId: session.user.id,
+          },
+        },
+      }))
+    )
+  ) {
     throw new Error("Not authorized to update this application")
   }
 
@@ -146,7 +155,20 @@ export async function sendInterviewInvitation(applicationId: string) {
     },
   })
 
-  if (!application || !((application.society.adminId === session.user.id) || (await db.societyAdmin.findUnique({ where: { societyId_userId: { societyId: application.societyId, userId: session.user.id } } })))) {
+  if (
+    !application ||
+    !(
+      application.society.adminId === session.user.id ||
+      (await db.societyAdmin.findUnique({
+        where: {
+          societyId_userId: {
+            societyId: application.societyId,
+            userId: session.user.id,
+          },
+        },
+      }))
+    )
+  ) {
     throw new Error("Not authorized to contact this applicant")
   }
 

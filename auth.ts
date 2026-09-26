@@ -86,15 +86,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token, trigger }) {
-      // The token already carries everything we need after the first
-      // pass, so only hit the database on sign-in / explicit refresh
-      // instead of on every request that calls auth(). This avoids
-      // 2-3 extra DB round trips per page load across the whole app.
       if (token.role && trigger !== "update") return token;
 
       const existingUser =
         (token.sub ? await getUserById(token.sub) : null) ??
-        (token.email ? await db.user.findUnique({ where: { email: token.email } }) : null);
+        (token.email
+          ? await db.user.findUnique({ where: { email: token.email } })
+          : null);
+
       if (!existingUser) return token;
 
       token.sub = existingUser.id;
@@ -106,8 +105,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async session({ session, token }) {
-      // Reuse what the jwt callback already resolved instead of
-      // re-fetching the user from the database on every session read.
       if (token.sub && session.user) {
         session.user.id = token.sub;
         session.user.role = token.role as Role;
