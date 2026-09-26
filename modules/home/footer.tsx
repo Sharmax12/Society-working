@@ -22,7 +22,7 @@ export function Footer() {
           {socialLinks.map((link, index) => (
             <Link
               key={index}
-              href={link.href || "#"}
+              href="https://github.com/Sharmax12"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -33,7 +33,13 @@ export function Footer() {
 
         {/* Copyright Notice */}
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          &copy; {new Date().getFullYear()} Codesnippet. All rights reserved.
+          &copy; {new Date().getFullYear()} HallWayLoop. All rights reserved.
+        </p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Made with ❤️ by{" Aniruddh Sharma"}.
+        </p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Contact : info@hallwayloop.com
         </p>
       </div>
     </footer>

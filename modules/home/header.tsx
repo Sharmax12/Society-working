@@ -42,58 +42,75 @@ export function Header() {
                     />
 
                     <span className="hidden sm:block font-extrabold text-lg">
-                      CampusCircle
+                      HallWayLoop
                     </span>
                   </Link>
                   <span className="text-zinc-300 dark:text-zinc-700">|</span>
                   {/* Desktop Navigation Links */}
                   <div className="hidden sm:flex items-center gap-4">
                     <Link
-                      href="/docs/components/background-paths"
+                      href="/societies"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                     >
-                      For Students
+                      Societies
                     </Link>
-                    {/* <Link
-                                            href="/pricing"
-                                            className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
-                                        >
-                                            Pricing
-                                        </Link> */}
+                    <Link
+                      href="/events"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Events
+                    </Link>
+
+                    <Link
+                      href="/dashboard"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    
                     <Link
                       href="/admin" 
                       target="_blank"
                       className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors flex items-center gap-2"
                     >
-                      For Society Admins
-                      <span className="text-green-500 dark:text-green-400 border border-green-500 dark:border-green-400 rounded-lg px-1 py-0.5 text-xs">
-                        New
+                      Admin
+                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                        (Beta)
                       </span>
                     </Link>
                   </div>
                 </div>
+                      
+                    
+              
 
-                {/* Right side items */}
+                {/* User Button and Theme Toggle */}
                 <div className="hidden sm:flex items-center gap-3">
                   <span className="text-zinc-300 dark:text-zinc-700">|</span>
-                  {/* <HeaderPro /> */}
+                 
                   <ThemeToggle />
                   <UserButton />
                 </div>
 
-                {/* Mobile Navigation remains unchanged */}
+                
                 <div className="flex sm:hidden items-center gap-4">
+                 <Link
+                      href="/events"
+                      className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
+                    >
+                      Events
+                    </Link>
                   <Link
-                    href="/docs/components/action-search-bar"
+                    href="/societies"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
-                    For Students
+                    Societies
                   </Link>
                   <Link
-                    href="/pricing"
+                    href="/dashboard"
                     className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 transition-colors"
                   >
-                    For Society Admins
+                    Sign In
                   </Link>
                   <ThemeToggle />
                   <UserButton />
