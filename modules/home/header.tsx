@@ -1,12 +1,13 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowUpRight, CalendarDays, Compass, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, CalendarDays, Compass, ShieldCheck ,MessageCircle } from "lucide-react";
 import UserButton from "../auth/components/user-button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const links = [
   { href: "/societies", label: "Discover", icon: Compass },
   { href: "/events", label: "Events", icon: CalendarDays },
+  { href: "/Connect", label: "Connect", icon: MessageCircle }
 ];
 
 export function Header() {
