@@ -1,0 +1,128 @@
+generator client {
+  provider        = "prisma-client-js"
+  // Remove `previewFeatures = ["driverAdapters"]` if it exists here
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// System-wide access roles
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+// Application status workflow
+enum ApplicationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+// Primary User Model (Students & Admins)
+model User {
+  id           String        @id @default(cuid()) @map("_id")
+  name         String?
+  image        String?
+  email        String        @unique
+  rollNumber   String?       @unique // Student roll/registration number
+  phone        String?       @unique // Contact phone number
+  passwordHash String?       // Hashed password (never plaintext)
+  role         Role          @default(STUDENT)
+
+  accounts     Account[]
+  applications Application[] // Student's applications
+  
+  // Societies managed if the user is an admin
+  managedSocieties Society[] @relation("SocietyAdmins")
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid()) @map("_id")
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String
+  refreshToken      String? @map("refresh_token")
+  accessToken       String? @map("access_token")
+  expiresAt         Int?    @map("expires_at")
+  tokenType         String? @map("token_type")
+  scope             String?
+  idToken           String? @map("id_token")
+  sessionState      String? @map("session_state")
+
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// Society Entity managed by Admins
+model Society {
+  id          String        @id @default(cuid()) @map("_id")
+  name        String        @unique
+  description String
+  category    String?
+  deadline    DateTime      // Checked server-side during submission
+  isOpen      Boolean       @default(true)
+
+  adminId     String
+  admin       User          @relation("SocietyAdmins", fields: [adminId], references: [id])
+
+  questions   Question[]    // Application questions defined by the society
+  applications Application[]
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// Custom application questions per society
+
+
+// Student's Application to a Society
+model Application {
+  id          String            @id @default(cuid()) @map("_id")
+  status      ApplicationStatus @default(PENDING)
+  
+  studentId   String
+  societyId   String
+
+  student     User              @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  society     Society           @relation(fields: [societyId], references: [id], onDelete: Cascade)
+
+  answers     Answer[]          // Student response data
+
+  submittedAt DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@unique([studentId, societyId]) // Prevents multiple applications to the same society
+  @@index([studentId])
+  @@index([societyId])
+}
+
+model Question {
+  id        String   @id @default(cuid()) @map("_id")
+  societyId String
+  prompt    String
+  required  Boolean  @default(true)
+
+  society   Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  answers   Answer[]           // add this
+}
+
+model Answer {
+  id            String      @id @default(cuid()) @map("_id")
+  applicationId String
+  questionId    String
+  response      String
+
+  application   Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)  // add this
+
+  @@index([applicationId])
+}
