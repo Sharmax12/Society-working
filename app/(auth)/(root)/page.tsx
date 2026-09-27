@@ -115,20 +115,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-
-      {/* Grounded Footer */}
-      <footer className="border-t border-neutral-900/10 dark:border-neutral-800 bg-[#F4F1EA] dark:bg-neutral-900 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-neutral-600 dark:text-neutral-400 font-medium">
-          <div>
-            <span className="font-bold text-neutral-900 dark:text-neutral-100">HallWayLoop</span> — Built for campus life, not algorithm scrolling.
-          </div>
-          <div className="flex gap-6">
-            <Link href="/societies" className="hover:underline">Societies</Link>
-            <Link href="/events" className="hover:underline">Events</Link>
-            <a href="https://github.com/Sharmax12" target="_blank" rel="noreferrer" className="hover:underline">GitHub</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
