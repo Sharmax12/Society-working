@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {ThemeToggle} from "@/components/ui/theme-toggle"
 
 export function Header() {
   return (
@@ -26,6 +27,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/societies"
               className="px-4 py-2 text-sm font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-md border border-neutral-900 shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
