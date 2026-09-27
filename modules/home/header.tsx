@@ -1,39 +1,39 @@
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowUpRight, CalendarDays, Compass, ShieldCheck ,MessageCircle } from "lucide-react";
-import UserButton from "../auth/components/user-button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
-
-const links = [
-  { href: "/societies", label: "Discover", icon: Compass },
-  { href: "/events", label: "Events", icon: CalendarDays },
-  { href: "/Connect", label: "Connect", icon: MessageCircle }
-];
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 px-3 pt-3 sm:px-5">
-      <nav aria-label="Primary navigation" className="mx-auto flex h-[68px] max-w-7xl items-center justify-between rounded-[1.35rem] border border-foreground/10 bg-background/85 px-3 shadow-[0_16px_50px_-35px_rgba(0,0,0,.4)] backdrop-blur-2xl sm:px-5">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-8">
-          <Link href="/" className="group flex shrink-0 items-center gap-2.5" aria-label="HallWayLoop home">
-            <span className="relative grid h-10 w-10 place-items-center overflow-hidden rounded-xl bg-foreground shadow-sm transition duration-300 group-hover:-rotate-3 group-hover:scale-105">
-              <Image src="/logo.svg" alt="HallWayLoop" height={30} width={30} className="invert dark:invert-0" />
+    <header className="border-b border-neutral-900/10 bg-[#FBF9F5]/90 sticky top-0 z-50 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <span className="w-8 h-8 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-bold font-mono text-sm group-hover:bg-amber-600 transition-colors">
+              HW
             </span>
-            <span className="hidden text-[15px] font-black tracking-[-.04em] sm:block">HallWayLoop<span className="text-primary">.</span></span>
+            <span className="font-bold tracking-tight text-lg">
+              HallWayLoop<span className="text-amber-600">.</span>
+            </span>
           </Link>
-          <div className="hidden items-center gap-1 rounded-xl bg-muted/60 p-1 sm:flex">
-            {links.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className="group flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-background hover:text-foreground"><Icon className="h-3.5 w-3.5 transition group-hover:scale-110"/> {label}</Link>)}
-          </div>
-          <div className="flex items-center gap-1 sm:hidden">
-            {links.map(({ href, label, icon: Icon }) => <Link key={href} href={href} aria-label={label} title={label} className="grid h-9 w-9 place-items-center rounded-xl text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Icon className="h-4 w-4" /></Link>)}
+
+          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-600">
+            <Link href="/societies" className="hover:text-neutral-900 transition-colors">
+              Societies
+            </Link>
+            <Link href="/events" className="hover:text-neutral-900 transition-colors">
+              Events
+            </Link>
+            <Link href="/Connect" className="hover:text-neutral-900 transition-colors">
+              Connect
+            </Link>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/societies"
+              className="px-4 py-2 text-sm font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-md border border-neutral-900 shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+            >
+              Explore Campus →
+            </Link>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
-          <Link href="/admin" target="_blank" rel="noreferrer" className="hidden items-center gap-1.5 rounded-xl border border-transparent px-3 py-2 text-xs font-semibold text-muted-foreground transition hover:border-foreground/10 hover:bg-muted hover:text-foreground md:flex"><ShieldCheck className="h-3.5 w-3.5"/> Admin <ArrowUpRight className="h-3 w-3"/></Link>
-          <ThemeToggle />
-          <UserButton />
-        </div>
-      </nav>
-    </header>
+      </header>
   );
 }
