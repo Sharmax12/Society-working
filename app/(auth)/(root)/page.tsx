@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#FBF9F5] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-amber-300 dark:selection:bg-amber-500 selection:text-neutral-900 transition-colors duration-200">
@@ -41,7 +42,7 @@ export default function Home() {
         </section>
 
         {/* Asymmetric Bento Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-24">
+        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-5">
           {/* Card 1: Main Event Highlight */}
           <div className="md:col-span-7 bg-white dark:bg-neutral-900 border-2 border-neutral-900 dark:border-neutral-100 rounded-2xl p-7 shadow-[6px_6px_0px_0px_rgba(24,24,27,1)] dark:shadow-[6px_6px_0px_0px_rgba(250,250,250,1)] flex flex-col justify-between">
             <div>
@@ -106,7 +107,7 @@ export default function Home() {
                 </p>
               </div>
               <Link
-                href="/connect"
+                href="/Connect"
                 className="shrink-0 px-5 py-2.5 bg-emerald-300 dark:bg-emerald-400 border border-neutral-900 dark:border-neutral-100 text-neutral-950 font-bold text-sm rounded-lg shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] dark:shadow-[2px_2px_0px_0px_rgba(250,250,250,1)] hover:bg-emerald-200 dark:hover:bg-emerald-300 transition-all"
               >
                 Join Campus Connect →

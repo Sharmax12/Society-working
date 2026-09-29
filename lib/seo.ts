@@ -39,7 +39,7 @@ export const siteConfig = {
   author: "Aniruddh Sharma",
 
   social: {
-    github: "https://github.com/Sharmax12",
+    github: "https://github.com/Sharmax12/Society-working",
   },
 } as const;
 
