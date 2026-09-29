@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto"
+
 type SendEmailInput = {
   to: string
   subject: string
@@ -171,6 +173,23 @@ ${societyName} Team`,
       <p>Thank you for applying to <strong>${safeSociety}</strong>.</p>
       <p>We would like to invite you for an interview. Further details regarding the interview will be shared with you shortly.</p>
       <p style="margin-top:24px">Regards,<br />${safeSociety} Team</p>
+    </div>`,
+  })
+}
+
+export async function sendConnectSignupEmail(email: string) {
+  const safeEmail = escapeHtml(email)
+  const emailHash = createHash("sha256").update(email.toLowerCase()).digest("hex")
+
+  return sendEmail({
+    to: email,
+    subject: "You're on the HallWayLoop Connect list",
+    idempotencyKey: `connect-signup-${emailHash}`,
+    text: "Thanks for your interest in HallWayLoop Connect. We've added you to the launch notification list and will email you when it goes live.",
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
+      <h2 style="margin-bottom:8px">You're on the list</h2>
+      <p>Thanks for your interest in HallWayLoop Connect.</p>
+      <p>We've added <strong>${safeEmail}</strong> to the launch notification list and will email you when it goes live.</p>
     </div>`,
   })
 }

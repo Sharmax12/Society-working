@@ -112,45 +112,13 @@ export function SocietyDirectory({ societies }: { societies: Society[] }) {
       </section>
 
       {/* Directory Grid & Controls */}
-      <div className="mx-auto max-w-7xl px-5 pt-6 pb-12 sm:px-8 lg:px-10">
-        {/* Controls Header & Tabs */}
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Left-Aligned Open/Closed Tabs */}
-            <div className="inline-flex rounded-2xl border border-border bg-card p-1.5 shadow-sm" role="tablist" aria-label="Society application status">
-              <button
-                role="tab"
-                aria-selected={section === "open"}
-                onClick={() => setSection("open")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
-                  section === "open"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Clock3 className="h-4 w-4" /> Open <span className="text-xs opacity-80">{openSocieties.length}</span>
-              </button>
-              <button
-                role="tab"
-                aria-selected={section === "closed"}
-                onClick={() => setSection("closed")}
-                className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
-                  section === "closed"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Archive className="h-4 w-4" /> Closed <span className="text-xs opacity-80">{closedSocieties.length}</span>
-              </button>
-            </div>
-
-            {/* Title & Badge */}
-            <div className="flex items-center gap-2">
-              <h3 className="text-lg font-black tracking-tight text-foreground">
-                {section === "open" ? "Communities looking for people" : "Applications have closed"}
-              </h3>
-              <Badge className="rounded-full">{visibleSocieties.length}</Badge>
-            </div>
+      <div className="mx-auto max-w-7xl px-5 pt-2 pb-12 sm:px-8 lg:px-10">
+        <div className="mt-10 mb-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-black tracking-tight text-foreground">
+              {section === "open" ? "Communities looking for people" : "Applications have closed"}
+            </h3>
+            <Badge className="rounded-full">{visibleSocieties.length}</Badge>
           </div>
 
           <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
@@ -160,11 +128,46 @@ export function SocietyDirectory({ societies }: { societies: Society[] }) {
         </div>
 
         {/* Description Subtext */}
-        <p className="-mt-3 mb-6 text-sm text-muted-foreground">
+        <p className="mb-6 text-sm text-muted-foreground">
           {section === "open"
             ? "These societies are still accepting applications."
             : "Deadlines have passed or applications were closed by their admins."}
         </p>
+        
+        {/* Section Header: Left Title / Subtitle + Right Filter Tabs */}
+        <div className="flex flex-col gap-4 mb-4 sm:flex-row sm:items-start sm:justify-left sm:gap-6 lg:items-center lg:justify-between">
+          
+          {/* Open/Closed Filter Tabs (Left side of controls) */}
+          <div className="inline-flex shrink-0 rounded-2xl border border-border bg-card p-1.5 shadow-sm" role="tablist" aria-label="Society application status">
+            <button
+              role="tab"
+              aria-selected={section === "open"}
+              onClick={() => setSection("open")}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+                section === "open"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Clock3 className="h-4 w-4" /> Open <span className="text-xs opacity-80">{openSocieties.length}</span>
+            </button>
+            <button
+              role="tab"
+              aria-selected={section === "closed"}
+              onClick={() => setSection("closed")}
+              className={`inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+                section === "closed"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Archive className="h-4 w-4" /> Closed <span className="text-xs opacity-80">{closedSocieties.length}</span>
+            </button>
+          </div>
+        </div>
+
+       
+        
 
         {/* Empty State vs Cards Display */}
         {visibleSocieties.length === 0 ? (

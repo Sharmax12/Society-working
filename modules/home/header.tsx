@@ -1,13 +1,13 @@
 import Link from "next/link";
 import {ThemeToggle} from "@/components/ui/theme-toggle"
-
+import logo from "@/public/logo.svg"
 export function Header() {
   return (
     <header className="border-b border-neutral-900/10 bg-[#FBF9F5]/90 sticky top-0 z-50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <span className="w-8 h-8 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-bold font-mono text-sm group-hover:bg-amber-600 transition-colors">
-              HW
+              <img src={logo.src} alt="HallWayLoop Logo" className="w-5 h-5" />
             </span>
             <span className="font-bold tracking-tight text-lg">
               HallWayLoop<span className="text-amber-600">.</span>
