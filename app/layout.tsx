@@ -25,6 +25,7 @@ export const metadata: Metadata = {
   },
   description: siteConfig.app.description,
   robots: { index: false, follow: false },
+  icons: [],
 };
 
 export default async function RootLayout({
