@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import {ThemeToggle} from "@/components/ui/theme-toggle"
-
+import logo from "@/public/logo.svg"
 export function Header() {
   return (
     <header className="border-b border-neutral-900/10 bg-[#FBF9F5]/90 sticky top-0 z-50 backdrop-blur-sm">
