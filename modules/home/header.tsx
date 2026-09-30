@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {ThemeToggle} from "@/components/ui/theme-toggle"
 
@@ -6,9 +7,7 @@ export function Header() {
     <header className="border-b border-neutral-900/10 bg-[#FBF9F5]/90 sticky top-0 z-50 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <span className="w-8 h-8 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-bold font-mono text-sm group-hover:bg-amber-600 transition-colors">
-              HW
-            </span>
+            <Image src="/icon.svg" alt="" width={32} height={32} className="h-8 w-8 object-contain" />
             <span className="font-bold tracking-tight text-lg">
               HallWayLoop<span className="text-amber-600">.</span>
             </span>

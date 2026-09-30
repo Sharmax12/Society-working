@@ -24,7 +24,8 @@ export const metadata: Metadata = {
     template: siteConfig.app.titleTemplate,
   },
   description: siteConfig.app.description,
-  robots: { index: false, follow: false },
+  icons: { icon: "/icon.svg" },
+  robots: { index: false, follow: false },  
 };
 
 export default async function RootLayout({
