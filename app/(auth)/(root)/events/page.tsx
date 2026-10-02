@@ -4,7 +4,19 @@ import { ArrowUpRight, CalendarDays, MapPin, Sparkles, Ticket, Users } from "luc
 import { getUpcomingEvents, getPastEvents } from "@/modules/events/queries";
 import { Badge } from "@/components/ui/badge";
 
-export const metadata: Metadata = { title: "Campus Events", description: "Discover what's happening across your college societies." };
+export const metadata: Metadata = {
+  title: "Campus Events",
+  description: "Discover college events, workshops, competitions, meetups, and student activities on HallWayLoop.",
+  keywords: ["campus events", "college events", "student events", "university events"],
+  alternates: { canonical: "/events" },
+  openGraph: {
+    title: "Campus Events | HallWayLoop",
+    description: "Discover college events, workshops, competitions, meetups, and student activities.",
+    url: "/events",
+    siteName: "HallWayLoop",
+    type: "website",
+  },
+};
 export const revalidate = 3600;
 function formatEventDate(date: Date) { return new Date(date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); }
 
