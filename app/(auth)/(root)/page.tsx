@@ -18,18 +18,18 @@ export default function Home() {
         <section className="mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-900/15 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-6 shadow-sm">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Live across campus clubs
+            Your campus, in one place
           </div>
 
           <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-neutral-950 dark:text-white max-w-4xl leading-[1.08] mb-6">
-            Your campus isn't quiet. <br className="hidden sm:inline" />
+            Discover. Belong. Connect. <br className="hidden sm:inline" />
             <span className="bg-amber-300 dark:bg-amber-500 dark:text-neutral-950 px-2 rounded-sm border-b-4 border-amber-500 dark:border-amber-400 inline-block mt-1">
-              You’re just looking in the wrong place.
+              Find your place on campus.
             </span>
           </h1>
 
           <p className="text-lg sm:text-xl text-neutral-700 dark:text-neutral-300 max-w-2xl font-normal leading-relaxed mb-8">
-            Stop relying on dead WhatsApp group links and missed Instagram stories. HallWayLoop gathers every society showcase, late-night hackathon, and quad hangout in one place.
+            HallWayLoop is a campus platform for discovering college societies, student clubs, campus events, and student communities — all in one place.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -60,10 +60,10 @@ export default function Home() {
                 <span className="text-xs font-mono text-neutral-500 dark:text-neutral-400">Quad / Student Center</span>
               </div>
               <h2 className="text-2xl font-bold text-neutral-950 dark:text-white mb-2">
-                Open Mic & Campus Jam Night
+                Discover Campus Events
               </h2>
               <p className="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed mb-6">
-                Organized by the Music & Acoustics Society. Free entry for all freshers and seniors. Equipment provided on stage.
+                Find upcoming college events, workshops, meetups, and activities happening through campus communities.
               </p>
             </div>
 
@@ -87,10 +87,10 @@ export default function Home() {
                 <span className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-amber-300">Society Directory</span>
               </div>
               <h2 className="text-2xl font-bold text-neutral-950 dark:text-white mb-2">
-                40+ Active Clubs & Communities
+                Explore College Societies & Clubs
               </h2>
               <p className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed mb-6">
-                From competitive robotics and debate clubs to late-night film appreciation societies.
+                Browse student-led societies and clubs by interest, discover what they do, and find communities you want to be part of.
               </p>
             </div>
 
@@ -107,10 +107,10 @@ export default function Home() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
                 <h3 className="text-xl font-bold text-neutral-950 dark:text-white mb-1">
-                  Looking for project collaborators or study squads?
+                  Looking for people to build, learn, or explore with?
                 </h3>
                 <p className="text-neutral-600 dark:text-neutral-300 text-sm">
-                  Connect with students who share your exact niche, tech stack, or hobby.
+                  Use HallWayLoop Connect to find students with shared interests, skills, projects, and hobbies.
                 </p>
               </div>
               <Link
