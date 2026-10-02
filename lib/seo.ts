@@ -57,6 +57,12 @@ export function buildWebsiteJsonLd() {
     name: siteConfig.name,
     url: siteConfig.url,
     description: siteConfig.marketing.tagline,
+    alternateName: "HallWayLoop",
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url,
+    },
     inLanguage: "en-IN",
   };
 }
