@@ -1,21 +1,31 @@
 /** Site-wide metadata and SEO settings. */
 export const siteConfig = {
   name: "HallWayLoop",
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app",
+  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://www.hallwayloop.com",
   marketing: {
-    title: "HallWayLoop — Discover, Belong, Connect",
-    description: "Discover college societies, student clubs, campus events, and communities on HallWayLoop.",
-    tagline: "A campus platform for discovering societies, events, people, and student communities.",
+    title: "HallWayLoop | College Societies, Clubs & Campus Events",
+    description:
+      "Discover college societies, student clubs, campus events, and communities in one place. Find opportunities to join, participate, and connect.",
+    tagline: "Discover. Belong. Connect. A campus platform for societies, clubs, events, and student communities.",
   },
   app: {
-    title: "HallWayLoop — Your Campus, In One Place",
+    title: "HallWayLoop",
     titleTemplate: "%s | HallWayLoop",
-    description: "Discover college societies, student clubs, campus events, and communities on HallWayLoop.",
+    description:
+      "Discover college societies, student clubs, campus events, and communities in one place.",
   },
   keywords: [
-    "HallWayLoop", "college societies", "college clubs", "student clubs",
-    "student communities", "campus events", "college events", "university societies",
-    "join college clubs", "student networking", "campus community platform",
+    "HallWayLoop",
+    "college societies",
+    "college clubs",
+    "student clubs",
+    "student communities",
+    "campus events",
+    "college events",
+    "university societies",
+    "join college clubs",
+    "student networking",
+    "campus community platform",
   ],
   ogImage: "/icon.svg",
   locale: "en_IN",
@@ -25,7 +35,7 @@ export const siteConfig = {
 } as const;
 
 export const robotsConfig = {
-  allow: ["/", "/societies", "/events", "/Connect"],
+  allow: ["/"],
   disallow: ["/dashboard", "/admin", "/apply", "/auth", "/api"],
 } as const;
 
