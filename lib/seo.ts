@@ -4,37 +4,24 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_APP_URL ?? "https://hallwayloop.app",
   marketing: {
     title: "HallWayLoop — Discover, Belong, Connect",
-    description:
-      "Discover college societies, student clubs, campus events, and communities on HallWayLoop.",
-    tagline:
-      "A campus platform for discovering societies, events, people, and student communities.",
+    description: "Discover college societies, student clubs, campus events, and communities on HallWayLoop.",
+    tagline: "A campus platform for discovering societies, events, people, and student communities.",
   },
   app: {
     title: "HallWayLoop — Your Campus, In One Place",
     titleTemplate: "%s | HallWayLoop",
-    description:
-      "Discover college societies, student clubs, campus events, and communities on HallWayLoop.",
+    description: "Discover college societies, student clubs, campus events, and communities on HallWayLoop.",
   },
   keywords: [
-    "HallWayLoop",
-    "college societies",
-    "college clubs",
-    "student clubs",
-    "student communities",
-    "campus events",
-    "college events",
-    "university societies",
-    "join college clubs",
-    "student networking",
-    "campus community platform",
+    "HallWayLoop", "college societies", "college clubs", "student clubs",
+    "student communities", "campus events", "college events", "university societies",
+    "join college clubs", "student networking", "campus community platform",
   ],
   ogImage: "/icon.svg",
   locale: "en_IN",
   contactEmail: "info@hallwayloop.com",
   author: "Aniruddh Sharma",
-  social: {
-    github: "https://github.com/Sharmax12/Society-working",
-  },
+  social: { github: "https://github.com/Sharmax12/Society-working" },
 } as const;
 
 export const robotsConfig = {
@@ -44,14 +31,7 @@ export const robotsConfig = {
 
 export const staticSitemapRoutes: {
   path: string;
-  changeFrequency:
-    | "always"
-    | "hourly"
-    | "daily"
-    | "weekly"
-    | "monthly"
-    | "yearly"
-    | "never";
+  changeFrequency: "always" | "hourly" | "daily" | "weekly" | "monthly" | "yearly" | "never";
   priority: number;
 }[] = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
@@ -77,7 +57,7 @@ export function buildOrganizationJsonLd() {
     "@type": "Organization",
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: \${siteConfig.url}/icon.svg,
+    logo: siteConfig.url + "/icon.svg",
     email: siteConfig.contactEmail,
     sameAs: [siteConfig.social.github],
   };
