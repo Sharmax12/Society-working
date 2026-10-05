@@ -3,7 +3,6 @@ export const publicRoutes = ["/"];
 export const publicRoutePrefixes = [
   "/societies",
   "/events",
-  "/Connect",
 ];
 
 export const authRoutes = ["/auth/sign-in"];

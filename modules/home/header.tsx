@@ -20,7 +20,7 @@ export function Header() {
             <Link href="/events" className="hover:text-neutral-900 transition-colors">
               Events
             </Link>
-            <Link href="/Connect" className="hover:text-neutral-900 transition-colors">
+            <Link href="/connect" className="hover:text-neutral-900 transition-colors">
               Connect
             </Link>
           </nav>
