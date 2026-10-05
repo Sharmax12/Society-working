@@ -11,5 +11,5 @@ export default async function ConversationPage({
   if (!session?.user?.id) redirect("/auth/sign-in")
 
   const { conversationId } = await params
-  return <ChatClient conversationId={conversationId} />
+  return <ChatClient conversationId={conversationId} userId={session.user.id} />
 }
