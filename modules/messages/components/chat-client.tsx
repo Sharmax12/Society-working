@@ -10,7 +10,7 @@ type Message = { id: string; content: string; senderId: string; createdAt: strin
 function displayName(person: Person) { return person.name?.trim() || "HWL student" }
 function initials(person: Person) { return displayName(person).split(/\s+/).slice(0,2).map(x => x[0]?.toUpperCase()).join("") }
 
-export function ChatClient({ conversationId }: { conversationId: string }) {
+export function ChatClient({ conversationId, userId }: { conversationId: string; userId: string }) {
   const router = useRouter()
   const [person, setPerson] = useState<Person | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
@@ -89,10 +89,10 @@ export function ChatClient({ conversationId }: { conversationId: string }) {
           {loading ? <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-12 animate-pulse rounded-2xl bg-muted/50" />)}</div> :
             messages.length ? <div className="space-y-2">
               {messages.map(message => (
-                <div key={message.id} className={`flex ${message.senderId === "ME" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-6 ${message.senderId === "ME" ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-muted"}`}>
+                <div key={message.id} className={`flex ${message.senderId === userId ? "justify-end" : "justify-start"}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-6 ${message.senderId === userId ? "rounded-br-md bg-primary text-primary-foreground" : "rounded-bl-md bg-muted"}`}>
                     <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                    <p className={`mt-1 text-[10px] ${message.senderId === "ME" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
+                    <p className={`mt-1 text-[10px] ${message.senderId === userId ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</p>
                   </div>
                 </div>
               ))}
