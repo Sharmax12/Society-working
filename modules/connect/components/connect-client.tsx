@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useMemo, useState, type ReactNode } from "react"
-import { Check, Clock3, Search, UserPlus, Users, X } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
+import { Ban, Check, Clock3, Search, UserPlus, Users, X } from "lucide-react"
 
 type Person = {
   id: string
@@ -60,7 +60,7 @@ export function ConnectClient() {
   const [busyId, setBusyId] = useState<string | null>(null)
   const [error, setError] = useState("")
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true)
     setError("")
 
@@ -95,11 +95,11 @@ export function ConnectClient() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     void load()
-  }, [])
+  }, [load])
 
   async function sendRequest(recipientId: string) {
     setBusyId(recipientId)
@@ -126,7 +126,7 @@ export function ConnectClient() {
     }
   }
 
-  async function respond(connectionId: string, action: "accept" | "reject") {
+  async function respond(connectionId: string, action: "accept" | "reject" | "block") {
     setBusyId(connectionId)
     setError("")
 
@@ -278,6 +278,7 @@ export function ConnectClient() {
                     busy={busyId === request.id}
                     onAccept={() => void respond(request.id, "accept")}
                     onReject={() => void respond(request.id, "reject")}
+                    onBlock={() => void respond(request.id, "block")}
                   />
                 ))}
               </div>
@@ -363,11 +364,13 @@ function RequestCard({
   busy,
   onAccept,
   onReject,
+  onBlock,
 }: {
   request: Request
   busy: boolean
   onAccept: () => void
   onReject: () => void
+  onBlock: () => void
 }) {
   return (
     <article className="flex flex-col gap-4 rounded-[1.5rem] border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-5">
@@ -389,6 +392,15 @@ function RequestCard({
         >
           <X className="h-3.5 w-3.5" />
           Decline
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={onBlock}
+          className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-destructive/20 px-3.5 py-2.5 text-xs font-black text-destructive transition hover:bg-destructive/5 disabled:opacity-50"
+        >
+          <Ban className="h-3.5 w-3.5" />
+          Block
         </button>
         <button
           type="button"
