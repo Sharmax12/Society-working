@@ -67,11 +67,11 @@ export async function POST(request: Request, context: RouteContext) {
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
 
   const otherUserId =
-    conversation.participantAId === userId
+    conversation.participantAId === session.user.id
       ? conversation.participantBId
       : conversation.participantAId
 
-  if (!(await areConnected(userId, otherUserId))) {
+  if (!(await areConnected(session.user.id, otherUserId))) {
     return Response.json({ error: "Messaging is only available to accepted connections." }, { status: 403 })
   }
 
@@ -91,7 +91,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   const message = await db.$transaction(async (tx) => {
     const created = await tx.message.create({
-      data: { conversationId, senderId: userId, content },
+      data: { conversationId, senderId: session.user.id, content },
       select: { id: true, content: true, senderId: true, createdAt: true, readAt: true },
     })
     await tx.conversation.update({
@@ -115,7 +115,7 @@ export async function PATCH(_request: Request, context: RouteContext) {
   await db.message.updateMany({
     where: {
       conversationId,
-      senderId: { not: userId },
+      senderId: { not: session.user.id },
       readAt: null,
     },
     data: { readAt: new Date() },
