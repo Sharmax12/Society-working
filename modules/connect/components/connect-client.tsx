@@ -50,7 +50,7 @@ function Avatar({ person }: { person: Person }) {
   )
 }
 
-export function ConnectClient({ currentUserId }: { currentUserId: string }) {
+export function ConnectClient() {
   const [tab, setTab] = useState<Tab>("discover")
   const [suggestions, setSuggestions] = useState<Person[]>([])
   const [requests, setRequests] = useState<Request[]>([])
