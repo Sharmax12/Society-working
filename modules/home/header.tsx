@@ -23,6 +23,9 @@ export function Header() {
             <Link href="/connect" className="hover:text-neutral-900 transition-colors">
               Connect
             </Link>
+            <Link href="/messages" className="hover:text-neutral-900 transition-colors">
+              Messages
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3">

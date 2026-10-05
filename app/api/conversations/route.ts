@@ -1,0 +1,95 @@
+import { auth } from "@/auth"
+import { db } from "@/lib/db"
+
+function orderedPair(userA: string, userB: string) {
+  return userA < userB ? [userA, userB] : [userB, userA]
+}
+
+async function areConnected(userId: string, otherUserId: string) {
+  const connection = await db.connection.findFirst({
+    where: {
+      status: "ACCEPTED",
+      OR: [
+        { requesterId: userId, recipientId: otherUserId },
+        { requesterId: otherUserId, recipientId: userId },
+      ],
+    },
+    select: { id: true },
+  })
+  return Boolean(connection)
+}
+
+export async function GET() {
+  const session = await auth()
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized." }, { status: 401 })
+
+  const userId = session.user.id
+  const conversations = await db.conversation.findMany({
+    where: { OR: [{ participantAId: userId }, { participantBId: userId }] },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      participantA: { select: { id: true, name: true, image: true, rollNumber: true } },
+      participantB: { select: { id: true, name: true, image: true, rollNumber: true } },
+      messages: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { id: true, content: true, senderId: true, createdAt: true, readAt: true },
+      },
+    },
+  })
+
+  return Response.json({
+    conversations: conversations.map((conversation) => {
+      const user =
+        conversation.participantAId === userId
+          ? conversation.participantB
+          : conversation.participantA
+      return {
+        id: conversation.id,
+        updatedAt: conversation.updatedAt,
+        user,
+        lastMessage: conversation.messages[0] ?? null,
+      }
+    }),
+  })
+}
+
+export async function POST(request: Request) {
+  const session = await auth()
+  if (!session?.user?.id) return Response.json({ error: "Unauthorized." }, { status: 401 })
+
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return Response.json({ error: "Invalid request." }, { status: 400 })
+  }
+
+  const participantId =
+    typeof body === "object" && body !== null && "participantId" in body &&
+    typeof body.participantId === "string" ? body.participantId.trim() : ""
+
+  if (!participantId) return Response.json({ error: "A participant is required." }, { status: 400 })
+  if (participantId === session.user.id) return Response.json({ error: "You cannot message yourself." }, { status: 400 })
+
+  if (!(await areConnected(session.user.id, participantId))) {
+    return Response.json({ error: "You can only message an accepted connection." }, { status: 403 })
+  }
+
+  const participant = await db.user.findUnique({
+    where: { id: participantId },
+    select: { id: true, role: true },
+  })
+  if (!participant || participant.role !== "STUDENT") {
+    return Response.json({ error: "Student not found." }, { status: 404 })
+  }
+
+  const [participantAId, participantBId] = orderedPair(session.user.id, participantId)
+  const conversation = await db.conversation.upsert({
+    where: { participantAId_participantBId: { participantAId, participantBId } },
+    create: { participantAId, participantBId },
+    update: {},
+  })
+
+  return Response.json({ conversation }, { status: 200 })
+}

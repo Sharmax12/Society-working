@@ -1,7 +1,8 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
-import { Ban, Check, Clock3, Search, UserPlus, Users, X } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Ban, Check, Clock3, MessageCircle, Search, UserPlus, Users, X } from "lucide-react"
 
 type Person = {
   id: string
@@ -51,6 +52,7 @@ function Avatar({ person }: { person: Person }) {
 }
 
 export function ConnectClient() {
+  const router = useRouter()
   const [tab, setTab] = useState<Tab>("discover")
   const [suggestions, setSuggestions] = useState<Person[]>([])
   const [requests, setRequests] = useState<Request[]>([])
@@ -121,6 +123,25 @@ export function ConnectClient() {
       setSuggestions((current) => current.filter((person) => person.id !== recipientId))
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to send the request.")
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  async function openChat(participantId: string) {
+    setBusyId(participantId)
+    setError("")
+    try {
+      const response = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ participantId }),
+      })
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.error ?? "Unable to open chat.")
+      router.push(`/messages/${data.conversation.id}`)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to open chat.")
     } finally {
       setBusyId(null)
     }
@@ -307,9 +328,15 @@ export function ConnectClient() {
                       </p>
                     </div>
                   </div>
-                  <span className="shrink-0 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
-                    Connected
-                  </span>
+                  <button
+                    type="button"
+                    disabled={busyId === connection.user.id}
+                    onClick={() => void openChat(connection.user.id)}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5 text-xs font-black text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+                  >
+                    <MessageCircle className="h-3.5 w-3.5" />
+                    {busyId === connection.user.id ? "Opening..." : "Message"}
+                  </button>
                 </div>
               ))}
             </div>
