@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Compass, MessageCircle, Sparkles, Users, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CalendarDays, Compass, Sparkles, Users, CheckCircle2 } from "lucide-react";
 import { getOpenSocieties, getUserApplications } from "@/modules/societies/queries";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Badge } from "@/components/ui/badge";
