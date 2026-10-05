@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, type ReactNode } from "react"
 import { Check, Clock3, Search, UserPlus, Users, X } from "lucide-react"
 
 type Person = {
@@ -410,7 +410,7 @@ function EmptyState({
   description,
   action,
 }: {
-  icon: React.ReactNode
+  icon: ReactNode
   title: string
   description: string
   action?: () => void
