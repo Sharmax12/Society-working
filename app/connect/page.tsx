@@ -9,5 +9,5 @@ export default async function ConnectPage() {
     redirect("/auth/sign-in")
   }
 
-  return <ConnectClient currentUserId={session.user.id} />
+  return <ConnectClient />
 }
