@@ -62,16 +62,15 @@ export async function POST(request: Request, context: RouteContext) {
   const session = await auth()
   if (!session?.user?.id) return Response.json({ error: "Unauthorized." }, { status: 401 })
 
+  const userId = session.user.id
   const { conversationId } = await context.params
-  const conversation = await getConversationForUser(conversationId, session.user.id)
+  const conversation = await getConversationForUser(conversationId, userId)
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
 
   const otherUserId =
-    conversation.participantAId === session.user.id
-      ? conversation.participantBId
-      : conversation.participantAId
+    conversation.participantAId === userId ? conversation.participantBId : conversation.participantAId
 
-  if (!(await areConnected(session.user.id, otherUserId))) {
+  if (!(await areConnected(userId, otherUserId))) {
     return Response.json({ error: "Messaging is only available to accepted connections." }, { status: 403 })
   }
 
@@ -91,7 +90,7 @@ export async function POST(request: Request, context: RouteContext) {
 
   const message = await db.$transaction(async (tx) => {
     const created = await tx.message.create({
-      data: { conversationId, senderId: session.user.id, content },
+      data: { conversationId, senderId: userId, content },
       select: { id: true, content: true, senderId: true, createdAt: true, readAt: true },
     })
     await tx.conversation.update({
@@ -108,14 +107,15 @@ export async function PATCH(_request: Request, context: RouteContext) {
   const session = await auth()
   if (!session?.user?.id) return Response.json({ error: "Unauthorized." }, { status: 401 })
 
+  const userId = session.user.id
   const { conversationId } = await context.params
-  const conversation = await getConversationForUser(conversationId, session.user.id)
+  const conversation = await getConversationForUser(conversationId, userId)
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
 
   await db.message.updateMany({
     where: {
       conversationId,
-      senderId: { not: session.user.id },
+      senderId: { not: userId },
       readAt: null,
     },
     data: { readAt: new Date() },
