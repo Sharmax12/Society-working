@@ -1,43 +1,66 @@
 import Image from "next/image";
 import Link from "next/link";
-import {ThemeToggle} from "@/components/ui/theme-toggle"
-import logo from "@/public/logo.svg"
-export function Header() {
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { auth } from "@/auth";
+import { SignOutButton } from "@/modules/auth/components/sign-out";
+
+export async function Header() {
+  const session = await auth();
+  const isLoggedIn = !!session?.user;
+
   return (
     <header className="border-b border-neutral-900/10 bg-[#FBF9F5]/90 sticky top-0 z-50 backdrop-blur-sm">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <Image src="/icon.svg" alt="" width={32} height={32} className="h-8 w-8 object-contain" />
-            <span className="font-bold tracking-tight text-lg">
-              HallWayLoop<span className="text-amber-600">.</span>
-            </span>
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <Image
+            src="/icon.svg"
+            alt="HallWayLoop"
+            width={32}
+            height={32}
+            className="h-8 w-8 object-contain"
+          />
+          <span className="font-bold tracking-tight text-lg">
+            HallWayLoop<span className="text-amber-600">.</span>
+          </span>
+        </Link>
+
+        <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-600">
+          <Link href="/societies" className="hover:text-neutral-900 transition-colors">
+            Societies
           </Link>
+          <Link href="/events" className="hover:text-neutral-900 transition-colors">
+            Events
+          </Link>
+          <Link href="/connect" className="hover:text-neutral-900 transition-colors">
+            Connect
+          </Link>
+          <Link href="/messages" className="hover:text-neutral-900 transition-colors">
+            Messages
+          </Link>
+        </nav>
 
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-neutral-600">
-            <Link href="/societies" className="hover:text-neutral-900 transition-colors">
-              Societies
-            </Link>
-            <Link href="/events" className="hover:text-neutral-900 transition-colors">
-              Events
-            </Link>
-            <Link href="/connect" className="hover:text-neutral-900 transition-colors">
-              Connect
-            </Link>
-            <Link href="/messages" className="hover:text-neutral-900 transition-colors">
-              Messages
-            </Link>
-          </nav>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
 
-          <div className="flex items-center gap-3">
-            <ThemeToggle />
+          {isLoggedIn ? (
+            <SignOutButton />
+          ) : (
             <Link
-              href="/societies"
-              className="px-4 py-2 text-sm font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-md border border-neutral-900 shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+              href="/auth/sign-in"
+              className="px-4 py-2 text-sm font-semibold text-neutral-900 bg-white hover:bg-neutral-100 rounded-md border border-neutral-900 shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
             >
-              Explore Campus →
+              Sign in
             </Link>
-          </div>
+          )}
+
+          <Link
+            href="/societies"
+            className="px-4 py-2 text-sm font-semibold text-neutral-900 bg-amber-400 hover:bg-amber-300 rounded-md border border-neutral-900 shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+          >
+            Explore Campus →
+          </Link>
         </div>
-      </header>
+      </div>
+    </header>
   );
 }
