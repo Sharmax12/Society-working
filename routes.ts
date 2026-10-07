@@ -1,4 +1,12 @@
-export const publicRoutes = ["/"];
+export const publicRoutes = [
+  "/",
+  "/about",
+  "/faq",
+  "/Connect",
+  "/llms.txt",
+  "/robots.txt",
+  "/sitemap.xml",
+];
 
 export const publicRoutePrefixes = [
   "/societies",
