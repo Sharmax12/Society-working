@@ -31,12 +31,17 @@ export async function Header() {
           <Link href="/events" className="hover:text-neutral-900 transition-colors">
             Events
           </Link>
-          <Link href="/connect" className="hover:text-neutral-900 transition-colors">
+          <Link
+            href={isLoggedIn ? "/connect" : "/Connect"}
+            className="hover:text-neutral-900 transition-colors"
+          >
             Connect
           </Link>
-          <Link href="/messages" className="hover:text-neutral-900 transition-colors">
-            Messages
-          </Link>
+          {isLoggedIn && (
+            <Link href="/messages" className="hover:text-neutral-900 transition-colors">
+              Messages
+            </Link>
+          )}
         </nav>
 
         <div className="flex items-center gap-3">
