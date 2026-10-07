@@ -5,6 +5,7 @@ export const metadata: Metadata = {
   description: "Connect with students, collaborators, and campus communities on HallWayLoop.",
   keywords: ["student networking", "connect with students", "campus community", "college networking"],
   alternates: { canonical: "/Connect" },
+  robots: { index: true, follow: true },
   openGraph: {
     title: "Connect | HallWayLoop",
     description: "Connect with students, collaborators, and campus communities on HallWayLoop.",
