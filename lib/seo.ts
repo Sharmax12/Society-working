@@ -55,6 +55,7 @@ export const staticSitemapRoutes: {
   { path: "/societies", changeFrequency: "daily", priority: 0.9 },
   { path: "/events", changeFrequency: "daily", priority: 0.9 },
   { path: "/Connect", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/about", changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq", changeFrequency: "monthly", priority: 0.7 },
 ];
 
