@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { siteConfig } from "@/lib/seo";
+import { siteConfig, buildOrganizationJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "About HallWayLoop",
@@ -18,8 +18,15 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const organizationJsonLd = buildOrganizationJsonLd();
+
   return (
+
     <main className="mx-auto max-w-4xl px-6 py-16 sm:py-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       <header className="mb-14">
         <p className="mb-3 text-sm font-bold uppercase tracking-wider text-amber-600">
           HallWayLoop / HWL
