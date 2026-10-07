@@ -53,6 +53,14 @@ export function Footer() {
                     Events
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/faq"
+                    className="text-[#493a34] transition-colors hover:text-[#d95743] dark:text-[#e7d8d1] dark:hover:text-[#ff806b]"
+                  >
+                    FAQ
+                  </Link>
+                </li>
               </ul>
             </div>
 
