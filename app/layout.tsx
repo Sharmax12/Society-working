@@ -19,13 +19,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.app.title,
     template: siteConfig.app.titleTemplate,
   },
   description: siteConfig.app.description,
+  applicationName: siteConfig.name,
   icons: { icon: "/icon.svg" },
-  robots: { index: false, follow: false },  
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default async function RootLayout({
