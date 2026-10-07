@@ -35,6 +35,7 @@ export const siteConfig = {
   locale: "en_IN",
   contactEmail: "info@hallwayloop.com",
   author: "Aniruddh Sharma",
+  founderUrl: "https://www.hallwayloop.com/about#founder",
   social: {
     github: "https://github.com/Sharmax12/Society-working",
   },
@@ -73,6 +74,23 @@ export function buildWebsiteJsonLd() {
   };
 }
 
+export function buildSoftwareApplicationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "@id": siteConfig.url + "/#product",
+    name: siteConfig.name,
+    alternateName: "HWL",
+    url: siteConfig.url,
+    applicationCategory: "SocialNetworkingApplication",
+    operatingSystem: "Web",
+    description:
+      "A campus community platform for discovering college societies, student clubs, events, student communities, and people to learn, build, and connect with.",
+    publisher: { "@id": siteConfig.url + "/#organization" },
+    creator: { "@id": siteConfig.url + "/#organization" },
+  };
+}
+
 export function buildOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
@@ -86,6 +104,22 @@ export function buildOrganizationJsonLd() {
     description:
       "HallWayLoop is a campus community platform for discovering societies, clubs, events, people, and opportunities to participate and collaborate.",
     sameAs: [siteConfig.social.github],
+    founder: {
+      "@type": "Person",
+      name: siteConfig.author,
+      url: siteConfig.founderUrl,
+    },
+    knowsAbout: [
+      "college societies",
+      "student clubs",
+      "campus events",
+      "student communities",
+      "student networking",
+      "campus collaboration",
+    ],
+    hasPart: {
+      "@id": siteConfig.url + "/#product",
+    },
   };
 }
 
