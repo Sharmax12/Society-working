@@ -1,17 +1,19 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { buildOrganizationJsonLd, buildWebsiteJsonLd } from "@/lib/seo";
+import { buildOrganizationJsonLd, buildSoftwareApplicationJsonLd, buildWebsiteJsonLd } from "@/lib/seo";
 
 
 export default function Home() {
   const websiteJsonLd = buildWebsiteJsonLd();
   const organizationJsonLd = buildOrganizationJsonLd();
+  const productJsonLd = buildSoftwareApplicationJsonLd();
 
   return (
     <div className="min-h-screen bg-[#FBF9F5] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-amber-300 dark:selection:bg-amber-500 selection:text-neutral-900 transition-colors duration-200">
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
 
       <main className="max-w-6xl mx-auto px-6 pt-16 pb-24">
         {/* Hero Section */}
