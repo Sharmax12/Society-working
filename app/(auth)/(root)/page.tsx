@@ -1,7 +1,5 @@
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { buildOrganizationJsonLd, buildSoftwareApplicationJsonLd, buildWebsiteJsonLd } from "@/lib/seo";
-
 
 export default function Home() {
   const websiteJsonLd = buildWebsiteJsonLd();
@@ -9,120 +7,57 @@ export default function Home() {
   const productJsonLd = buildSoftwareApplicationJsonLd();
 
   return (
-    <div className="min-h-screen bg-[#FBF9F5] dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 font-sans selection:bg-amber-300 dark:selection:bg-amber-500 selection:text-neutral-900 transition-colors duration-200">
-
+    <div className="min-h-screen bg-background text-foreground">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
 
-      <main className="max-w-6xl mx-auto px-6 pt-16 pb-24">
-        {/* Hero Section */}
-        <section className="mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-neutral-900/15 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300 mb-6 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            Your campus, in one place
+      <main className="mx-auto max-w-6xl px-5 pb-20 pt-14 sm:px-8 sm:pt-24">
+        <section className="grid gap-12 border-b border-border pb-16 md:grid-cols-[1.2fr_.8fr] md:items-end md:pb-24">
+          <div>
+            <p className="mb-6 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-primary" /> Your campus, in one place
+            </p>
+            <h1 className="max-w-3xl text-5xl font-semibold leading-[1.02] tracking-[-.055em] sm:text-7xl">
+              Find your people.
+              <span className="mt-2 block text-muted-foreground">Find your place.</span>
+            </h1>
+            <p className="mt-7 max-w-xl text-base leading-7 text-muted-foreground sm:text-lg">
+              Discover student societies, find events worth showing up for, and meet people who share your interests.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/societies" className="inline-flex items-center justify-center rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:opacity-85">
+                Explore societies <span aria-hidden="true" className="ml-2">↗</span>
+              </Link>
+              <Link href="/events" className="inline-flex items-center justify-center rounded-full border border-border px-6 py-3 text-sm font-semibold transition hover:bg-muted">
+                Browse events
+              </Link>
+            </div>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-neutral-950 dark:text-white max-w-4xl leading-[1.08] mb-6">
-            Discover. Belong. Connect. <br className="hidden sm:inline" />
-            <span className="bg-amber-300 dark:bg-amber-500 dark:text-neutral-950 px-2 rounded-sm border-b-4 border-amber-500 dark:border-amber-400 inline-block mt-1">
-              Find your place on campus.
-            </span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-neutral-700 dark:text-neutral-300 max-w-2xl font-normal leading-relaxed mb-8">
-            HallWayLoop is a campus platform for discovering college societies, student clubs, campus events, and student communities — all in one place.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <Link
-              href="/societies"
-              className="px-6 py-3.5 text-base font-bold text-white dark:text-neutral-950 bg-neutral-900 dark:bg-white hover:bg-neutral-800 dark:hover:bg-neutral-200 rounded-lg border-2 border-neutral-900 dark:border-neutral-100 shadow-[4px_4px_0px_0px_rgba(217,119,6,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(217,119,6,1)]"
-            >
-              Find a Society
-            </Link>
-            <Link
-              href="/events"
-              className="px-6 py-3.5 text-base font-bold text-neutral-900 dark:text-neutral-100 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg border-2 border-neutral-900 dark:border-neutral-100 shadow-[4px_4px_0px_0px_rgba(24,24,27,1)] dark:shadow-[4px_4px_0px_0px_rgba(250,250,250,1)] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_0px_rgba(24,24,27,1)]"
-            >
-              See Today's Events
-            </Link>
+          <div className="rounded-3xl border border-border bg-card p-6 sm:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">A better campus starts here</p>
+            <div className="mt-8 space-y-0">
+              <Link href="/societies" className="group flex items-center justify-between border-b border-border py-5">
+                <div><p className="font-semibold">Find a community</p><p className="mt-1 text-sm text-muted-foreground">Explore clubs and societies</p></div>
+                <span className="text-xl text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground">→</span>
+              </Link>
+              <Link href="/events" className="group flex items-center justify-between border-b border-border py-5">
+                <div><p className="font-semibold">See what’s happening</p><p className="mt-1 text-sm text-muted-foreground">Workshops, meetups and more</p></div>
+                <span className="text-xl text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground">→</span>
+              </Link>
+              <Link href="/Connect" className="group flex items-center justify-between py-5">
+                <div><p className="font-semibold">Connect with students</p><p className="mt-1 text-sm text-muted-foreground">Build, learn and explore together</p></div>
+                <span className="text-xl text-muted-foreground transition group-hover:translate-x-1 group-hover:text-foreground">→</span>
+              </Link>
+            </div>
           </div>
         </section>
 
-        {/* Asymmetric Bento Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-12 gap-6 mb-5">
-          {/* Card 1: Main Event Highlight */}
-          <div className="md:col-span-7 bg-white dark:bg-neutral-900 border-2 border-neutral-900 dark:border-neutral-100 rounded-2xl p-7 shadow-[6px_6px_0px_0px_rgba(24,24,27,1)] dark:shadow-[6px_6px_0px_0px_rgba(250,250,250,1)] flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border border-rose-300 dark:border-rose-800 text-xs font-bold px-2.5 py-1 rounded-md uppercase">
-                  Happening Soon
-                </span>
-                <span className="text-xs font-mono text-neutral-500 dark:text-neutral-400">Quad / Student Center</span>
-              </div>
-              <h2 className="text-2xl font-bold text-neutral-950 dark:text-white mb-2">
-                Discover Campus Events
-              </h2>
-              <p className="text-neutral-600 dark:text-neutral-300 text-sm leading-relaxed mb-6">
-                Find upcoming college events, workshops, meetups, and activities happening through campus communities.
-              </p>
-            </div>
-
-            <div className="pt-4 border-t border-neutral-100 dark:border-neutral-800 flex items-center justify-between">
-              <div className="flex -space-x-2">
-                <div className="w-8 h-8 rounded-full bg-amber-400 dark:bg-amber-500 border-2 border-white dark:border-neutral-900 flex items-center justify-center text-xs font-bold text-neutral-900">JD</div>
-                <div className="w-8 h-8 rounded-full bg-emerald-400 dark:bg-emerald-500 border-2 border-white dark:border-neutral-900 flex items-center justify-center text-xs font-bold text-neutral-900">AK</div>
-                <div className="w-8 h-8 rounded-full bg-sky-400 dark:bg-sky-500 border-2 border-white dark:border-neutral-900 flex items-center justify-center text-xs font-bold text-neutral-900">+42</div>
-              </div>
-              <Link href="/events" className="text-xs font-bold text-neutral-900 dark:text-neutral-100 underline underline-offset-4 hover:text-amber-600 dark:hover:text-amber-400">
-                View Event Details →
-              </Link>
-            </div>
-          </div>
-
-          {/* Card 2: Society Spotlight */}
-          <div className="md:col-span-5 bg-amber-100/70 dark:bg-amber-950/30 border-2 border-neutral-900 dark:border-neutral-100 rounded-2xl p-7 shadow-[6px_6px_0px_0px_rgba(24,24,27,1)] dark:shadow-[6px_6px_0px_0px_rgba(250,250,250,1)] flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <span className="w-3 h-3 rounded-full bg-amber-500 border border-neutral-900 dark:border-neutral-100" />
-                <span className="text-xs font-bold uppercase tracking-wider text-neutral-800 dark:text-amber-300">Society Directory</span>
-              </div>
-              <h2 className="text-2xl font-bold text-neutral-950 dark:text-white mb-2">
-                Explore College Societies & Clubs
-              </h2>
-              <p className="text-neutral-700 dark:text-neutral-300 text-sm leading-relaxed mb-6">
-                Browse student-led societies and clubs by interest, discover what they do, and find communities you want to be part of.
-              </p>
-            </div>
-
-            <Link
-              href="/societies"
-              className="inline-flex items-center justify-center w-full py-3 px-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 font-bold text-sm rounded-lg hover:bg-neutral-800 dark:hover:bg-neutral-100 transition-colors"
-            >
-              Browse All Clubs
-            </Link>
-          </div>
-
-          {/* Card 3: Connect / Micro Noticeboard */}
-          <div className="md:col-span-12 bg-white dark:bg-neutral-900 border-2 border-neutral-900 dark:border-neutral-100 rounded-2xl p-7 shadow-[6px_6px_0px_0px_rgba(24,24,27,1)] dark:shadow-[6px_6px_0px_0px_rgba(250,250,250,1)]">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div>
-                <h3 className="text-xl font-bold text-neutral-950 dark:text-white mb-1">
-                  Looking for people to build, learn, or explore with?
-                </h3>
-                <p className="text-neutral-600 dark:text-neutral-300 text-sm">
-                  Use HallWayLoop Connect to find students with shared interests, skills, projects, and hobbies.
-                </p>
-              </div>
-              <Link
-                href="/Connect"
-                className="shrink-0 px-5 py-2.5 bg-emerald-300 dark:bg-emerald-400 border border-neutral-900 dark:border-neutral-100 text-neutral-950 font-bold text-sm rounded-lg shadow-[2px_2px_0px_0px_rgba(24,24,27,1)] dark:shadow-[2px_2px_0px_0px_rgba(250,250,250,1)] hover:bg-emerald-200 dark:hover:bg-emerald-300 transition-all"
-              >
-                Join Campus Connect →
-              </Link>
-            </div>
-          </div>
+        <section className="grid gap-8 py-12 sm:grid-cols-3 sm:py-16">
+          <div><p className="text-sm font-semibold">01 / Discover</p><h2 className="mt-3 text-xl font-semibold tracking-tight">Explore beyond your circle</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Find communities that match your interests, goals and curiosity.</p></div>
+          <div><p className="text-sm font-semibold">02 / Participate</p><h2 className="mt-3 text-xl font-semibold tracking-tight">Take the first step</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Keep track of application windows and opportunities to get involved.</p></div>
+          <div><p className="text-sm font-semibold">03 / Belong</p><h2 className="mt-3 text-xl font-semibold tracking-tight">Make campus yours</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Meet collaborators, attend events and build your own campus story.</p></div>
         </section>
       </main>
     </div>
