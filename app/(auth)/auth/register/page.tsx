@@ -10,7 +10,7 @@ import { registerLocalAccount } from "@/modules/auth/local-actions";
 
 export const metadata: Metadata = {
   title: "Create your account",
-  description: "Create a HallWayLoop account with your email and password.",
+  description: "Create a HallWayLoop account with your college email and password.",
   robots: { index: false, follow: false },
 };
 
@@ -19,7 +19,7 @@ type RegisterPageProps = {
 };
 
 const errorMessages: Record<string, string> = {
-  invalid: "Enter your name and a valid email address.",
+  invalid: "Check your details and use an email address from an approved college domain.",
   password: "Choose a password between 10 and 128 characters.",
   mismatch: "The passwords do not match. Please try again.",
   exists: "An account with this email may already exist. Try signing in instead.",
@@ -43,16 +43,12 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
           <p className="text-center text-xs font-semibold uppercase tracking-[.18em] text-primary">Join your campus</p>
           <CardTitle className="mt-2 text-center text-3xl font-black tracking-[-0.04em]">Create an account</CardTitle>
           <CardDescription className="mt-2 text-center text-sm leading-6">
-            Use one email and password for your HallWayLoop account.
+            Use an approved college email address to create your HallWayLoop account.
           </CardDescription>
         </CardHeader>
 
         <CardContent className="px-7 pb-7 sm:px-8 sm:pb-8">
-          {errorMessage && (
-            <p role="alert" className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-              {errorMessage}
-            </p>
-          )}
+          {errorMessage && <p role="alert" className="mb-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{errorMessage}</p>}
 
           <form action={registerLocalAccount} className="grid gap-4">
             <div className="grid gap-2">
@@ -60,7 +56,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
               <Input id="register-name" name="name" autoComplete="name" maxLength={80} required className="h-11 rounded-xl" />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="register-email">Email address</Label>
+              <Label htmlFor="register-email">College email address</Label>
               <Input id="register-email" name="email" type="email" autoComplete="email" maxLength={254} placeholder="you@college.edu" required className="h-11 rounded-xl" />
             </div>
             <div className="grid gap-2">
@@ -80,7 +76,7 @@ export default async function RegisterPage({ searchParams }: RegisterPageProps) 
             <Link href="/auth/sign-in" className="font-semibold text-foreground underline underline-offset-4 hover:text-primary">Sign in</Link>
           </p>
           <p className="mt-5 rounded-xl bg-muted/60 p-3 text-xs leading-5 text-muted-foreground">
-            Use your college email where possible. Creating an account does not by itself verify college affiliation; access rules for college-only features must be enforced separately.
+            The approved domains are configured by HallWayLoop for each pilot. Creating an account does not by itself establish formal college endorsement.
           </p>
           <Link href="/" className="mt-5 flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground transition hover:text-foreground">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to HallWayLoop
