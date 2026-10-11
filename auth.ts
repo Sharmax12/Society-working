@@ -4,16 +4,8 @@ import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
+import { isAllowedCollegeEmail } from "./modules/auth/college-email";
 import { verifyPassword } from "./modules/auth/password";
-
-function isAllowedCollegeEmail(email: string): boolean {
-  const allowedDomains = (process.env.COLLEGE_EMAIL_DOMAINS ?? "")
-    .split(",")
-    .map((domain) => domain.trim().toLowerCase().replace(/^@/, ""))
-    .filter(Boolean);
-  const domain = email.trim().toLowerCase().split("@").at(-1);
-  return allowedDomains.length > 0 && !!domain && allowedDomains.includes(domain);
-}
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
@@ -93,8 +85,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token }) {
-      // Re-read the account on session refresh so role changes do not remain in
-      // a JWT for the whole token lifetime.
+      // Re-read the account whenever the session token is processed so that
+      // demoted users do not keep a stale privileged role in their JWT.
       const existingUser = token.sub
         ? await db.user.findUnique({ where: { id: token.sub } })
         : token.email
