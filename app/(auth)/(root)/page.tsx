@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  Bell,
   CalendarDays,
   Compass,
   Home as HomeIcon,
@@ -100,7 +99,7 @@ export default function Home() {
                     <p className="mt-1 text-lg font-semibold tracking-tight">Your campus, today.</p>
                   </div>
                   <div className="relative grid h-10 w-10 place-items-center rounded-full border border-[#e6dcd3] bg-white">
-                    <Bell className="h-4 w-4" />
+                    <span className="text-base font-semibold">@</span>
                     <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#d95743]" />
                   </div>
                 </div>

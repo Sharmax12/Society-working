@@ -86,7 +86,7 @@ export function buildSoftwareApplicationJsonLd() {
     alternateName: "HWL",
     url: siteConfig.url,
     applicationCategory: "SocialNetworkingApplication",
-    operatingSystem: "Web",
+    operatingSystem: "Android, iOS",
     description:
       "HallWayLoop is developing a college-centred social app organised around Home, Discover, Events, and Messages. The website currently provides society and event discovery.",
     featureList: [
