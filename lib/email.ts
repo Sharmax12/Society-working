@@ -28,6 +28,7 @@ async function sendEmail({
   html,
   text,
   idempotencyKey,
+  replyTo,
 }: SendEmailInput) {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.EMAIL_FROM || DEFAULT_FROM
