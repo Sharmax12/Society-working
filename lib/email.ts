@@ -9,7 +9,7 @@ type SendEmailInput = {
 }
 
 const RESEND_API_URL = "https://api.resend.com/emails"
-const DEFAULT_FROM = "Society <onboarding@resend.dev>"
+const DEFAULT_FROM = "HallWayLoop <onboarding@resend.dev>"
 
 function escapeHtml(value: string | null | undefined) {
   return (value ?? "")
@@ -183,13 +183,13 @@ export async function sendConnectSignupEmail(email: string) {
 
   return sendEmail({
     to: email,
-    subject: "You're on the HallWayLoop Connect list",
-    idempotencyKey: `connect-signup-${emailHash}`,
-    text: "Thanks for your interest in HallWayLoop Connect. We've added you to the launch notification list and will email you when it goes live.",
+    subject: "You're on the HallWayLoop updates list",
+    idempotencyKey: `hwl-updates-${emailHash}`,
+    text: "Thanks for your interest in HallWayLoop. We've added you to the launch updates list and will share news when new campus discovery features are ready.",
     html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
       <h2 style="margin-bottom:8px">You're on the list</h2>
-      <p>Thanks for your interest in HallWayLoop Connect.</p>
-      <p>We've added <strong>${safeEmail}</strong> to the launch notification list and will email you when it goes live.</p>
+      <p>Thanks for your interest in HallWayLoop.</p>
+      <p>We've added <strong>${safeEmail}</strong> to the updates list and will share launch news when new campus discovery features are ready.</p>
     </div>`,
   })
 }
