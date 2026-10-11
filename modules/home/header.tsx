@@ -16,26 +16,41 @@ export async function Header() {
           <span className="text-[17px] font-semibold tracking-[-.04em]">HallWayLoop<span className="text-primary">.</span></span>
         </Link>
 
-        <nav aria-label="Main navigation" className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
-          <Link href="/societies" className="transition hover:text-foreground">Societies</Link>
+        <nav aria-label="Main navigation" className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex">
+          <Link href="/societies" className="transition hover:text-foreground">Discover</Link>
           <Link href="/events" className="transition hover:text-foreground">Events</Link>
-          <Link href={isLoggedIn ? "/connect" : "/Connect"} className="transition hover:text-foreground">Connect</Link>
+          <Link href="/Connect" className="transition hover:text-foreground">Connect</Link>
+          <Link href="/about" className="transition hover:text-foreground">About HWL</Link>
           {isLoggedIn && <Link href="/messages" className="transition hover:text-foreground">Messages</Link>}
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          {isLoggedIn ? <SignOutButton /> : (
-            <Link href="/auth/sign-in" className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted">Sign in</Link>
+          {isLoggedIn ? (
+            <>
+              <Link href="/dashboard" className="hidden rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted sm:inline-flex">
+                My space
+              </Link>
+              <SignOutButton />
+            </>
+          ) : (
+            <Link href="/auth/sign-in" className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted">
+              Sign in
+            </Link>
           )}
-          <Link href="/societies" className="hidden rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-85 sm:inline-flex">Explore campus <span className="ml-1.5">↗</span></Link>
+          <Link href="/societies" className="hidden rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition hover:opacity-85 sm:inline-flex">
+            Explore campus <span className="ml-1.5" aria-hidden="true">↗</span>
+          </Link>
         </div>
       </div>
-      <nav aria-label="Mobile navigation" className="flex gap-5 overflow-x-auto border-t border-border/70 px-5 py-3 text-sm text-muted-foreground md:hidden">
-        <Link href="/societies" className="whitespace-nowrap hover:text-foreground">Societies</Link>
+
+      <nav aria-label="Mobile navigation" className="flex gap-5 overflow-x-auto border-t border-border/70 px-5 py-3 text-sm text-muted-foreground lg:hidden">
+        <Link href="/societies" className="whitespace-nowrap hover:text-foreground">Discover</Link>
         <Link href="/events" className="whitespace-nowrap hover:text-foreground">Events</Link>
-        <Link href={isLoggedIn ? "/connect" : "/Connect"} className="whitespace-nowrap hover:text-foreground">Connect</Link>
+        <Link href="/Connect" className="whitespace-nowrap hover:text-foreground">Connect</Link>
+        <Link href="/about" className="whitespace-nowrap hover:text-foreground">About HWL</Link>
         {isLoggedIn && <Link href="/messages" className="whitespace-nowrap hover:text-foreground">Messages</Link>}
+        {isLoggedIn && <Link href="/dashboard" className="whitespace-nowrap hover:text-foreground">My space</Link>}
       </nav>
     </header>
   );

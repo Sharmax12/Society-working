@@ -4,32 +4,34 @@ export const siteConfig = {
   name: "HallWayLoop",
   url: process.env.NEXT_PUBLIC_APP_URL ?? "https://www.hallwayloop.com",
   marketing: {
-    title: "HallWayLoop | College Societies, Clubs & Campus Events",
+    title: "HallWayLoop | Your College Community, in One Loop",
     description:
-      "HallWayLoop is a campus community platform for discovering college societies, student clubs, campus events, and people to learn, build, and connect with.",
+      "HallWayLoop is a college-centred social app in development for campus announcements, student communities, events, profiles, and messaging. Explore societies and published events on the website today.",
     tagline:
-      "Discover societies, clubs, events, and people on campus. Find your place, participate, and connect with your community.",
+      "Discover people, societies, events, and conversations around your campus. Find your place and take part.",
   },
   app: {
     title: "HallWayLoop",
     titleTemplate: "%s | HallWayLoop",
     description:
-      "Discover college societies, student clubs, campus events, and student communities in one place.",
+      "A college-centred social, events, and messaging app in development for student communities.",
   },
   keywords: [
     "HallWayLoop",
     "HWL",
+    "college community app",
+    "college social app",
     "college societies",
     "college clubs",
     "student clubs",
+    "student profiles",
+    "campus announcements",
     "student communities",
     "campus events",
     "college events",
-    "university societies",
+    "student messaging",
     "student networking",
-    "campus community platform",
     "student opportunities",
-    "campus collaboration",
   ],
   ogImage: "/icon.svg",
   locale: "en_IN",
@@ -84,9 +86,17 @@ export function buildSoftwareApplicationJsonLd() {
     alternateName: "HWL",
     url: siteConfig.url,
     applicationCategory: "SocialNetworkingApplication",
-    operatingSystem: "Web",
+    operatingSystem: "Android, iOS",
     description:
-      "A campus community platform for discovering college societies, student clubs, events, student communities, and people to learn, build, and connect with.",
+      "HallWayLoop is developing a college-centred social app organised around Home, Discover, Events, and Messages. The website currently provides society and event discovery.",
+    featureList: [
+      "Campus feed and short announcements",
+      "Student and society profiles",
+      "People and society discovery",
+      "College event listings and filters",
+      "Direct and group messaging in the product blueprint",
+      "College-linked verification and community safety controls in the product blueprint",
+    ],
     publisher: { "@id": siteConfig.url + "/#organization" },
     creator: { "@id": siteConfig.url + "/#organization" },
   };
@@ -103,7 +113,7 @@ export function buildOrganizationJsonLd() {
     logo: siteConfig.url + "/icon.svg",
     email: siteConfig.contactEmail,
     description:
-      "HallWayLoop is a campus community platform for discovering societies, clubs, events, people, and opportunities to participate and collaborate.",
+      "HallWayLoop is building a college-centred social app for campus announcements, student and society profiles, event discovery, messaging, and participation in college communities.",
     sameAs: [siteConfig.social.github],
     founder: {
       "@type": "Person",
@@ -111,12 +121,13 @@ export function buildOrganizationJsonLd() {
       url: siteConfig.founderUrl,
     },
     knowsAbout: [
+      "college communities",
       "college societies",
       "student clubs",
+      "campus announcements",
       "campus events",
-      "student communities",
-      "student networking",
-      "campus collaboration",
+      "student profiles",
+      "student messaging",
     ],
     hasPart: {
       "@id": siteConfig.url + "/#product",
@@ -128,32 +139,47 @@ export const geoFaqs = [
   {
     question: "What is HallWayLoop?",
     answer:
-      "HallWayLoop is a campus community platform that helps students discover college societies, student clubs, campus events, and people to learn, build, and connect with.",
+      "HallWayLoop, also called HWL, is a college-centred social, events, and messaging app in development. Its aim is to bring campus announcements, student and society profiles, events, and conversations into one place. The website currently lets students explore societies and published campus events.",
   },
   {
     question: "What does HWL stand for?",
     answer:
-      "HWL is the short name for HallWayLoop, a platform focused on helping people discover and participate in campus communities, societies, clubs, events, and collaboration.",
+      "HWL is the short name for HallWayLoop, a product being built to help students discover what is happening on campus, find communities, and connect with other students.",
   },
   {
     question: "Who is HallWayLoop for?",
     answer:
-      "HallWayLoop is designed primarily for students and campus communities, including people looking for societies, clubs, events, collaborators, and meaningful ways to participate.",
+      "HallWayLoop is designed primarily for college students and campus communities, including society admins and, where approved, college staff sharing official announcements.",
   },
   {
-    question: "What can I do on HallWayLoop?",
+    question: "What are the main areas of the HallWayLoop app?",
     answer:
-      "You can browse college societies and clubs, discover campus events, explore community initiatives, and use HallWayLoop Connect to find people with shared interests, skills, projects, or hobbies.",
+      "The mobile app blueprint has four main destinations: Home for the feed and announcements, Search or Discover for people, societies, and events, Events for filtered event listings, and Messages for direct and group conversations. A user's profile is reachable from the top-right of Home.",
   },
   {
-    question: "How is HallWayLoop different from a social network?",
+    question: "Is the HallWayLoop mobile app available to download?",
     answer:
-      "HallWayLoop is centered on campus discovery and participation. Instead of focusing only on social feeds, it helps users find communities, events, people, and opportunities where they can take part.",
+      "The mobile app is in development and no app-store download is announced on this website. For now, visitors can explore the website's society directory and published campus event listings.",
   },
   {
-    question: "Does HallWayLoop use AI?",
+    question: "Will students need a college ID?",
     answer:
-      "HallWayLoop is developing AI-powered conversational functionality to make discovering information and navigating campus opportunities more natural for users.",
+      "The product blueprint proposes verifying college affiliation with a college email or college ID. Joining societies and full participation are intended to be tied to verified college membership; the exact verification process will be confirmed during the pilot.",
+  },
+  {
+    question: "How does HallWayLoop plan to support safety and privacy?",
+    answer:
+      "The product blueprint calls for report, block, and mute controls; message requests from non-followers; college-scoped visibility by default; and a moderation review queue. Privacy settings, data minimisation, and the final launch policies still need to be implemented and reviewed.",
+  },
+  {
+    question: "Can students discover events from nearby colleges?",
+    answer:
+      "In the app blueprint, events are visible within the host's college by default. Hosts may mark suitable events as public so students can discover them through nearby-college filters.",
+  },
+  {
+    question: "Which features are planned for later releases?",
+    answer:
+      "The blueprint places the stories and updates strip, notification bell, event RSVP, reminders, calendar sync, and expanded society administration tools in later releases. Availability may change as the pilot and product roadmap are validated.",
   },
 ];
 
