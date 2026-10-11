@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildFaqJsonLd, geoFaqs, siteConfig } from "@/lib/seo";
 
+function faqAnchorId(question: string) {
+  return question.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
 const faqDescription =
   "Answers about the HallWayLoop college community app, its main destinations, planned college-affiliation checks, roadmap, and what is available on the website today.";
 
@@ -43,8 +47,8 @@ export default function FAQPage() {
 
       <section className="space-y-0" aria-label="HallWayLoop frequently asked questions">
         {geoFaqs.map((faq) => (
-          <article key={faq.question} className="border-b border-border py-6 first:pt-0">
-            <h2 className="text-lg font-semibold sm:text-xl">{faq.question}</h2>
+          <article key={faq.question} id={faqAnchorId(faq.question)} className="border-b border-border py-6 first:pt-0">
+            <h2 className="text-lg font-semibold sm:text-xl"><a href={`#${faqAnchorId(faq.question)}`} className="rounded-sm underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{faq.question}</a></h2>
             <p className="mt-3 text-sm leading-7 text-muted-foreground sm:text-base">{faq.answer}</p>
           </article>
         ))}

@@ -30,7 +30,7 @@ export function Footer() {
               <ul className="mt-4 space-y-3 text-sm font-medium">
                 <li><Link href="/societies" className="inline-flex items-center gap-2 transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]"><Compass className="h-4 w-4 text-[#d95743] dark:text-[#ff806b]" /> Societies</Link></li>
                 <li><Link href="/events" className="inline-flex items-center gap-2 transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]"><CalendarDays className="h-4 w-4 text-[#d95743] dark:text-[#ff806b]" /> Events</Link></li>
-                <li><Link href="/connect-launch" className="inline-flex items-center gap-2 transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]"><MessageCircle className="h-4 w-4 text-[#d95743] dark:text-[#ff806b]" /> Connect updates</Link></li>
+                <li><Link href="/connect-launch" className="inline-flex items-center gap-2 transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]"><MessageCircle className="h-4 w-4 text-[#d95743] dark:text-[#ff806b]" /> Updates</Link></li>
                 <li><Link href="/faq" className="transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]">FAQs</Link></li>
               </ul>
             </div>
@@ -45,7 +45,7 @@ export function Footer() {
             </div>
 
             <div className="col-span-2 sm:col-span-1">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-[#a18a80] dark:text-[#9f8980]">Policies</p>
+              <p className="text-[11px] font-bold uppercase tracking-wider text-[#a18a80] dark:text-[#9f8980]">Legal</p>
               <ul className="mt-4 space-y-3 text-sm font-medium">
                 <li><Link href="/privacy" className="transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]">Privacy</Link></li>
                 <li><Link href="/terms" className="transition-colors hover:text-[#d95743] dark:hover:text-[#ff806b]">Terms</Link></li>

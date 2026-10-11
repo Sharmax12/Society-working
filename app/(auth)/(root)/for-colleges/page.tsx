@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, Building2, CalendarCheck, ShieldCheck } from "lucide-react";
+import { Building2, CalendarCheck, ShieldCheck } from "lucide-react";
 import { siteConfig } from "@/lib/seo";
+import { CampusLeadForm } from "@/modules/connect/components/campus-lead-form";
 
 const description =
   "Learn how HallWayLoop plans to support colleges with clearer event discovery, student communities, and campus communication.";
@@ -45,8 +46,6 @@ const ideas = [
 ];
 
 export default function ForCollegesPage() {
-  const subject = encodeURIComponent("Explore a HallWayLoop campus partnership");
-
   return (
     <main className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
       <header className="max-w-3xl">
@@ -57,14 +56,16 @@ export default function ForCollegesPage() {
         <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
           HallWayLoop is being developed to connect student communities, society profiles, announcements, and event discovery. We’re interested in speaking with colleges that want to shape a practical pilot.
         </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <a href={`mailto:${siteConfig.contactEmail}?subject=${subject}`} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-85">
-            Discuss a campus pilot <ArrowUpRight className="h-4 w-4" />
-          </a>
-          <Link href="/about" className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold transition hover:bg-muted">
-            About HallWayLoop
-          </Link>
+        <div className="mt-8 max-w-xl">
+          <CampusLeadForm
+            kind="college"
+            title="Discuss a campus pilot"
+            description="Leave your details so we can start a conversation about a potential HallWayLoop campus partnership."
+          />
         </div>
+        <Link href="/about" className="mt-4 inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold transition hover:bg-muted">
+          About HallWayLoop
+        </Link>
       </header>
 
       <section className="mt-14 grid gap-4 border-t border-border pt-10 sm:grid-cols-3">

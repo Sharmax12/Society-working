@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, Megaphone, Users } from "lucide-react";
+import { CalendarDays, Megaphone, Users } from "lucide-react";
 import { siteConfig } from "@/lib/seo";
+import { CampusLeadForm } from "@/modules/connect/components/campus-lead-form";
 
 const description =
   "Bring your college society to HallWayLoop. Share your profile, publish events, and help students find ways to take part.";
@@ -45,8 +46,6 @@ const benefits = [
 ];
 
 export default function ForSocietiesPage() {
-  const subject = encodeURIComponent("List our society on HallWayLoop");
-
   return (
     <main className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
       <header className="max-w-3xl">
@@ -57,15 +56,16 @@ export default function ForSocietiesPage() {
         <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
           HallWayLoop is building a simpler way for students to discover college societies and campus events. We want to work with student organisers as we shape the pilot.
         </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <a href={`mailto:${siteConfig.contactEmail}?subject=${subject}`} className="inline-flex items-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-85">
-            List your society <ArrowUpRight className="h-4 w-4" />
-          </a>
-          <Link href="/events" className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold transition hover:bg-muted">
-            Explore events <CalendarDays className="h-4 w-4" />
-          </Link>
+        <div className="mt-8 max-w-xl">
+          <CampusLeadForm
+            kind="society"
+            title="Tell us about your society"
+            description="Share your name, society, and email. The HallWayLoop team will follow up about a listing or pilot."
+          />
         </div>
-        <p className="mt-3 text-xs leading-5 text-muted-foreground">The listing workflow is being developed. Email us and we’ll coordinate the next steps directly.</p>
+        <Link href="/events" className="mt-4 inline-flex items-center gap-2 rounded-full border border-border px-5 py-3 text-sm font-semibold transition hover:bg-muted">
+          Explore events <CalendarDays className="h-4 w-4" />
+        </Link>
       </header>
 
       <section className="mt-14 grid gap-4 border-t border-border pt-10 sm:grid-cols-3">
