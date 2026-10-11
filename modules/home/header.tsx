@@ -58,8 +58,6 @@ export async function Header() {
             {item.label}
           </Link>
         ))}
-        <Link href="/connect-launch" className="whitespace-nowrap hover:text-foreground">Connect updates</Link>
-        <Link href="/faq" className="whitespace-nowrap hover:text-foreground">FAQs</Link>
         {isLoggedIn && <Link href="/messages" className="whitespace-nowrap hover:text-foreground">Messages</Link>}
         {isLoggedIn && <Link href="/dashboard" className="whitespace-nowrap hover:text-foreground">My space</Link>}
       </nav>
