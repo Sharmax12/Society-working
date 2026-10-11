@@ -55,7 +55,7 @@ export function LaunchSignupCTA() {
           Get notified at launch <Bell className="h-4 w-4" />
         </button>
       ) : (
-        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-2 rounded-2xl border border-border bg-card p-2 sm:w-[380px] sm:flex-row">
+        <form onSubmit={handleSubmit} className="relative flex w-full flex-col gap-2 rounded-2xl border border-border bg-card p-2 sm:w-[380px] sm:flex-row">
           <label htmlFor="homepage-launch-email" className="sr-only">Email address for launch updates</label>
           <input
             id="homepage-launch-email"
@@ -77,7 +77,7 @@ export function LaunchSignupCTA() {
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
             {submitting ? "Joining…" : "Join list"}
           </button>
-          {error && <p role="alert" className="text-xs text-destructive sm:absolute sm:mt-12">{error}</p>}
+          {error && <p role="alert" className="text-xs text-destructive sm:absolute sm:left-2 sm:top-full sm:mt-1">{error}</p>}
         </form>
       )}
     </div>
