@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LaunchSignupCTA } from "@/modules/connect/components/launch-signup-cta";
+import { PhonePreview } from "@/modules/home/phone-preview";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -9,7 +10,6 @@ import {
   MessageCircle,
   Search,
   ShieldCheck,
-  Sparkles,
   Users,
 } from "lucide-react";
 import {
@@ -75,106 +75,7 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[430px]">
-          <div
-            aria-hidden="true"
-            className="absolute inset-x-10 top-10 -z-10 h-3/4 rounded-full bg-primary/10 blur-3xl"
-          />
-          <div className="rounded-[2.8rem] border-[7px] border-stone-900 bg-stone-900 p-2 shadow-2xl shadow-stone-950/20">
-            <div className="overflow-hidden rounded-[2.1rem] bg-[#faf8f3] text-[#29231f]">
-              <div className="flex items-center justify-between px-5 pb-2 pt-3 text-[10px] font-semibold">
-                <span>9:41</span>
-                <span className="tracking-[.16em]">● ● ●</span>
-              </div>
-              <div className="px-4 pb-4 pt-1">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[.2em] text-[#b94131]">
-                      HALLWAYLOOP
-                    </p>
-                    <p className="mt-1 text-lg font-semibold tracking-tight">Your campus, today.</p>
-                  </div>
-                  <div className="relative grid h-10 w-10 place-items-center rounded-full border border-[#e6dcd3] bg-white">
-                    <span className="text-base font-semibold">@</span>
-                    <span className="absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-[#d95743]" />
-                  </div>
-                </div>
-
-                <div className="mt-5 rounded-2xl bg-[#302724] p-4 text-white">
-                  <div className="flex items-center gap-2 text-[9px] font-semibold uppercase tracking-[.17em] text-white/65">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Campus note · sample
-                  </div>
-                  <p className="mt-3 text-lg font-semibold leading-snug">
-                    Something good is happening around the corner.
-                  </p>
-                  <p className="mt-2 text-xs leading-5 text-white/70">
-                    Short updates from the people and societies you follow.
-                  </p>
-                </div>
-
-                <div className="mt-5 flex items-center justify-between">
-                  <p className="text-sm font-semibold">Around your campus</p>
-                  <span className="text-[10px] font-medium text-[#9a8b80]">SAMPLE FEED</span>
-                </div>
-
-                <article className="mt-3 rounded-2xl border border-[#e8ded6] bg-white p-3.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#f5ded6] text-[10px] font-bold text-[#9b493b]">
-                      DS
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-semibold">Design Society</p>
-                      <p className="mt-0.5 text-[10px] text-[#9a8b80]">Society update · Example</p>
-                    </div>
-                    <ArrowUpRight className="h-4 w-4 text-[#9a8b80]" />
-                  </div>
-                  <p className="mt-3 text-sm font-semibold">A new idea starts with showing up.</p>
-                  <p className="mt-1 text-xs leading-5 text-[#786a61]">
-                    Announcements, student posts, and achievements in one feed.
-                  </p>
-                </article>
-
-                <article className="mt-3 rounded-2xl border border-[#e8ded6] bg-white p-3.5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="grid h-9 w-9 place-items-center rounded-xl bg-[#e6eadb] text-[#526344]">
-                        <CalendarDays className="h-4 w-4" />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold">Find your next event</p>
-                        <p className="mt-0.5 text-[10px] text-[#9a8b80]">Browse by campus and category</p>
-                      </div>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-[#9a8b80]" />
-                  </div>
-                </article>
-
-                <div className="mt-5 grid grid-cols-4 gap-1 border-t border-[#e8ded6] pt-3">
-                  <div className="flex flex-col items-center gap-1 text-[#b94131]">
-                    <HomeIcon className="h-4 w-4" />
-                    <span className="text-[9px] font-semibold">Home</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 text-[#9a8b80]">
-                    <Search className="h-4 w-4" />
-                    <span className="text-[9px]">Discover</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 text-[#9a8b80]">
-                    <CalendarDays className="h-4 w-4" />
-                    <span className="text-[9px]">Events</span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1 text-[#9a8b80]">
-                    <MessageCircle className="h-4 w-4" />
-                    <span className="text-[9px]">Messages</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p className="mt-3 text-center text-[11px] text-muted-foreground">
-            Illustrative app preview · sample content, not live posts
-          </p>
-        </div>
+        <PhonePreview />
       </section>
 
       <section className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
@@ -362,7 +263,7 @@ export default function Home() {
             href="/societies"
             className="inline-flex shrink-0 items-center justify-center gap-2 rounded-full bg-background px-5 py-3 text-sm font-semibold text-foreground transition hover:opacity-85"
           >
-            Explore campus <ArrowRight className="h-4 w-4" />
+            Find your next community <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </section>
