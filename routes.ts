@@ -13,7 +13,8 @@ export const publicRoutePrefixes = [
   "/events",
 ];
 
-export const authRoutes = ["/auth/sign-in"];
+// Public authentication pages must be reachable before a user has a session.
+export const authRoutes = ["/auth/sign-in", "/auth/register"];
 
 export const apiAuthPrefix = "/api/auth";
 
