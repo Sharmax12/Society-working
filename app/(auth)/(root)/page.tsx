@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LaunchSignupCTA } from "@/modules/connect/components/launch-signup-cta";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -60,14 +61,9 @@ export default function Home() {
               href="/societies"
               className="inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-6 py-3.5 text-sm font-semibold text-background transition hover:opacity-85"
             >
-              Discover societies <ArrowRight className="h-4 w-4" />
+              Explore societies <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              href="/events"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-6 py-3.5 text-sm font-semibold transition hover:bg-muted"
-            >
-              Explore events <ArrowUpRight className="h-4 w-4" />
-            </Link>
+            <LaunchSignupCTA />
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
@@ -181,6 +177,53 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
+            Trust and safety
+          </p>
+          <h2 className="mt-4 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">
+            A community should feel like a community.
+          </h2>
+          <p className="mt-4 text-sm leading-7 text-muted-foreground sm:text-base">
+            The product report puts trust, clear boundaries, and college context
+            at the centre of the experience. These are requirements for the
+            app to build towards, not a claim that every control is live today.
+          </p>
+          <Link
+            href="/about#trust"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:gap-3"
+          >
+            Read the approach <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <article className="rounded-2xl border border-border p-5">
+            <Users className="h-5 w-5 text-primary" />
+            <h3 className="mt-4 font-semibold">College-linked access</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              The blueprint calls for college email or ID verification before full participation.
+            </p>
+          </article>
+          <article className="rounded-2xl border border-border p-5">
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <h3 className="mt-4 font-semibold">Tools to feel safer</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              Reporting, blocking, message requests, and a moderation review flow are in the plan.
+            </p>
+          </article>
+          <article className="rounded-2xl border border-border p-5 sm:col-span-2">
+            <Search className="h-5 w-5 text-primary" />
+            <h3 className="mt-4 font-semibold">Local by default</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              The proposed default keeps profiles and posts within a student's own college.
+              Cross-college discovery is intended for events marked public by their hosts.
+            </p>
+          </article>
+        </div>
+      </section>
+
       <section id="app-blueprint" className="border-y border-border bg-card/40">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-20">
           <div className="max-w-2xl">
@@ -249,52 +292,6 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:grid-cols-[.9fr_1.1fr] lg:items-start">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">
-            Grounded in campus life
-          </p>
-          <h2 className="mt-4 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">
-            A community should feel like a community.
-          </h2>
-          <p className="mt-4 text-sm leading-7 text-muted-foreground sm:text-base">
-            The product report puts trust, clear boundaries, and college context
-            at the centre of the experience. These are requirements for the
-            app to build towards, not a claim that every control is live today.
-          </p>
-          <Link
-            href="/about#trust"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-primary transition hover:gap-3"
-          >
-            Read the approach <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <article className="rounded-2xl border border-border p-5">
-            <Users className="h-5 w-5 text-primary" />
-            <h3 className="mt-4 font-semibold">College-linked access</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              The blueprint calls for college email or ID verification before full participation.
-            </p>
-          </article>
-          <article className="rounded-2xl border border-border p-5">
-            <ShieldCheck className="h-5 w-5 text-primary" />
-            <h3 className="mt-4 font-semibold">Tools to feel safer</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Reporting, blocking, message requests, and a moderation review flow are in the plan.
-            </p>
-          </article>
-          <article className="rounded-2xl border border-border p-5 sm:col-span-2">
-            <Search className="h-5 w-5 text-primary" />
-            <h3 className="mt-4 font-semibold">Local by default</h3>
-            <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              The proposed default keeps profiles and posts within a student's own college.
-              Cross-college discovery is intended for events marked public by their hosts.
-            </p>
-          </article>
-        </div>
-      </section>
 
       <section className="border-y border-border bg-muted/35">
         <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-16">
