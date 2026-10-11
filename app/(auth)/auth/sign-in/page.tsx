@@ -1,8 +1,13 @@
-import SignInFormClient from '@/modules/auth/components/sign-in-form-client'
-import Image from 'next/image'
-import React from 'react'
+import SignInFormClient from "@/modules/auth/components/sign-in-form-client";
+import Image from "next/image";
 
-const Page = () => {
+type SignInPageProps = {
+  searchParams: Promise<{ error?: string; registered?: string }>;
+};
+
+export default async function SignInPage({ searchParams }: SignInPageProps) {
+  const params = await searchParams;
+
   return (
     <div className="flex flex-col items-center">
       <div className="mb-5 text-center sm:mb-7">
@@ -11,9 +16,10 @@ const Page = () => {
         </div>
         <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">HallWayLoop</p>
       </div>
-      <SignInFormClient />
+      <SignInFormClient
+        showCredentialsError={params.error === "CredentialsSignin"}
+        registered={params.registered === "1"}
+      />
     </div>
-  )
+  );
 }
-
-export default Page

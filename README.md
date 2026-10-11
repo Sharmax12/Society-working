@@ -25,13 +25,23 @@ Society admins can:
 
 The public directory and event pages only expose verified societies. Admin access is also scoped so a society admin only manages the societies they have been assigned to.
 
+## Authentication
+
+HallWayLoop uses Auth.js / NextAuth with a shared JWT session for Google, GitHub, and local email/password sign-in.
+
+- Local registration creates a user with a salted scrypt password hash; plaintext passwords are never stored.
+- Local sign-in uses the Auth.js Credentials provider and the same session callbacks as OAuth sign-in.
+- An email already registered with Google or GitHub cannot be claimed by creating a second local account.
+- Local registration does not verify college affiliation. College-only features need a separate verified-college check.
+- Before production use, add rate limiting / abuse controls, email verification, and password-reset / recovery support.
+
 ## Why the project is structured this way
 
 The main idea is to keep the student experience simple while keeping the rules on the server.
 
 The database contains the campus relationships: users, societies, admins, applications, questions, answers, and events. Server actions handle changes to that data, while the App Router pages focus on showing the current state.
 
-Authentication is handled by Auth.js with Google and GitHub sign-in. Prisma is used for PostgreSQL access.
+Authentication is handled by Auth.js with Google, GitHub, and Credentials sign-in. Prisma is used for PostgreSQL access.
 
 ## Stack
 
@@ -97,6 +107,7 @@ Open [http://localhost:3000](http://localhost:3000).
 - Unverified societies are hidden from the public society and event pages.
 - Application and interview emails are best-effort; an email provider failure does not undo the database change.
 - The Connect area is currently a placeholder for the next part of the product.
+- Local account creation does not yet send email-verification links or support password resets; add those, plus rate limiting, before enabling public production registration.
 
 ## Available scripts
 
