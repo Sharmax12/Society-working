@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LaunchSignupCTA } from "@/modules/connect/components/launch-signup-cta";
-import { PhonePreview } from "@/modules/home/phone-preview";
+import { PhonePreview } from "./phone-preview";
 import {
   ArrowRight,
   ArrowUpRight,
