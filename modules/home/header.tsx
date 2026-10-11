@@ -4,6 +4,14 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/modules/auth/components/sign-out";
 
+const navigation = [
+  { href: "/societies", label: "Societies" },
+  { href: "/events", label: "Events" },
+  { href: "/for-societies", label: "For societies" },
+  { href: "/for-colleges", label: "For colleges" },
+  { href: "/about", label: "About" },
+];
+
 export async function Header() {
   const session = await auth();
   const isLoggedIn = !!session?.user;
@@ -16,12 +24,12 @@ export async function Header() {
           <span className="text-[17px] font-semibold tracking-[-.04em]">HallWayLoop<span className="text-primary">.</span></span>
         </Link>
 
-        <nav aria-label="Main navigation" className="hidden items-center gap-6 text-sm text-muted-foreground lg:flex">
-          <Link href="/societies" className="transition hover:text-foreground">Discover</Link>
-          <Link href="/events" className="transition hover:text-foreground">Events</Link>
-          <Link href="/Connect" className="transition hover:text-foreground">Connect</Link>
-          <Link href="/about" className="transition hover:text-foreground">About HWL</Link>
-          {isLoggedIn && <Link href="/messages" className="transition hover:text-foreground">Messages</Link>}
+        <nav aria-label="Main navigation" className="hidden items-center gap-4 text-sm text-muted-foreground xl:flex">
+          {navigation.map((item) => (
+            <Link key={item.href} href={item.href} className="whitespace-nowrap transition hover:text-foreground">
+              {item.label}
+            </Link>
+          ))}
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
@@ -45,10 +53,13 @@ export async function Header() {
       </div>
 
       <nav aria-label="Mobile navigation" className="flex gap-5 overflow-x-auto border-t border-border/70 px-5 py-3 text-sm text-muted-foreground lg:hidden">
-        <Link href="/societies" className="whitespace-nowrap hover:text-foreground">Discover</Link>
-        <Link href="/events" className="whitespace-nowrap hover:text-foreground">Events</Link>
-        <Link href="/Connect" className="whitespace-nowrap hover:text-foreground">Connect</Link>
-        <Link href="/about" className="whitespace-nowrap hover:text-foreground">About HWL</Link>
+        {navigation.map((item) => (
+          <Link key={item.href} href={item.href} className="whitespace-nowrap hover:text-foreground">
+            {item.label}
+          </Link>
+        ))}
+        <Link href="/connect-launch" className="whitespace-nowrap hover:text-foreground">Connect updates</Link>
+        <Link href="/faq" className="whitespace-nowrap hover:text-foreground">FAQs</Link>
         {isLoggedIn && <Link href="/messages" className="whitespace-nowrap hover:text-foreground">Messages</Link>}
         {isLoggedIn && <Link href="/dashboard" className="whitespace-nowrap hover:text-foreground">My space</Link>}
       </nav>
