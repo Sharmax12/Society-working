@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
-import { FaGithub, FaGoogle } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,11 +19,6 @@ import { signIn } from "@/auth";
 async function handleGoogleSignIn() {
   "use server";
   await signIn("google", { redirectTo: "/dashboard" });
-}
-
-async function handleGithubSignIn() {
-  "use server";
-  await signIn("github", { redirectTo: "/dashboard" });
 }
 
 async function handleCredentialsSignIn(formData: FormData) {
@@ -72,7 +67,7 @@ const SignInFormClient = ({
 
       <form action={handleCredentialsSignIn} className="grid gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="local-email">Email address</Label>
+          <Label htmlFor="local-email">College email address</Label>
           <Input id="local-email" name="email" type="email" autoComplete="email" placeholder="you@college.edu" maxLength={254} required className="h-11 rounded-xl" />
         </div>
         <div className="grid gap-2">
@@ -88,18 +83,11 @@ const SignInFormClient = ({
         <span className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        <form action={handleGoogleSignIn}>
-          <Button type="submit" variant="outline" className="h-12 w-full rounded-xl border-foreground/10 bg-background/70 font-semibold transition hover:-translate-y-0.5 hover:shadow-md">
-            <FaGoogle className="mr-2 h-4 w-4" /><span>Google</span>
-          </Button>
-        </form>
-        <form action={handleGithubSignIn}>
-          <Button type="submit" variant="outline" className="h-12 w-full rounded-xl border-foreground/10 bg-background/70 font-semibold transition hover:-translate-y-0.5 hover:shadow-md">
-            <FaGithub className="mr-2 h-4 w-4" /><span>GitHub</span>
-          </Button>
-        </form>
-      </div>
+      <form action={handleGoogleSignIn}>
+        <Button type="submit" variant="outline" className="h-12 w-full rounded-xl border-foreground/10 bg-background/70 font-semibold transition hover:-translate-y-0.5 hover:shadow-md">
+          <FaGoogle className="mr-2 h-4 w-4" /><span>Continue with Google</span>
+        </Button>
+      </form>
 
       <p className="text-center text-sm text-muted-foreground">
         New to HallWayLoop?{" "}
@@ -110,9 +98,9 @@ const SignInFormClient = ({
     <CardFooter className="px-7 pb-7 pt-1 sm:px-8 sm:pb-8">
       <p className="w-full text-center text-[11px] leading-5 text-muted-foreground">
         By continuing, you agree to our{" "}
-        <Link href="/about" className="font-semibold underline underline-offset-2 hover:text-foreground">Terms</Link>
+        <Link href="/terms" className="font-semibold underline underline-offset-2 hover:text-foreground">Terms</Link>
         {" "}and{" "}
-        <Link href="/about#trust" className="font-semibold underline underline-offset-2 hover:text-foreground">Privacy &amp; safety approach</Link>.
+        <Link href="/privacy" className="font-semibold underline underline-offset-2 hover:text-foreground">Privacy Policy</Link>.
       </p>
     </CardFooter>
   </Card>
