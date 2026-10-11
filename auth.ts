@@ -4,7 +4,6 @@ import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
-import { isAllowedCollegeEmail } from "./modules/auth/college-email";
 import { verifyPassword } from "./modules/auth/password";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -13,8 +12,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!user || !account || !user.email) return false;
 
       const email = user.email.trim().toLowerCase();
-      if (!isAllowedCollegeEmail(email)) return false;
-
       // Credentials users have already passed the local password check.
       if (account.provider === "credentials") return true;
 
@@ -139,8 +136,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           !email ||
           !password ||
           email.length > 254 ||
-          password.length > 128 ||
-          !isAllowedCollegeEmail(email)
+          password.length > 128
         ) {
           return null;
         }
