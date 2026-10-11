@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   }
 
   const input = body as Record<string, unknown>;
-  const name = typeof input.name === "string" ? input.name.trim().replace(/\\s+/g, " ") : "";
+  const name = typeof input.name === "string" ? input.name.trim().replace(/\s+/g, " ") : "";
   const organization = typeof input.organization === "string" ? input.organization.trim().replace(/\\s+/g, " ") : "";
   const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
   const kind = input.kind === "society" || input.kind === "college" ? input.kind as LeadKind : null;
