@@ -1,26 +1,46 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, CalendarDays, MapPin, Users } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Bell, CalendarDays, MapPin } from "lucide-react";
 import { getUpcomingEvents, getPastEvents } from "@/modules/events/queries";
 import { Badge } from "@/components/ui/badge";
-import { siteConfig } from "@/lib/seo";
+import { siteConfig, buildOrganizationJsonLd } from "@/lib/seo";
+
+const eventsDescription =
+  "Discover college events, workshops, competitions, meetups, and student activities on HallWayLoop.";
 
 export const metadata: Metadata = {
   title: "Campus Events",
-  description: "Discover college events, workshops, competitions, meetups, and student activities on HallWayLoop.",
+  description: eventsDescription,
   keywords: ["campus events", "college events", "student events", "university events"],
   alternates: { canonical: "/events" },
   openGraph: {
     title: "Campus Events | HallWayLoop",
-    description: "Discover college events, workshops, competitions, meetups, and student activities.",
+    description: eventsDescription,
     url: "/events",
-    siteName: "HallWayLoop",
+    siteName: siteConfig.name,
+    images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "Discover campus events on HallWayLoop" }],
     type: "website",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "Campus Events | HallWayLoop",
+    description: eventsDescription,
+    images: [siteConfig.ogImage],
+  },
+  robots: { index: true, follow: true },
 };
 export const revalidate = 3600;
+
 function formatEventDate(date: Date) {
-  return new Date(date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  return new Date(date).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
 }
 
 export default async function EventsPage() {
@@ -29,8 +49,30 @@ export default async function EventsPage() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Upcoming Campus Events",
-    itemListElement: upcoming.map((event, index) => ({ "@type": "ListItem", position: index + 1, name: event.title, url: siteConfig.url + "/events/" + event.id })),
+    itemListElement: upcoming.map((event, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: event.title,
+      url: siteConfig.url + "/events/" + event.id,
+    })),
   };
+  const eventJsonLd = upcoming.map((event) => ({
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "@id": siteConfig.url + "/events/" + event.id + "#event",
+    name: event.title,
+    description: event.description,
+    startDate: event.date.toISOString(),
+    eventStatus: "https://schema.org/EventScheduled",
+    url: siteConfig.url + "/events/" + event.id,
+    ...(event.imageUrl ? { image: event.imageUrl } : {}),
+    ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}),
+    organizer: {
+      "@type": "Organization",
+      name: event.society.name,
+      url: siteConfig.url + "/societies/" + event.society.id,
+    },
+  }));
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -39,11 +81,14 @@ export default async function EventsPage() {
       { "@type": "ListItem", position: 2, name: "Events", item: siteConfig.url + "/events" },
     ],
   };
+  const organizationJsonLd = buildOrganizationJsonLd();
 
   return (
     <main className="min-h-screen">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
       <section className="border-b border-border">
         <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8 sm:py-20">
           <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Campus calendar</p>
@@ -57,10 +102,16 @@ export default async function EventsPage() {
           <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">The calendar</p><h2 className="mt-2 text-2xl font-semibold tracking-tight">Coming up <span className="ml-2 text-sm font-normal text-muted-foreground">{upcoming.length}</span></h2></div>
         </div>
         {upcoming.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border px-6 py-16 text-center">
+          <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
             <CalendarDays className="mx-auto h-7 w-7 text-muted-foreground" />
-            <p className="mt-4 font-medium">Nothing on the calendar yet.</p>
-            <p className="mt-1 text-sm text-muted-foreground">Check back soon for the next campus opportunity.</p>
+            <p className="mt-4 font-semibold">Your next campus moment belongs here.</p>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+              No upcoming events have been published yet. Get launch updates from HallWayLoop and we’ll let you know when more campus discovery features are ready.
+            </p>
+            <Link href="/connect-launch" className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-85">
+              <Bell className="h-4 w-4" /> Notify me <ArrowRight className="h-4 w-4" />
+            </Link>
+            <p className="mt-3 text-xs text-muted-foreground">You can unsubscribe from updates by contacting us at {siteConfig.contactEmail}.</p>
           </div>
         ) : (
           <div className="divide-y divide-border border-y border-border">
