@@ -23,7 +23,7 @@ export async function getPastEvents() {
 
 export async function getEvent(eventId: string) {
   return db.event.findUnique({
-    where: { id: eventId, OR: [{ societyId: null }, { society: { verificationStatus: "VERIFIED" } }] },
+    where: { id: eventId },
     include: { society: { select: { id: true, name: true } } },
   })
 }
