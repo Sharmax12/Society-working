@@ -35,7 +35,7 @@ export const siteConfig = {
   ],
   ogImage: "/opengraph-image",
   locale: "en_IN",
-  contactEmail: "info@hallwayloop.com",
+  contactEmail: "onboarding@hallwayloop.com",
   author: "Aniruddh Sharma",
   founderUrl: "https://www.hallwayloop.com/about#founder",
   social: {
