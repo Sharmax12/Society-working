@@ -7,8 +7,6 @@ import { SignOutButton } from "@/modules/auth/components/sign-out";
 const navigation = [
   { href: "/societies", label: "Societies" },
   { href: "/events", label: "Events" },
-  { href: "/for-societies", label: "For societies" },
-  { href: "/for-colleges", label: "For colleges" },
   { href: "/about", label: "About" },
 ];
 
