@@ -159,8 +159,8 @@ model Event {
   imageUrl    String?           // Poster/banner image URL
   inviteLink  String?           // RSVP / registration / invite link
 
-  societyId   String
-  society     Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  societyId   String?
+  society     Society? @relation(fields: [societyId], references: [id], onDelete: SetNull)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
