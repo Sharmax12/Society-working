@@ -31,7 +31,7 @@ export default async function QuickCreateEventPage() {
             </div>
             <h1 className="text-3xl font-black tracking-[-.04em] sm:text-4xl">Create an event instantly</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-              Publish an event right away and auto-create a basic society profile for it if you don&apos;t want to set one up first.
+              Publish an event directly. A society profile is not required.
             </p>
           </div>
         </div>
