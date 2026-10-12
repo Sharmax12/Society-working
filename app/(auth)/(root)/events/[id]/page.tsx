@@ -77,8 +77,8 @@ export default async function EventDetailPage({ params }: Props) {
     ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}),
     organizer: {
       "@type": "Organization",
-      name: event.society.name,
-      url: siteConfig.url + "/societies/" + event.society.id,
+      name: event.society?.name ?? "HallWayLoop Community",
+      ...(event.society ? { url: siteConfig.url + "/societies/" + event.society.id } : {}),
     },
     url: siteConfig.url + "/events/" + event.id,
     ...(event.imageUrl ? { image: [event.imageUrl] } : {}),
@@ -95,7 +95,7 @@ export default async function EventDetailPage({ params }: Props) {
           {event.imageUrl ? <img src={event.imageUrl} alt={event.title} className="aspect-[2/1] w-full object-cover" /> : <div className="relative flex aspect-[2/1] items-end overflow-hidden bg-gradient-to-br from-orange-500/20 via-rose-500/10 to-primary/5 p-8"><div className="absolute right-10 top-10 h-40 w-40 rounded-full bg-orange-400/20 blur-3xl" /><Sparkles className="relative h-12 w-12 text-orange-500" /></div>}
           <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_280px]">
             <div>
-              <Link href={`/societies/${event.society.id}`}><Badge variant="secondary" className="rounded-full">{event.society.name}</Badge></Link>
+              {event.society ? <Link href={`/societies/${event.society.id}`}><Badge variant="secondary" className="rounded-full">{event.society.name}</Badge></Link> : <Badge variant="secondary" className="rounded-full">Community event</Badge>}
               <h1 className="mt-5 text-balance text-4xl font-black tracking-[-.05em] sm:text-6xl">{event.title}</h1>
               <p className="mt-6 whitespace-pre-line text-base leading-7 text-muted-foreground">{event.description}</p>
             </div>
