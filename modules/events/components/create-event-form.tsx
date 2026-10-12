@@ -2,7 +2,7 @@
 
 import { useTransition } from "react"
 import { Button } from "@/components/ui/button"
-import { createEvent } from "@/modules/events/admin-queries"
+import { createEvent, createQuickEvent } from "@/modules/events/admin-queries"
 import { toast } from "sonner"
 import { CalendarDays, Image as ImageIcon, Link2, MapPin, Send, Sparkles } from "lucide-react"
 
@@ -10,11 +10,11 @@ type Society = { id: string; name: string }
 
 export function CreateEventForm({ societies }: { societies: Society[] }) {
   const [isPending, startTransition] = useTransition()
-  function handleSubmit(formData: FormData) { startTransition(async () => { try { await createEvent(formData) } catch (err) { toast.error(err instanceof Error ? err.message : "Something went wrong") } }) }
+  function handleSubmit(formData: FormData) { startTransition(async () => { try { if (String(formData.get("societyId") ?? "").trim()) await createEvent(formData); else await createQuickEvent(formData) } catch (err) { toast.error(err instanceof Error ? err.message : "Something went wrong") } }) }
   const input = "mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10"
   return <form action={handleSubmit} className="space-y-8">
     <div className="grid gap-5 sm:grid-cols-2">
-      <div><label className="text-sm font-semibold">Society</label><select name="societyId" required defaultValue="" className={`${input} bg-background`}><option value="" disabled>Select a society</option>{societies.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
+      <div><label className="text-sm font-semibold">Society <span className="font-normal text-muted-foreground">(optional)</span></label><select name="societyId" defaultValue="" className={`${input} bg-background`}><option value="">Standalone event — no society</option>{societies.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}</select></div>
       <div><label className="text-sm font-semibold">Event title</label><input name="title" required className={input} placeholder="e.g. Annual Tech Fest" /></div>
     </div>
     <div><label className="text-sm font-semibold">Description</label><textarea name="description" required rows={5} className={`${input} resize-y`} placeholder="What&apos;s happening? Give students a reason to show up." /></div>
