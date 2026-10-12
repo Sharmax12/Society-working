@@ -51,7 +51,7 @@ export default async function AdminEventsPage() {
                     <h2 className="truncate text-lg font-bold tracking-tight">{event.title}</h2>
                     <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
                   </div>
-                  <p className="mt-1 truncate text-sm font-medium text-muted-foreground">{event.society.name}</p>
+                  <p className="mt-1 truncate text-sm font-medium text-muted-foreground">{event.society?.name ?? "Standalone event"}</p>
                   <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <span>{new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                     <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />

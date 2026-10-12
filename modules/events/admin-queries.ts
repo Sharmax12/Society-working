@@ -32,7 +32,7 @@ export async function getManagedSocietiesForEvents(adminId: string) {
 // All events (past + upcoming) across the societies this admin manages.
 export async function getManagedEvents(adminId: string) {
   return db.event.findMany({
-    where: { society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } },
+    where: { OR: [{ society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } }, { societyId: null }] },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
   })
@@ -82,9 +82,11 @@ export async function createEvent(formData: FormData) {
 export async function createQuickEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN") throw new Error("Only admins can create events without an existing society")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) {
+    throw new Error("You are not allowed to create standalone events")
+  }
 
-  const societyName = String(formData.get("societyName") ?? "").trim()
   const title = String(formData.get("title") ?? "").trim()
   const description = String(formData.get("description") ?? "").trim()
   const date = String(formData.get("date") ?? "")
@@ -92,27 +94,14 @@ export async function createQuickEvent(formData: FormData) {
   const imageUrl = String(formData.get("imageUrl") ?? "").trim()
   const inviteLink = String(formData.get("inviteLink") ?? "").trim()
 
-  if (!societyName) throw new Error("Society name is required")
   if (!title) throw new Error("Event title is required")
   if (!description) throw new Error("Description is required")
-  if (!date) throw new Error("Event date is required")
+  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
   if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
   if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
-  const society = await db.society.create({
-    data: {
-      name: societyName,
-      description: `A community space for ${title}.`,
-      category: "General",
-      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-      adminId: session.user.id,
-      admins: { create: { userId: session.user.id } },
-    },
-  })
-
   const event = await db.event.create({
     data: {
-      societyId: society.id,
       title,
       description,
       date: new Date(date),

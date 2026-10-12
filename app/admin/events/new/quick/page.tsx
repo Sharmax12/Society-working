@@ -31,7 +31,7 @@ export default async function QuickCreateEventPage() {
             </div>
             <h1 className="text-3xl font-black tracking-[-.04em] sm:text-4xl">Create an event instantly</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
-              Publish an event right away and auto-create a basic society profile for it if you don&apos;t want to set one up first.
+              Publish an event directly. A society profile is not required.
             </p>
           </div>
         </div>
@@ -39,15 +39,9 @@ export default async function QuickCreateEventPage() {
 
       <section className="mt-6 rounded-[1.75rem] border bg-card/90 p-5 shadow-sm sm:p-8">
         <form action={createQuickEvent} className="space-y-8">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label className="text-sm font-semibold">Society name</label>
-              <input name="societyName" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. Computer Science Society" />
-            </div>
-            <div>
-              <label className="text-sm font-semibold">Event title</label>
-              <input name="title" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. Annual Tech Fest" />
-            </div>
+          <div>
+            <label className="text-sm font-semibold">Event title</label>
+            <input name="title" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. Annual Tech Fest" />
           </div>
 
           <div>
@@ -99,7 +93,7 @@ export default async function QuickCreateEventPage() {
 
           <div className="flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Sparkles className="h-3.5 w-3.5 text-accent" /> This creates the society and event together.
+              <Sparkles className="h-3.5 w-3.5 text-accent" /> This publishes a standalone community event.
             </div>
             <button type="submit" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-xl">
               <Save className="h-4 w-4" /> Publish event
