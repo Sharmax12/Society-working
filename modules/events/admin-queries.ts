@@ -32,7 +32,7 @@ export async function getManagedSocietiesForEvents(adminId: string) {
 // All events (past + upcoming) across the societies this admin manages.
 export async function getManagedEvents(adminId: string) {
   return db.event.findMany({
-    where: { society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } },
+    where: { OR: [{ society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } }, { societyId: null }] },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
   })
@@ -82,8 +82,9 @@ export async function createEvent(formData: FormData) {
 export async function createQuickEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN") {
-    throw new Error("Only admins can create standalone events")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) {
+    throw new Error("You are not allowed to create standalone events")
   }
 
   const title = String(formData.get("title") ?? "").trim()
