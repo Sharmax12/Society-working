@@ -39,9 +39,15 @@ export default async function QuickCreateEventPage() {
 
       <section className="mt-6 rounded-[1.75rem] border bg-card/90 p-5 shadow-sm sm:p-8">
         <form action={createQuickEvent} className="space-y-8">
-          <div>
-            <label className="text-sm font-semibold">Event title</label>
-            <input name="title" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. Annual Tech Fest" />
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="text-sm font-semibold">Society name</label>
+              <input name="societyName" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. CS Society" />
+            </div>
+            <div>
+              <label className="text-sm font-semibold">Event title</label>
+              <input name="title" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. Annual Tech Fest" />
+            </div>
           </div>
 
           <div>
