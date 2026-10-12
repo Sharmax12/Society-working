@@ -79,6 +79,55 @@ export async function createEvent(formData: FormData) {
   redirect(`/events/${event.id}`)
 }
 
+export async function createQuickEvent(formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) redirect("/auth/sign-in")
+  if (session.user.role !== "ADMIN") throw new Error("Only admins can create events without an existing society")
+
+  const societyName = String(formData.get("societyName") ?? "").trim()
+  const title = String(formData.get("title") ?? "").trim()
+  const description = String(formData.get("description") ?? "").trim()
+  const date = String(formData.get("date") ?? "")
+  const location = String(formData.get("location") ?? "").trim()
+  const imageUrl = String(formData.get("imageUrl") ?? "").trim()
+  const inviteLink = String(formData.get("inviteLink") ?? "").trim()
+
+  if (!societyName) throw new Error("Society name is required")
+  if (!title) throw new Error("Event title is required")
+  if (!description) throw new Error("Description is required")
+  if (!date) throw new Error("Event date is required")
+  if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
+  if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
+
+  const society = await db.society.create({
+    data: {
+      name: societyName,
+      description: `A community space for ${title}.`,
+      category: "General",
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+      adminId: session.user.id,
+      admins: { create: { userId: session.user.id } },
+    },
+  })
+
+  const event = await db.event.create({
+    data: {
+      societyId: society.id,
+      title,
+      description,
+      date: new Date(date),
+      location: location || undefined,
+      imageUrl: imageUrl || undefined,
+      inviteLink: inviteLink || undefined,
+    },
+  })
+
+  revalidatePath("/events")
+  revalidatePath("/admin")
+  revalidatePath("/admin/events")
+  redirect(`/events/${event.id}`)
+}
+
 export async function deleteEvent(eventId: string) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
