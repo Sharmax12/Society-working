@@ -3,6 +3,7 @@ import NextAuth from "next-auth";
 import {
   DEFAULT_LOGIN_REDIRECT,
   apiAuthPrefix,
+  publicApiRoutes,
   publicRoutes,
   publicRoutePrefixes,
   authRoutes,
@@ -16,9 +17,13 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isPublicApiRoute = publicApiRoutes.some((route) =>
+    nextUrl.pathname === route || nextUrl.pathname.startsWith(`${route}/`),
+  );
   const isPublicRoute =
     publicRoutes.includes(nextUrl.pathname) ||
-    publicRoutePrefixes.some((prefix) => nextUrl.pathname.startsWith(prefix));
+    publicRoutePrefixes.some((prefix) => nextUrl.pathname.startsWith(prefix)) ||
+    isPublicApiRoute;
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
   if (isApiAuthRoute) return null;

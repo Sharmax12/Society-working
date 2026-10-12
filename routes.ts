@@ -18,6 +18,10 @@ export const publicRoutePrefixes = [
   "/events",
 ];
 
+export const publicApiRoutes = [
+  "/api/campus-leads",
+];
+
 export const authRoutes = ["/auth/sign-in"];
 
 export const apiAuthPrefix = "/api/auth";
