@@ -62,7 +62,7 @@ export default async function EventsPage() {
     "@id": siteConfig.url + "/events/" + event.id + "#event",
     name: event.title,
     description: event.description,
-    startDate: event.date.toISOString(),
+    startDate: event.date.toISOString(),\n    ...(event.endDate ? { endDate: event.endDate.toISOString() } : {}),
     eventStatus: "https://schema.org/EventScheduled",
     url: siteConfig.url + "/events/" + event.id,
     ...(event.imageUrl ? { image: event.imageUrl } : {}),
@@ -145,7 +145,7 @@ export default async function EventsPage() {
                     {event.imageUrl ? <img src={event.imageUrl} alt={event.title} className="aspect-[4/3] w-full object-cover" /> : <div className="grid aspect-[4/3] place-items-center"><CalendarDays className="h-7 w-7 text-muted-foreground" /></div>}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2"><Badge variant="secondary" className="rounded-full font-medium">{event.society?.name ?? "Community event"}</Badge><span className="text-xs text-muted-foreground">{formatEventDate(event.date)}</span></div>
+                    <div className="flex flex-wrap items-center gap-2"><Badge variant="secondary" className="rounded-full font-medium">{event.society?.name ?? "Community event"}</Badge><span className="text-xs text-muted-foreground">{formatEventDate(event.date)}{event.endDate ? ` – ${formatEventDate(event.endDate)}` : ""}</span></div>
                     <h3 className="mt-2 text-xl font-semibold tracking-tight transition group-hover:text-primary">{event.title}</h3>
                     <p className="mt-1 line-clamp-2 max-w-2xl text-sm leading-6 text-muted-foreground">{event.description}</p>
                     {event.location && <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin className="h-3.5 w-3.5" />{event.location}</p>}
