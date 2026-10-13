@@ -65,26 +65,6 @@ export default async function QuickCreateEventPage() {
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
-              <div>
-                <label className="text-sm font-semibold">Date & time</label>
-                <input name="date" type="datetime-local" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />
-              </div>
-              <div>
-                <label className="text-sm font-semibold">End date & time <span className="font-normal text-muted-foreground">(optional)</span></label>
-                <input name="endDate" type="datetime-local" className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />
-                <p className="mt-1 text-xs text-muted-foreground">Leave blank for a single-time event.</p>
-              </div>
-              <div>
-                <label className="text-sm font-semibold">Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <input name="location" className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 pl-10 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. Main Auditorium" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid gap-5 sm:grid-cols-2">
             <div>
               <label className="flex items-center gap-2 text-sm font-semibold">
                 <ImageIcon className="h-4 w-4 text-primary" /> Photo URL
