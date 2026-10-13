@@ -67,7 +67,12 @@ export default async function QuickCreateEventPage() {
           <div className="grid gap-5 sm:grid-cols-2">
               <div>
                 <label className="text-sm font-semibold">Date & time</label>
-                <input name="date" type="datetime-local" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />\n              </div>\n              <div>\n                <label className="text-sm font-semibold">End date & time <span className="font-normal text-muted-foreground">(optional)</span></label>\n                <input name="endDate" type="datetime-local" className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />\n                <p className="mt-1 text-xs text-muted-foreground">Leave blank for a single-time event.</p>
+                <input name="date" type="datetime-local" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />
+              </div>
+              <div>
+                <label className="text-sm font-semibold">End date & time <span className="font-normal text-muted-foreground">(optional)</span></label>
+                <input name="endDate" type="datetime-local" className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition focus:border-primary focus:ring-4 focus:ring-primary/10" />
+                <p className="mt-1 text-xs text-muted-foreground">Leave blank for a single-time event.</p>
               </div>
               <div>
                 <label className="text-sm font-semibold">Location</label>
