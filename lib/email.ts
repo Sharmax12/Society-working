@@ -228,7 +228,7 @@ export async function sendConnectSignupEmail(email: string) {
 
   return sendEmail({
     to: email,
-    subject: "You're on the HallWayLoop updates list",
+    subject: "You're on the HallWayLoop updates list!!",
     idempotencyKey: `hwl-updates-${emailHash}`,
     text: "Thanks for your interest in HallWayLoop. We've added you to the launch updates list and will share news when new campus discovery features are ready.",
     html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
