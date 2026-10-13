@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Bell, Search, Users, X, Clock3, Archive } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Search, Users, X, Clock3, Archive } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
@@ -94,7 +94,6 @@ export function SocietyDirectory({ societies }: { societies: Society[] }) {
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               {normalizedSearch && <button type="button" onClick={() => setSearch("")} className="rounded-full border border-border px-4 py-2.5 text-sm font-semibold transition hover:bg-muted">Clear search</button>}
-              <Link href="/connect-launch" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2.5 text-sm font-semibold transition hover:bg-muted"><Bell className="h-4 w-4" /> Get updates</Link>
               <Link href="/for-societies" className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-semibold text-background transition hover:opacity-85">List your society <ArrowRight className="h-4 w-4" /></Link>
             </div>
           </div>

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LaunchSignupCTA } from "@/modules/connect/components/launch-signup-cta";
 import { siteConfig } from "@/lib/seo";
 
 const footerLinkClass =
@@ -24,11 +23,8 @@ export function Footer() {
           </div>
 
           <div className="sm:min-w-[260px]">
-            <p className="text-sm font-semibold">Get HallWayLoop updates</p>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">Hear when new campus discovery features are ready.</p>
-            <div className="mt-3">
-              <LaunchSignupCTA />
-            </div>
+            <p className="text-sm font-semibold">Explore the platform</p>
+            <p className="mt-1 text-xs leading-5 text-muted-foreground">Browse societies, events, and campus discovery without leaving the site.</p>
           </div>
         </div>
 
@@ -38,7 +34,6 @@ export function Footer() {
             <ul className="mt-4 space-y-3 text-sm font-medium">
               <li><Link href="/societies" className={footerLinkClass}>Societies</Link></li>
               <li><Link href="/events" className={footerLinkClass}>Events</Link></li>
-              <li><Link href="/connect-launch" className={footerLinkClass}>Updates</Link></li>
               <li><Link href="/faq" className={footerLinkClass}>FAQs</Link></li>
             </ul>
           </div>

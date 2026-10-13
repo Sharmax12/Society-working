@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { LaunchSignupCTA } from "@/modules/connect/components/launch-signup-cta";
 import { PhonePreview } from "./phone-preview";
 import {
   ArrowRight,
@@ -63,7 +62,6 @@ export default function Home() {
             >
               Explore societies <ArrowRight className="h-4 w-4" />
             </Link>
-            <LaunchSignupCTA />
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
@@ -118,7 +116,7 @@ export default function Home() {
             <Search className="h-5 w-5 text-primary" />
             <h3 className="mt-4 font-semibold">Local by default</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              The proposed default keeps profiles and posts within a student's own college.
+              The proposed default keeps profiles and posts within a student&apos;s own college.
               Cross-college discovery is intended for events marked public by their hosts.
             </p>
           </article>

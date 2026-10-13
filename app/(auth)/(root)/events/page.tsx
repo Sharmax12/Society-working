@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Bell, CalendarDays, MapPin } from "lucide-react";
+import { ArrowUpRight, CalendarDays, MapPin } from "lucide-react";
 import { getUpcomingEvents, getPastEvents } from "@/modules/events/queries";
 import { Badge } from "@/components/ui/badge";
 import { siteConfig, buildOrganizationJsonLd } from "@/lib/seo";
@@ -131,12 +131,8 @@ export default async function EventsPage() {
               <CalendarDays className="mx-auto h-7 w-7 text-muted-foreground" />
               <p className="mt-4 font-semibold">No upcoming events right now.</p>
               <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
-                Event listings will appear here as campus organisers publish them. Get launch updates and we’ll let you know when new events are added.
+                Event listings will appear here as campus organisers publish them.
               </p>
-              <Link href="/connect-launch" className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-foreground px-5 py-3 text-sm font-semibold text-background transition hover:opacity-85">
-                <Bell className="h-4 w-4" /> Get event updates <ArrowRight className="h-4 w-4" />
-              </Link>
-              <p className="mt-3 text-xs text-muted-foreground">You can unsubscribe from updates by contacting us at {siteConfig.contactEmail}.</p>
             </div>
           ) : (
             <div className="divide-y divide-border border-y border-border">

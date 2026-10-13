@@ -2,8 +2,6 @@ export const publicRoutes = [
   "/",
   "/about",
   "/faq",
-  "/Connect", // Legacy URL: redirects to /connect-launch.
-  "/connect-launch",
   "/for-societies",
   "/for-colleges",
   "/privacy",
