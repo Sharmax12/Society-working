@@ -154,7 +154,8 @@ model Event {
   id          String   @id @default(cuid()) 
   title       String
   description String
-  date        DateTime          // When the event happens
+  date        DateTime          // When the event starts
+  endDate     DateTime?          // Optional event end date/time
   location    String?
   imageUrl    String?           // Poster/banner image URL
   inviteLink  String?           // RSVP / registration / invite link

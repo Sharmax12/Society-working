@@ -73,6 +73,7 @@ export default async function EventDetailPage({ params }: Props) {
     name: event.title,
     description: event.description,
     startDate: event.date.toISOString(),
+    ...(event.endDate ? { endDate: event.endDate.toISOString() } : {}),
     eventStatus: "https://schema.org/EventScheduled",
     ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}),
     organizer: {
@@ -100,7 +101,7 @@ export default async function EventDetailPage({ params }: Props) {
               <p className="mt-6 whitespace-pre-line text-base leading-7 text-muted-foreground">{event.description}</p>
             </div>
             <aside className="rounded-2xl bg-muted/60 p-5">
-              <div className="flex items-start gap-3"><CalendarDays className="mt-0.5 h-5 w-5 text-orange-500" /><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">When (India time)</p><p className="mt-1 text-sm font-bold leading-6">{formatEventDate(event.date)}</p></div></div>
+              <div className="flex items-start gap-3"><CalendarDays className="mt-0.5 h-5 w-5 text-orange-500" /><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">When (India time)</p><p className="mt-1 text-sm font-bold leading-6">{formatEventDate(event.date)}</p>{event.endDate && <p className="mt-1 text-xs leading-5 text-muted-foreground">Ends {formatEventDate(event.endDate)}</p>}</div></div>
               {event.location && <div className="mt-5 flex items-start gap-3"><MapPin className="mt-0.5 h-5 w-5 text-orange-500" /><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Where</p><p className="mt-1 text-sm font-bold leading-6">{event.location}</p></div></div>}
               {event.inviteLink && <a href={event.inviteLink} target="_blank" rel="noopener noreferrer" className="mt-7 block"><Button variant="brand" size="lg" className="h-12 w-full rounded-xl">RSVP / Join <ArrowUpRight className="ml-2 h-4 w-4" /></Button></a>}
             </aside>
