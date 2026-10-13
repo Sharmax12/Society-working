@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Camera, LoaderCircle, MessageCircle, Send, Trash2, UserRound } from "lucide-react";
+import { LoaderCircle, MessageCircle, Send, Trash2, UserRound } from "lucide-react";
 
 type PostAuthor = {
   id: string;
