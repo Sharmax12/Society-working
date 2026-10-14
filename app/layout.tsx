@@ -7,6 +7,7 @@ import { auth } from "../auth";
 import { ThemeProvider } from "../components/ui/theme-providers";
 import { Toaster } from "../components/ui/sonner";
 import { siteConfig } from "@/lib/seo";
+import { MobileAppNav } from "@/modules/home/mobile-app-nav";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,7 +60,8 @@ export default async function RootLayout({
           >
             <div className="flex min-h-screen flex-col">
               <Toaster />
-              <div className="flex-1">{children}</div>
+              <div className="flex-1 pb-20 lg:pb-0">{children}</div>
+              <MobileAppNav isLoggedIn={!!session?.user} />
             </div>
           </ThemeProvider>
         </body>
