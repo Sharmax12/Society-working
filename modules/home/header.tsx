@@ -5,6 +5,12 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { auth } from "@/auth";
 import { SignOutButton } from "@/modules/auth/components/sign-out";
 
+const navigation = [
+  { href: "/societies", label: "Societies" },
+  { href: "/events", label: "Events" },
+  { href: "/about", label: "About" },
+];
+
 export async function Header() {
   const session = await auth();
   const isLoggedIn = !!session?.user;

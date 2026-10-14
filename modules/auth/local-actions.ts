@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
+import { isAllowedCollegeEmail } from "@/modules/auth/college-email";
 import { hashPassword } from "@/modules/auth/password";
 
 function readText(formData: FormData, name: string): string {
@@ -20,6 +21,9 @@ export async function registerLocalAccount(formData: FormData): Promise<never> {
   const confirmPassword = readText(formData, "confirmPassword");
 
   if (!name || name.length > 80 || !isValidEmail(email)) {
+    redirect("/auth/register?error=invalid");
+  }
+  if (!isAllowedCollegeEmail(email)) {
     redirect("/auth/register?error=invalid");
   }
   if (password.length < 10 || password.length > 128) {

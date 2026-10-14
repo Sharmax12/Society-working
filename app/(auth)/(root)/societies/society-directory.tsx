@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, Search, Users, X, Clock3, Archive } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Search, Users, X, Clock3, Archive } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 
@@ -74,19 +74,28 @@ export function SocietyDirectory({ societies }: { societies: Society[] }) {
 
       <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8 sm:py-14">
         <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-          <div><h2 className="text-2xl font-semibold tracking-tight">{section === "open" ? "Open applications" : "Closed applications"} <span className="ml-2 text-sm font-normal text-muted-foreground">{visibleSocieties.length}</span></h2><p className="mt-1 text-sm text-muted-foreground">{section === "open" ? "Places you can apply to right now." : "Societies with closed or expired application windows."}</p></div>
+          <div><h2 className="text-2xl font-semibold tracking-tight">{normalizedSearch ? "Search results" : section === "open" ? (openSocieties.length === 0 ? "No open applications right now" : "Open applications") : (closedSocieties.length === 0 ? "No closed applications right now" : "Closed applications")} {visibleSocieties.length > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">{visibleSocieties.length}</span>}</h2><p className="mt-1 text-sm text-muted-foreground">{section === "open" ? "Places you can apply to right now." : "Societies with closed or expired application windows."}</p></div>
           <div className="inline-flex w-fit rounded-full border border-border p-1" role="tablist" aria-label="Society application status">
-            <button role="tab" aria-selected={section === "open"} onClick={() => setSection("open")} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${section === "open" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}><Clock3 className="h-3.5 w-3.5" />Open <span className="text-xs opacity-75">{openSocieties.length}</span></button>
-            <button role="tab" aria-selected={section === "closed"} onClick={() => setSection("closed")} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${section === "closed" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}><Archive className="h-3.5 w-3.5" />Closed <span className="text-xs opacity-75">{closedSocieties.length}</span></button>
+            <button role="tab" aria-selected={section === "open"} onClick={() => setSection("open")} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${section === "open" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}><Clock3 className="h-3.5 w-3.5" />Open {openSocieties.length > 0 && <span className="text-xs opacity-75">{openSocieties.length}</span>}</button>
+            <button role="tab" aria-selected={section === "closed"} onClick={() => setSection("closed")} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition ${section === "closed" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}><Archive className="h-3.5 w-3.5" />Closed {closedSocieties.length > 0 && <span className="text-xs opacity-75">{closedSocieties.length}</span>}</button>
           </div>
         </div>
 
         {visibleSocieties.length === 0 ? (
-          <div className="mt-8 rounded-2xl border border-dashed border-border px-6 py-16 text-center">
+          <div className="mt-8 rounded-2xl border border-dashed border-border px-6 py-12 text-center">
             <Search className="mx-auto h-6 w-6 text-muted-foreground" />
-            <p className="mt-4 font-medium">{normalizedSearch ? "No matching societies" : section === "open" ? "No open applications right now" : "No closed societies to show"}</p>
-            <p className="mt-1 text-sm text-muted-foreground">{normalizedSearch ? "Try a different name or interest." : "Check back soon for new opportunities."}</p>
-            {search && <button type="button" onClick={() => setSearch("")} className="mt-4 text-sm font-medium underline underline-offset-4">Clear search</button>}
+            <p className="mt-4 font-semibold">{normalizedSearch ? "No matching societies" : section === "open" ? "No open applications right now" : "No closed societies to show"}</p>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+              {normalizedSearch
+                ? "Try another search, or clear the query to browse all listed societies."
+                : section === "open"
+                  ? "Application windows are set by each society. Get HallWayLoop updates or tell us about a society that should be listed."
+                  : "There are no closed applications to display right now. You can still help bring more societies onto HallWayLoop."}
+            </p>
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+              {normalizedSearch && <button type="button" onClick={() => setSearch("")} className="rounded-full border border-border px-4 py-2.5 text-sm font-semibold transition hover:bg-muted">Clear search</button>}
+              <Link href="/for-societies" className="inline-flex items-center gap-2 rounded-full bg-foreground px-4 py-2.5 text-sm font-semibold text-background transition hover:opacity-85">List your society <ArrowRight className="h-4 w-4" /></Link>
+            </div>
           </div>
         ) : (
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -99,7 +108,7 @@ export function SocietyDirectory({ societies }: { societies: Society[] }) {
                   {society.category && <Badge variant="secondary" className="mt-5 w-fit rounded-full font-medium capitalize">{society.category}</Badge>}
                   <h3 className="mt-3 text-lg font-semibold tracking-tight">{society.name}</h3>
                   <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">{society.description}</p>
-                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-border pt-4 mt-5 text-xs text-muted-foreground"><span>{expired ? "Deadline passed" : accepting ? "Closes" : "Applications closed"} · {new Date(society.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span><span className="inline-flex items-center gap-1 font-medium text-foreground">View <ArrowUpRight className="h-3.5 w-3.5 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span></div>
+                  <div className="mt-auto mt-5 flex items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground"><span>{expired ? "Deadline passed" : accepting ? "Closes" : "Applications closed"} · {new Date(society.deadline).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", month: "short", day: "numeric", year: "numeric" })}</span><span className="inline-flex items-center gap-1 font-medium text-foreground">View <ArrowUpRight className="h-3.5 w-3.5 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5" /></span></div>
                 </Link>
               );
             })}

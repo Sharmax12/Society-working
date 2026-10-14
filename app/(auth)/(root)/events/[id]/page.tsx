@@ -6,14 +6,56 @@ import { getEvent } from "@/modules/events/queries";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { jsonLdString } from "@/lib/utils";
-import { siteConfig } from "@/lib/seo";
+import { siteConfig, buildOrganizationJsonLd } from "@/lib/seo";
 
 type Props = { params: Promise<{ id: string }> };
-export async function generateMetadata({ params }: Props): Promise<Metadata> { const { id } = await params; const event = await getEvent(id); if (!event) return { title: "Event not found" }; const description = event.description.slice(0,155); return { title: event.title, description, alternates: { canonical: `/events/${event.id}` }, openGraph: { title: `${event.title} | HallWayLoop`, description, url: `/events/${event.id}`, type: "article", ...(event.imageUrl ? { images: [event.imageUrl] } : {}) }, twitter: { card: event.imageUrl ? "summary_large_image" : "summary", title: `${event.title} | HallWayLoop`, description } }; }
-function formatEventDate(date: Date) { return new Date(date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }); }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const event = await getEvent(id);
+  if (!event) return { title: "Event not found", robots: { index: false, follow: false } };
+  const description = event.description.slice(0, 155);
+  const image = event.imageUrl ? [event.imageUrl] : [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "HallWayLoop campus event" }];
+
+  return {
+    title: event.title,
+    description,
+    alternates: { canonical: `/events/${event.id}` },
+    openGraph: {
+      title: `${event.title} | HallWayLoop`,
+      description,
+      url: `/events/${event.id}`,
+      siteName: siteConfig.name,
+      images: image,
+      type: "article",
+    },
+    twitter: {
+      card: event.imageUrl ? "summary_large_image" : "summary_large_image",
+      title: `${event.title} | HallWayLoop`,
+      description,
+      images: event.imageUrl ? [event.imageUrl] : [siteConfig.ogImage],
+    },
+  };
+}
+
+function formatEventDate(date: Date) {
+  return new Date(date).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
 
 export default async function EventDetailPage({ params }: Props) {
-  const { id } = await params; const event = await getEvent(id); if (!event) notFound();
+  const { id } = await params;
+  const event = await getEvent(id);
+  if (!event) notFound();
+
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -23,6 +65,49 @@ export default async function EventDetailPage({ params }: Props) {
       { "@type": "ListItem", position: 3, name: event.title, item: siteConfig.url + "/events/" + event.id },
     ],
   };
-  const jsonLd = { "@context": "https://schema.org", "@type": "Event", name: event.title, description: event.description, startDate: event.date.toISOString(), ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}), organizer: { "@type": "Organization", name: event.society.name }, url: siteConfig.url + "/events/" + event.id, ...(event.imageUrl ? { image: [event.imageUrl] } : {}) };
-  return <main className="min-h-screen"><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }} /><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }} /><div className="mx-auto max-w-5xl px-5 py-10 sm:px-8 lg:px-10"><Link href="/events" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4"/> All events</Link><div className="mt-8 overflow-hidden rounded-[2rem] border border-foreground/10 bg-card shadow-2xl">{event.imageUrl ? <img src={event.imageUrl} alt={event.title} className="aspect-[2/1] w-full object-cover" /> : <div className="relative flex aspect-[2/1] items-end overflow-hidden bg-gradient-to-br from-orange-500/20 via-rose-500/10 to-primary/5 p-8"><div className="absolute right-10 top-10 h-40 w-40 rounded-full bg-orange-400/20 blur-3xl"/><Sparkles className="relative h-12 w-12 text-orange-500"/></div>}<div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_280px]"><div><Link href={`/societies/${event.society.id}`}><Badge variant="secondary" className="rounded-full">{event.society.name}</Badge></Link><h1 className="mt-5 text-balance text-4xl font-black tracking-[-.05em] sm:text-6xl">{event.title}</h1><p className="mt-6 whitespace-pre-line text-base leading-7 text-muted-foreground">{event.description}</p></div><aside className="rounded-2xl bg-muted/60 p-5"><div className="flex items-start gap-3"><CalendarDays className="mt-0.5 h-5 w-5 text-orange-500"/><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">When</p><p className="mt-1 text-sm font-bold leading-6">{formatEventDate(event.date)}</p></div></div>{event.location && <div className="mt-5 flex items-start gap-3"><MapPin className="mt-0.5 h-5 w-5 text-orange-500"/><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Where</p><p className="mt-1 text-sm font-bold leading-6">{event.location}</p></div></div>}{event.inviteLink && <a href={event.inviteLink} target="_blank" rel="noopener noreferrer" className="mt-7 block"><Button variant="brand" size="lg" className="h-12 w-full rounded-xl">RSVP / Join <ArrowUpRight className="ml-2 h-4 w-4"/></Button></a>}</aside></div></div></div></main>;
+  const organizationJsonLd = buildOrganizationJsonLd();
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    "@id": siteConfig.url + "/events/" + event.id + "#event",
+    name: event.title,
+    description: event.description,
+    startDate: event.date.toISOString(),
+    ...(event.endDate ? { endDate: event.endDate.toISOString() } : {}),
+    eventStatus: "https://schema.org/EventScheduled",
+    ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}),
+    organizer: {
+      "@type": "Organization",
+      name: event.society?.name ?? "HallWayLoop Community",
+      ...(event.society ? { url: siteConfig.url + "/societies/" + event.society.id } : {}),
+    },
+    url: siteConfig.url + "/events/" + event.id,
+    ...(event.imageUrl ? { image: [event.imageUrl] } : {}),
+  };
+
+  return (
+    <main className="min-h-screen">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdString(organizationJsonLd) }} />
+      <div className="mx-auto max-w-5xl px-5 py-10 sm:px-8 lg:px-10">
+        <Link href="/events" className="inline-flex items-center gap-2 text-xs font-bold text-muted-foreground transition hover:text-foreground"><ArrowLeft className="h-4 w-4" /> All events</Link>
+        <div className="mt-8 overflow-hidden rounded-[2rem] border border-foreground/10 bg-card shadow-2xl">
+          {event.imageUrl ? <img src={event.imageUrl} alt={event.title} className="aspect-[2/1] w-full object-cover" /> : <div className="relative flex aspect-[2/1] items-end overflow-hidden bg-gradient-to-br from-orange-500/20 via-rose-500/10 to-primary/5 p-8"><div className="absolute right-10 top-10 h-40 w-40 rounded-full bg-orange-400/20 blur-3xl" /><Sparkles className="relative h-12 w-12 text-orange-500" /></div>}
+          <div className="grid gap-10 p-7 sm:p-10 lg:grid-cols-[1fr_280px]">
+            <div>
+              {event.society ? <Link href={`/societies/${event.society.id}`}><Badge variant="secondary" className="rounded-full">{event.society.name}</Badge></Link> : <Badge variant="secondary" className="rounded-full">Community event</Badge>}
+              <h1 className="mt-5 text-balance text-4xl font-black tracking-[-.05em] sm:text-6xl">{event.title}</h1>
+              <p className="mt-6 whitespace-pre-line text-base leading-7 text-muted-foreground">{event.description}</p>
+            </div>
+            <aside className="rounded-2xl bg-muted/60 p-5">
+              <div className="flex items-start gap-3"><CalendarDays className="mt-0.5 h-5 w-5 text-orange-500" /><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">When (India time)</p><p className="mt-1 text-sm font-bold leading-6">{formatEventDate(event.date)}</p>{event.endDate && <p className="mt-1 text-xs leading-5 text-muted-foreground">Ends {formatEventDate(event.endDate)}</p>}</div></div>
+              {event.location && <div className="mt-5 flex items-start gap-3"><MapPin className="mt-0.5 h-5 w-5 text-orange-500" /><div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Where</p><p className="mt-1 text-sm font-bold leading-6">{event.location}</p></div></div>}
+              {event.inviteLink && <a href={event.inviteLink} target="_blank" rel="noopener noreferrer" className="mt-7 block"><Button variant="brand" size="lg" className="h-12 w-full rounded-xl">RSVP / Join <ArrowUpRight className="ml-2 h-4 w-4" /></Button></a>}
+            </aside>
+          </div>
+        </div>
+      </div>
+    </main>
+  );
 }

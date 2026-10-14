@@ -4,23 +4,23 @@ import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
-import { getUserById } from "./modules/auth/actions";
 import { verifyPassword } from "./modules/auth/password";
-
-function normalizeSessionState(value: unknown): string | null {
-  if (value == null) return null;
-  return typeof value === "string" ? value : JSON.stringify(value);
-}
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account, profile }) {
       if (!user || !account || !user.email) return false;
-      // Credentials users are already verified by authorize() and already exist in User.
-      if (account.provider === "credentials") return true;
 
       const email = user.email.trim().toLowerCase();
-      const sessionState = normalizeSessionState(account.session_state);
+      // Credentials users have already passed the local password check.
+      if (account.provider === "credentials") return true;
+
+      // Only accept Google and require Google's verified-email claim before
+      // attaching an OAuth identity to an account that may already exist.
+      if (account.provider !== "google") return false;
+      const googleProfile = profile as { email_verified?: unknown } | undefined;
+      if (googleProfile?.email_verified !== true) return false;
+
       const existingUser = await db.user.findUnique({ where: { email } });
 
       if (!existingUser) {
@@ -34,27 +34,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
                 type: account.type,
                 provider: account.provider,
                 providerAccountId: account.providerAccountId,
-                refreshToken: account.refresh_token,
-                accessToken: account.access_token,
-                expiresAt: account.expires_at,
-                tokenType: account.token_type,
-                scope: account.scope,
-                idToken: account.id_token,
-                sessionState,
               },
             },
           },
         });
         return Boolean(newUser);
       }
-
-      await db.user.update({
-        where: { id: existingUser.id },
-        data: {
-          name: user.name ?? existingUser.name,
-          image: user.image ?? existingUser.image,
-        },
-      });
 
       const existingAccount = await db.account.findUnique({
         where: {
@@ -65,20 +50,30 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         },
       });
 
-      if (!existingAccount) {
+      // Never reassign a provider identity that is already linked to another user.
+      if (existingAccount && existingAccount.userId !== existingUser.id) return false;
+
+      await db.user.update({
+        where: { id: existingUser.id },
+        data: {
+          name: user.name ?? existingUser.name,
+          image: user.image ?? existingUser.image,
+        },
+      });
+
+      if (existingAccount) {
+        // Remove tokens that may have been stored by an older version of the app.
+        await db.account.update({
+          where: { id: existingAccount.id },
+          data: { refreshToken: null, accessToken: null, idToken: null },
+        });
+      } else {
         await db.account.create({
           data: {
             userId: existingUser.id,
             type: account.type,
             provider: account.provider,
             providerAccountId: account.providerAccountId,
-            refreshToken: account.refresh_token,
-            accessToken: account.access_token,
-            expiresAt: account.expires_at,
-            tokenType: account.token_type,
-            scope: account.scope,
-            idToken: account.id_token,
-            sessionState,
           },
         });
       }
@@ -86,16 +81,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return true;
     },
 
-    async jwt({ token, trigger }) {
-      if (token.role && trigger !== "update") return token;
-
-      const existingUser =
-        (token.sub ? await getUserById(token.sub) : null) ??
-        (token.email
+    async jwt({ token }) {
+      // Re-read the account whenever the session token is processed so that
+      // demoted users do not keep a stale privileged role in their JWT.
+      const existingUser = token.sub
+        ? await db.user.findUnique({ where: { id: token.sub } })
+        : token.email
           ? await db.user.findUnique({ where: { email: token.email } })
-          : null);
+          : null;
 
-      if (!existingUser) return token;
+      if (!existingUser) {
+        token.role = "STUDENT";
+        token.sub = undefined;
+        return token;
+      }
 
       token.sub = existingUser.id;
       token.name = existingUser.name;
@@ -114,7 +113,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   },
 
   secret: process.env.AUTH_SECRET,
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt", maxAge: 60 * 60 },
   ...authConfig,
   providers: [
     ...authConfig.providers,
@@ -133,7 +132,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const password =
           typeof credentials?.password === "string" ? credentials.password : "";
 
-        if (!email || !password || email.length > 254 || password.length > 128) {
+        if (
+          !email ||
+          !password ||
+          email.length > 254 ||
+          password.length > 128
+        ) {
           return null;
         }
 

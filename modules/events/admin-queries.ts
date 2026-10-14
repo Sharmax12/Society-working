@@ -32,7 +32,7 @@ export async function getManagedSocietiesForEvents(adminId: string) {
 // All events (past + upcoming) across the societies this admin manages.
 export async function getManagedEvents(adminId: string) {
   return db.event.findMany({
-    where: { society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } },
+    where: { OR: [{ society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } }, { societyId: null }] },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
   })
@@ -45,6 +45,7 @@ export async function createEvent(formData: FormData) {
   const title = formData.get("title") as string
   const description = formData.get("description") as string
   const date = formData.get("date") as string
+  const endDate = String(formData.get("endDate") ?? "").trim()
   const location = formData.get("location") as string
   const imageUrl = formData.get("imageUrl") as string
   const inviteLink = formData.get("inviteLink") as string
@@ -52,7 +53,8 @@ export async function createEvent(formData: FormData) {
   if (!societyId) throw new Error("Choose a society for this event")
   if (!title?.trim()) throw new Error("Event title is required")
   if (!description?.trim()) throw new Error("Description is required")
-  if (!date) throw new Error("Event date is required")
+  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
+  if (endDate && (Number.isNaN(new Date(endDate).getTime()) || new Date(endDate) < new Date(date))) throw new Error("End date and time must be after the start date and time")
   if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
   if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
 
@@ -68,6 +70,7 @@ export async function createEvent(formData: FormData) {
       title: title.trim(),
       description: description.trim(),
       date: new Date(date),
+      endDate: endDate ? new Date(endDate) : undefined,
       location: location?.trim() || undefined,
       imageUrl: imageUrl?.trim() || undefined,
       inviteLink: inviteLink?.trim() || undefined,
@@ -75,6 +78,62 @@ export async function createEvent(formData: FormData) {
   })
 
   revalidatePath("/events")
+  revalidatePath("/admin/events")
+  redirect(`/events/${event.id}`)
+}
+
+export async function createQuickEvent(formData: FormData) {
+  const session = await auth()
+  if (!session?.user?.id) redirect("/auth/sign-in")
+  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) {
+    throw new Error("You are not allowed to create events")
+  }
+
+  const societyName = String(formData.get("societyName") ?? "").trim()
+  const title = String(formData.get("title") ?? "").trim()
+  const description = String(formData.get("description") ?? "").trim()
+  const date = String(formData.get("date") ?? "")
+  const endDate = String(formData.get("endDate") ?? "").trim()
+  const location = String(formData.get("location") ?? "").trim()
+  const imageUrl = String(formData.get("imageUrl") ?? "").trim()
+  const inviteLink = String(formData.get("inviteLink") ?? "").trim()
+
+  if (!societyName) throw new Error("Society name is required")
+  if (!title) throw new Error("Event title is required")
+  if (!description) throw new Error("Description is required")
+  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
+  if (endDate && (Number.isNaN(new Date(endDate).getTime()) || new Date(endDate) < new Date(date))) throw new Error("End date and time must be after the start date and time")
+  if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
+  if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
+
+  const society = await db.society.create({
+    data: {
+      name: societyName,
+      description: description,
+      category: "General",
+      verificationStatus: "VERIFIED",
+      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
+      adminId: session.user.id,
+      admins: { create: { userId: session.user.id } },
+    },
+  })
+
+  const event = await db.event.create({
+    data: {
+      societyId: society.id,
+      title,
+      description,
+      date: new Date(date),
+      endDate: endDate ? new Date(endDate) : undefined,
+      location: location || undefined,
+      imageUrl: imageUrl || undefined,
+      inviteLink: inviteLink || undefined,
+    },
+  })
+
+  revalidatePath("/events")
+  revalidatePath("/admin")
   revalidatePath("/admin/events")
   redirect(`/events/${event.id}`)
 }

@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Compass, Sparkles, Users, CheckCircle2 } from "lucide-react";
+import { ArrowRight, CalendarDays, Compass, Sparkles, Users, CheckCircle2, UserRound, MessageSquareText } from "lucide-react";
 import { getOpenSocieties, getUserApplications } from "@/modules/societies/queries";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,11 @@ export default async function DashboardPage() {
           <SignOutButton />
         </div>
       </section>
+
+      <div className="grid gap-3 pt-7 sm:grid-cols-2">
+        <Link href="/profile" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary"><UserRound className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="font-black">Your profile</p><p className="mt-1 text-sm text-muted-foreground">Add your name, college, bio, and profile photo.</p></div><ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" /></Link>
+        <Link href="/posts" className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent"><MessageSquareText className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="font-black">Posts</p><p className="mt-1 text-sm text-muted-foreground">Share updates and see what your campus community is posting.</p></div><ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-accent" /></Link>
+      </div>
 
       <div className="grid gap-3 py-7 sm:grid-cols-3">
         <Link href="/societies" className="group rounded-2xl border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"><div className="flex items-center justify-between"><div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary"><Compass className="h-5 w-5" /></div><ArrowRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1 group-hover:text-primary" /></div><p className="mt-6 text-lg font-black">Find something you&apos;ll like</p><p className="mt-1 text-sm text-muted-foreground">Browse societies and see where you fit.</p></Link>

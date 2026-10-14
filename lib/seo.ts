@@ -2,11 +2,11 @@
 
 export const siteConfig = {
   name: "HallWayLoop",
-  url: process.env.NEXT_PUBLIC_APP_URL ?? "https://www.hallwayloop.com",
+  url: (process.env.NEXT_PUBLIC_APP_URL ?? "https://www.hallwayloop.com").replace(/\/$/, ""),
   marketing: {
-    title: "HallWayLoop | Your College Community, in One Loop",
+    title: "Your College Community, in One Loop | HallWayLoop",
     description:
-      "HallWayLoop is a college-centred social app in development for campus announcements, student communities, events, profiles, and messaging. Explore societies and published events on the website today.",
+      "HallWayLoop is a college-centred social app in development for campus announcements, student communities, events, profiles, and messaging. Explore society profiles and published events on the website today.",
     tagline:
       "Discover people, societies, events, and conversations around your campus. Find your place and take part.",
   },
@@ -33,9 +33,9 @@ export const siteConfig = {
     "student networking",
     "student opportunities",
   ],
-  ogImage: "/icon.svg",
+  ogImage: "/opengraph-image",
   locale: "en_IN",
-  contactEmail: "info@hallwayloop.com",
+  contactEmail: "onboarding@hallwayloop.com",
   author: "Aniruddh Sharma",
   founderUrl: "https://www.hallwayloop.com/about#founder",
   social: {
@@ -45,7 +45,9 @@ export const siteConfig = {
 
 export const robotsConfig = {
   allow: ["/"],
-  disallow: ["/dashboard", "/admin", "/apply", "/auth", "/api"],
+  // Do not announce sensitive paths in robots.txt. The server must enforce access
+  // control; X-Robots-Tag headers are configured separately for private routes.
+  disallow: ["/dashboard", "/apply", "/auth", "/api"],
 } as const;
 
 export const staticSitemapRoutes: {
@@ -56,9 +58,12 @@ export const staticSitemapRoutes: {
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/societies", changeFrequency: "daily", priority: 0.9 },
   { path: "/events", changeFrequency: "daily", priority: 0.9 },
-  { path: "/Connect", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/for-societies", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/for-colleges", changeFrequency: "monthly", priority: 0.7 },
   { path: "/about", changeFrequency: "monthly", priority: 0.7 },
   { path: "/faq", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
+  { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
 ];
 
 export function buildWebsiteJsonLd() {
@@ -95,7 +100,7 @@ export function buildSoftwareApplicationJsonLd() {
       "People and society discovery",
       "College event listings and filters",
       "Direct and group messaging in the product blueprint",
-      "College-linked verification and community safety controls in the product blueprint",
+      "Planned college-affiliation checks and community safety controls",
     ],
     publisher: { "@id": siteConfig.url + "/#organization" },
     creator: { "@id": siteConfig.url + "/#organization" },
@@ -114,7 +119,6 @@ export function buildOrganizationJsonLd() {
     email: siteConfig.contactEmail,
     description:
       "HallWayLoop is building a college-centred social app for campus announcements, student and society profiles, event discovery, messaging, and participation in college communities.",
-    sameAs: [siteConfig.social.github],
     founder: {
       "@type": "Person",
       name: siteConfig.author,
@@ -139,7 +143,7 @@ export const geoFaqs = [
   {
     question: "What is HallWayLoop?",
     answer:
-      "HallWayLoop, also called HWL, is a college-centred social, events, and messaging app in development. Its aim is to bring campus announcements, student and society profiles, events, and conversations into one place. The website currently lets students explore societies and published campus events.",
+      "HallWayLoop, also called HWL, is a college-centred social, events, and messaging app in development. Its aim is to bring campus announcements, student and society profiles, events, and conversations into one place. The website currently lets students explore society profiles and published campus events.",
   },
   {
     question: "What does HWL stand for?",
@@ -164,7 +168,7 @@ export const geoFaqs = [
   {
     question: "Will students need a college ID?",
     answer:
-      "The product blueprint proposes verifying college affiliation with a college email or college ID. Joining societies and full participation are intended to be tied to verified college membership; the exact verification process will be confirmed during the pilot.",
+      "The product blueprint proposes checking college affiliation with a college email or college ID. The final verification process and eligible college domains will be confirmed during the pilot.",
   },
   {
     question: "How does HallWayLoop plan to support safety and privacy?",

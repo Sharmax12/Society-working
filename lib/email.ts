@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto"
+import { siteConfig } from "@/lib/seo"
 
 type SendEmailInput = {
   to: string
@@ -6,10 +7,11 @@ type SendEmailInput = {
   html: string
   text: string
   idempotencyKey: string
+  replyTo?: string
 }
 
 const RESEND_API_URL = "https://api.resend.com/emails"
-const DEFAULT_FROM = "Society <onboarding@resend.dev>"
+const DEFAULT_FROM = "HallWayLoop <onboarding@resend.dev>"
 
 function escapeHtml(value: string | null | undefined) {
   return (value ?? "")
@@ -26,6 +28,7 @@ async function sendEmail({
   html,
   text,
   idempotencyKey,
+  replyTo,
 }: SendEmailInput) {
   const apiKey = process.env.RESEND_API_KEY
   const from = process.env.EMAIL_FROM || DEFAULT_FROM
@@ -46,6 +49,7 @@ async function sendEmail({
       body: JSON.stringify({
         from,
         to: [to],
+        ...(replyTo ? { reply_to: replyTo } : {}),
         subject,
         html,
         text,
@@ -177,19 +181,60 @@ ${societyName} Team`,
   })
 }
 
+export async function sendCampusLeadEmail({
+  name,
+  organization,
+  email,
+  kind,
+}: {
+  name: string
+  organization: string
+  email: string
+  kind: "society" | "college"
+}) {
+  const safeName = escapeHtml(name)
+  const safeOrganization = escapeHtml(organization)
+  const safeEmail = escapeHtml(email)
+  const label = kind === "society" ? "Society" : "College"
+  const fingerprint = createHash("sha256")
+    .update(`${kind}\n${email.toLowerCase()}\n${organization.toLowerCase()}`)
+    .digest("hex")
+
+  return sendEmail({
+    to: siteConfig.contactEmail,
+    replyTo: email,
+    subject: `New ${label.toLowerCase()} inquiry: ${organization}`,
+    idempotencyKey: `campus-lead-${fingerprint}`,
+    text: `New HallWayLoop ${label.toLowerCase()} inquiry
+
+Name: ${name}
+${label}: ${organization}
+Email: ${email}
+
+Reply directly to this email to contact the person who submitted the form.`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
+      <h2>New HallWayLoop ${label.toLowerCase()} inquiry</h2>
+      <p><strong>Name:</strong> ${safeName}</p>
+      <p><strong>${label}:</strong> ${safeOrganization}</p>
+      <p><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
+      <p style="margin-top:24px">Reply to this email to contact the person who submitted the form.</p>
+    </div>`,
+  })
+}
+
 export async function sendConnectSignupEmail(email: string) {
   const safeEmail = escapeHtml(email)
   const emailHash = createHash("sha256").update(email.toLowerCase()).digest("hex")
 
   return sendEmail({
     to: email,
-    subject: "You're on the HallWayLoop Connect list",
-    idempotencyKey: `connect-signup-${emailHash}`,
-    text: "Thanks for your interest in HallWayLoop Connect. We've added you to the launch notification list and will email you when it goes live.",
+    subject: "You're on the HallWayLoop updates list!!",
+    idempotencyKey: `hwl-updates-${emailHash}`,
+    text: "Thanks for your interest in HallWayLoop. We've added you to the launch updates list and will share news when new campus discovery features are ready.",
     html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937">
       <h2 style="margin-bottom:8px">You're on the list</h2>
-      <p>Thanks for your interest in HallWayLoop Connect.</p>
-      <p>We've added <strong>${safeEmail}</strong> to the launch notification list and will email you when it goes live.</p>
+      <p>Thanks for your interest in HallWayLoop.</p>
+      <p>We've added <strong>${safeEmail}</strong> to the updates list and will share launch news when new campus discovery features are ready.</p>
     </div>`,
   })
 }

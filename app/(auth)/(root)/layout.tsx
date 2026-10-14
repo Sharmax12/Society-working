@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { Footer } from "@/modules/home/footer";
 import { Header } from "@/modules/home/header";
-import { Metadata } from "next";
+import type { Metadata } from "next";
 import { siteConfig } from "@/lib/seo";
 
 const { title: SITE_TITLE, description: SITE_DESCRIPTION } = siteConfig.marketing;
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     url: "/",
     siteName: siteConfig.name,
-    images: [{ url: siteConfig.ogImage, width: 512, height: 512, alt: "HallWayLoop" }],
+    images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "HallWayLoop — your college community" }],
     locale: siteConfig.locale,
     type: "website",
   },

@@ -40,6 +40,8 @@ model User {
   id           String        @id @default(cuid())
   name         String?
   image        String?
+  college      String?
+  bio          String?
   email        String        @unique
   rollNumber   String?        // Student roll/registration number
   phone        String?        // Contact phone number
@@ -54,6 +56,7 @@ model User {
   conversationsAsA    Conversation[] @relation("ConversationParticipantA")
   conversationsAsB    Conversation[] @relation("ConversationParticipantB")
   messages            Message[] @relation("MessageSender")
+  posts               Post[]
 
   // Societies managed if the user is an admin
   managedSocieties Society[] @relation("SocietyOwner")
@@ -154,13 +157,14 @@ model Event {
   id          String   @id @default(cuid()) 
   title       String
   description String
-  date        DateTime          // When the event happens
+  date        DateTime          // When the event starts
+  endDate     DateTime?          // Optional event end date/time
   location    String?
   imageUrl    String?           // Poster/banner image URL
   inviteLink  String?           // RSVP / registration / invite link
 
-  societyId   String
-  society     Society  @relation(fields: [societyId], references: [id], onDelete: Cascade)
+  societyId   String?
+  society     Society? @relation(fields: [societyId], references: [id], onDelete: SetNull)
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -239,4 +243,17 @@ model Message {
 
   @@index([conversationId, createdAt])
   @@index([senderId, createdAt])
+}
+
+
+model Post {
+  id        String   @id @default(cuid())
+  content   String   @db.VarChar(2000)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId, createdAt])
+  @@index([createdAt])
 }
