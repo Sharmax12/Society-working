@@ -7,7 +7,7 @@ import { CalendarDays, Compass, House, Plus, UserRound } from "lucide-react";
 type Props = { isLoggedIn: boolean };
 
 const items = [
-  { label: "Home", href: "/dashboard", icon: House },
+  { label: "Home", href: "/posts", icon: House },
   { label: "Discover", href: "/societies", icon: Compass },
   { label: "Create", href: "/posts", icon: Plus, create: true },
   { label: "My Loop", href: "/dashboard", icon: CalendarDays },
@@ -25,7 +25,7 @@ export function MobileAppNav({ isLoggedIn }: Props) {
     >
       <div className="mx-auto grid max-w-lg grid-cols-5 items-end gap-1">
         {items.map(({ label, href, icon: Icon, create }) => {
-          const active = pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"));
+          const active = !create && (pathname === href || (href !== "/posts" && pathname.startsWith(href + "/")));
           return (
             <Link
               key={label}
@@ -43,7 +43,7 @@ export function MobileAppNav({ isLoggedIn }: Props) {
                       : "grid h-8 w-10 place-items-center rounded-xl text-muted-foreground group-hover:text-foreground"
                 }
               >
-                <Icon className={create ? "h-5 w-5" : "h-5 w-5"} strokeWidth={active || create ? 2.3 : 1.9} />
+                <Icon className="h-5 w-5" strokeWidth={active || create ? 2.3 : 1.9} />
               </span>
               <span className={active ? "text-foreground" : "text-muted-foreground"}>{label}</span>
             </Link>
