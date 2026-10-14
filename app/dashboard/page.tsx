@@ -29,8 +29,14 @@ const navigation = [
     icon: UserRound,
   },
   {
-    label: "Posts",
+    label: "Connect",
     description: "Join conversations",
+    href: "/connect",
+    icon: MessageSquareText,
+  },
+  {
+    label: "Posts",
+    description: "Share your thoughts",
     href: "/posts",
     icon: MessageSquareText,
   },
