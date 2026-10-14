@@ -11,6 +11,8 @@ export const publicRoutes = [
   "/sitemap.xml",
 ];
 
+export const publicApiRoutes = ["/api/campus-leads"];
+
 export const publicRoutePrefixes = [
   "/societies",
   "/events",
