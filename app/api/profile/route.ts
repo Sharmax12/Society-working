@@ -2,6 +2,7 @@ import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 function isSafeProfileImageUrl(value: string): boolean {
   try {
@@ -35,6 +36,18 @@ export async function PATCH(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: privateHeaders });
+  }
+
+  try {
+    const rateLimit = await consumeRateLimit("profile:update", session.user.id, 20, 60 * 60);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many profile updates. Please try again later." },
+        { status: 429, headers: { ...privateHeaders, "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      );
+    }
+  } catch {
+    return NextResponse.json({ error: "Profile updates are temporarily unavailable." }, { status: 503, headers: privateHeaders });
   }
 
   let body: unknown;
