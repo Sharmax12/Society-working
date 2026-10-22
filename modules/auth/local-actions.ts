@@ -142,7 +142,7 @@ export async function registerLocalAccount(formData: FormData): Promise<never> {
     userId = user.id;
   } catch (error) {
     const duplicate = await db.user.findUnique({ where: { email }, select: { id: true } });
-    if (duplicate) redirect("/auth/register?error=exists");
+    if (duplicate) redirect("/auth/sign-in?verification=sent");
     throw error;
   }
 
