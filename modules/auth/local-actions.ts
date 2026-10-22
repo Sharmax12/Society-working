@@ -228,7 +228,7 @@ export async function verifyEmail(formData: FormData): Promise<never> {
 
     await tx.user.update({
       where: { id: record.userId },
-      data: { emailVerified: now },
+      data: { emailVerified: consumedAt },
     });
     await tx.authToken.deleteMany({
       where: { userId: record.userId, purpose: "EMAIL_VERIFICATION", id: { not: record.id } },
