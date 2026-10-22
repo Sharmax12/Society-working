@@ -1,3 +1,4 @@
+import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
@@ -40,9 +41,16 @@ export async function PATCH(request: Request) {
   }
 
   let body: unknown;
+  let body: unknown;
   try {
-    body = await request.json();
-  } catch {
+    body = await readJsonBody(request, 8 * 1024);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return NextResponse.json(
+        { error: "Request body is too large." },
+        { status: 413, headers: privateHeaders },
+      );
+    }
     return NextResponse.json(
       { error: "Invalid JSON request." },
       { status: 400, headers: privateHeaders },
