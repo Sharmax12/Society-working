@@ -21,9 +21,9 @@ function assertSafeUrl(value: string, label: string) {
 
 // Societies the current admin manages, with how many events each has —
 // used to pick which society an event belongs to.
-export async function getManagedSocietiesForEvents(adminId: string) {
+export async function getManagedSocietiesForEvents(adminId: string, isGlobalAdmin = false) {
   return db.society.findMany({
-    where: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
+    where: isGlobalAdmin ? {} : { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
     include: { _count: { select: { events: true } } },
     orderBy: { createdAt: "desc" },
   })
@@ -66,9 +66,12 @@ export async function createEvent(formData: FormData) {
   if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
   if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
 
-  // Make sure this admin actually manages the society they're posting to.
+  // Society admins can post only to their own societies; platform admins can post to any society.
+  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   const society = await db.society.findFirst({
-    where: { id: societyId, OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] },
+    where: isGlobalAdmin
+      ? { id: societyId }
+      : { id: societyId, OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] },
   })
   if (!society) throw new Error("You don't manage this society")
 
@@ -148,7 +151,7 @@ export async function deleteEvent(eventId: string) {
       : {
           id: eventId,
           OR: [
-            { createdById: session.user.id },
+            { createdById: session.user.id, societyId: null },
             { society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
           ],
         },
