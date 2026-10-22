@@ -8,6 +8,7 @@ import {
   sendInterviewInvitationEmail,
 } from "@/lib/email"
 import { revalidatePath } from "next/cache"
+import { consumeRateLimit } from "@/lib/rate-limit"
 import { redirect } from "next/navigation"
 
 function readFormString(formData: FormData, key: string): string | null {
@@ -19,6 +20,22 @@ function assertRecordId(value: unknown, label: string): asserts value is string 
   if (typeof value !== "string" || value.trim().length === 0 || value.length > 128) {
     throw new Error("Invalid " + label)
   }
+}
+
+async function assertActionRateLimit(
+  scope: string,
+  identity: string,
+  limit: number,
+  windowSeconds: number,
+  message: string,
+) {
+  let result
+  try {
+    result = await consumeRateLimit(scope, identity, limit, windowSeconds)
+  } catch {
+    throw new Error("This action is temporarily unavailable. Please try again later.")
+  }
+  if (!result.allowed) throw new Error(message)
 }
 
 export async function submitApplication(societyId: string, formData: FormData) {
@@ -166,6 +183,23 @@ export async function updateApplicationStatus(
 
   const previousStatus = application.status
 
+  if (status === "ACCEPTED" && previousStatus !== "ACCEPTED") {
+    await assertActionRateLimit(
+      "applications:accept-email:admin",
+      session.user.id,
+      30,
+      60 * 60,
+      "Too many acceptance emails. Please try again later.",
+    )
+    await assertActionRateLimit(
+      "applications:accept-email:application",
+      `${session.user.id}:${applicationId}`,
+      1,
+      24 * 60 * 60,
+      "An acceptance email was already requested for this application recently.",
+    )
+  }
+
   await db.application.update({
     where: { id: applicationId },
     data: { status },
@@ -222,6 +256,21 @@ export async function sendInterviewInvitation(applicationId: string) {
   if (application.status === "REJECTED") {
     throw new Error("A rejected applicant cannot be invited to an interview")
   }
+
+  await assertActionRateLimit(
+    "applications:interview-email:admin",
+    session.user.id,
+    15,
+    60 * 60,
+    "Too many interview invitations. Please try again later.",
+  )
+  await assertActionRateLimit(
+    "applications:interview-email:application",
+    `${session.user.id}:${applicationId}`,
+    3,
+    24 * 60 * 60,
+    "Too many interview invitations for this application. Please try again tomorrow.",
+  )
 
   const emailSent = await sendInterviewInvitationEmail({
     applicationId: application.id,
