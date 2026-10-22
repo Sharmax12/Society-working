@@ -183,6 +183,14 @@ export async function POST(request: Request) {
         pairKey: connectionPairKey(requesterId, recipientId),
         status: "PENDING",
       },
+      select: {
+        id: true,
+        requesterId: true,
+        recipientId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     })
 
     return Response.json({ connection }, { status: 201 })
