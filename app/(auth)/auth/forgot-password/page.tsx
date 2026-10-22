@@ -16,7 +16,7 @@ export default async function ForgotPasswordPage({ searchParams }: Props) {
     <Card className="w-full rounded-[1.75rem] border-foreground/10 bg-card/90 shadow-2xl shadow-primary/10">
       <CardHeader className="px-7 pb-5 pt-7 sm:px-8">
         <CardTitle className="text-2xl font-black tracking-tight">Reset your password</CardTitle>
-        <CardDescription className="leading-6">Enter the email address on your HallWayLoop account. If an eligible account exists, we'll send a single-use reset link.</CardDescription>
+        <CardDescription className="leading-6">Enter the email address on your HallWayLoop account. If an eligible account exists, we&apos;ll send a single-use reset link.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 px-7 pb-7 sm:px-8">
         {params.status === "sent" && <p role="status" className="rounded-xl border bg-muted/50 p-3 text-sm">If a verified account with a password matches that address, a reset link will arrive shortly. If not, nothing changes.</p>}
