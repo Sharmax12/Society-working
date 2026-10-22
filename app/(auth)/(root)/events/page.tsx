@@ -70,7 +70,7 @@ export default async function EventsPage() {
     ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}),
     organizer: {
       "@type": "Organization",
-      name: event.society?.name ?? "HallWayLoop Community",
+      name: event.society?.name ?? event.organizerName ?? "HallWayLoop Community",
       ...(event.society ? { url: siteConfig.url + "/societies/" + event.society.id } : {}),
     },
   }));
@@ -108,7 +108,7 @@ export default async function EventsPage() {
                 <Link key={event.id} href={`/events/${event.id}`} className="group flex items-center justify-between gap-4 py-4">
                   <div>
                     <p className="font-medium group-hover:text-primary">{event.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{event.society?.name ?? "Community event"} · {formatEventDate(event.date)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{event.society?.name ?? event.organizerName ?? "Community event"} · {formatEventDate(event.date)}</p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
