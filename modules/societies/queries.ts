@@ -18,10 +18,32 @@ export async function getSocietiesForDirectory() {
   })
 }
 
+/**
+ * The passed ID is only a consistency check, never the identity source.
+ * This function is exported from a server-action module, so callers can send
+ * arbitrary arguments over the network.
+ */
 export async function getUserApplications(userId: string) {
+  const session = await auth()
+  if (!session?.user?.id || session.user.id !== userId) {
+    throw new Error("Not authorized to read these applications")
+  }
+
   return db.application.findMany({
-    where: { studentId: userId },
-    include: { society: true },
+    where: { studentId: session.user.id },
+    include: {
+      society: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          category: true,
+          deadline: true,
+          isOpen: true,
+          verificationStatus: true,
+        },
+      },
+    },
     orderBy: { submittedAt: "desc" },
   })
 }
@@ -34,8 +56,11 @@ export async function getSocietyWithQuestions(societyId: string) {
 }
 
 export async function getExistingApplication(studentId: string, societyId: string) {
+  const session = await auth()
+  if (!session?.user?.id || session.user.id !== studentId) return null
+
   return db.application.findUnique({
-    where: { studentId_societyId: { studentId, societyId } },
+    where: { studentId_societyId: { studentId: session.user.id, societyId } },
   })
 }
 
@@ -60,23 +85,45 @@ export async function createSociety(formData: FormData) {
   let questions: QuestionInput[] = []
   try {
     questions = JSON.parse(questionsRaw || "[]")
+    if (
+      !Array.isArray(questions) ||
+      questions.length > 30 ||
+      questions.some((q) =>
+        typeof q !== "object" ||
+        q === null ||
+        typeof q.prompt !== "string" ||
+        typeof q.required !== "boolean"
+      )
+    ) {
+      throw new Error("Invalid question data")
+    }
   } catch {
     throw new Error("Invalid question data")
   }
 
-  const validQuestions = questions.filter((q) => q.prompt?.trim())
+  const validQuestions = questions
+    .filter((q) => q.prompt.trim())
+    .map((q) => ({ prompt: q.prompt.trim().slice(0, 500), required: q.required }))
+
+  const parsedDeadline = new Date(deadline)
+  if (Number.isNaN(parsedDeadline.getTime()) || parsedDeadline.getTime() <= Date.now()) {
+    throw new Error("Choose a valid future application deadline")
+  }
+  if (name.trim().length > 120 || description.trim().length > 5000) {
+    throw new Error("Society name or description is too long")
+  }
 
   const society = await db.society.create({
     data: {
       name: name.trim(),
       description: description.trim(),
-      category: category?.trim() || undefined,
-      deadline: new Date(deadline),
+      category: category?.trim().slice(0, 80) || undefined,
+      deadline: parsedDeadline,
       adminId: session.user.id,
       admins: { create: { userId: session.user.id } },
       questions: {
         create: validQuestions.map((q) => ({
-          prompt: q.prompt.trim(),
+          prompt: q.prompt,
           required: q.required,
         })),
       },
