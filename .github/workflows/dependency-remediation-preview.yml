@@ -37,8 +37,26 @@ jobs:
               changes[key] = patched.packages[key] ?? null;
             }
           }
-          fs.writeFileSync("lockfile-changes.json", JSON.stringify({ lockfileVersion: patched.lockfileVersion, changes }));
-          console.log(`Changed lock entries: ${Object.keys(changes).length}; bytes: ${fs.statSync("lockfile-changes.json").size}`);
+          const deltas = {};
+          for (const [key, value] of Object.entries(changes)) {
+            const before = original.packages[key];
+            if (value === null) {
+              deltas[key] = null;
+            } else if (before === undefined) {
+              deltas[key] = { __replace: value };
+            } else {
+              const merge = {};
+              const remove = [];
+              for (const field of new Set([...Object.keys(before), ...Object.keys(value)])) {
+                if (JSON.stringify(before[field]) === JSON.stringify(value[field])) continue;
+                if (Object.prototype.hasOwnProperty.call(value, field)) merge[field] = value[field];
+                else remove.push(field);
+              }
+              deltas[key] = { __merge: merge, __remove: remove };
+            }
+          }
+          fs.writeFileSync("lockfile-deltas.json", JSON.stringify({ lockfileVersion: patched.lockfileVersion, changes: deltas }));
+          console.log(`Changed lock entries: ${Object.keys(deltas).length}; bytes: ${fs.statSync("lockfile-deltas.json").size}`);
           NODE
       - name: Produce reviewable dependency diff
         run: |
@@ -53,6 +71,7 @@ jobs:
             package-lock.json
             dependency-remediation.patch
             lockfile-changes.json
+            lockfile-deltas.json
             npm-audit.json
           if-no-files-found: error
           retention-days: 2
