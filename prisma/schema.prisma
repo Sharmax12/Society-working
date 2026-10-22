@@ -28,6 +28,11 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum AuthTokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 enum ConnectionStatus {
   PENDING
   ACCEPTED
@@ -46,9 +51,12 @@ model User {
   rollNumber   String?        // Student roll/registration number
   phone        String?        // Contact phone number
   passwordHash String?       // Hashed password (never plaintext)
+  emailVerified DateTime? @db.Timestamptz(3)
+  authVersion Int @default(0)
   role         Role          @default(STUDENT)
 
   accounts     Account[]
+  authTokens  AuthToken[]
   applications Application[] // Student's applications
 
   sentConnections     Connection[] @relation("ConnectionRequester")
@@ -278,4 +286,20 @@ model RateLimitBucket {
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(3)
 
   @@index([resetAt])
+}
+
+
+// Single-use bearer tokens are stored only as SHA-256 hashes.
+model AuthToken {
+  id        String           @id @default(cuid())
+  userId    String
+  purpose   AuthTokenPurpose
+  tokenHash String           @unique @db.VarChar(64)
+  expiresAt DateTime         @db.Timestamptz(3)
+  usedAt    DateTime?        @db.Timestamptz(3)
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@index([purpose, expiresAt])
 }
