@@ -44,6 +44,23 @@ export async function GET(_request: Request, context: RouteContext) {
   const conversation = await getConversationForUser(conversationId, userId)
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
 
+  const otherUserId =
+    conversation.participantAId === userId ? conversation.participantBId : conversation.participantAId
+  if (!(await areConnected(userId, otherUserId))) {
+    return Response.json({ error: "Chat is unavailable because this connection is no longer active." }, { status: 403 })
+  }
+  try {
+    const rateLimit = await consumeRateLimit("messages:read", userId, 300, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many chat refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
+
   const messages = await db.message.findMany({
     where: { conversationId },
     orderBy: { createdAt: "desc" },
@@ -131,6 +148,23 @@ export async function PATCH(_request: Request, context: RouteContext) {
   const { conversationId } = await context.params
   const conversation = await getConversationForUser(conversationId, userId)
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
+
+  const otherUserId =
+    conversation.participantAId === userId ? conversation.participantBId : conversation.participantAId
+  if (!(await areConnected(userId, otherUserId))) {
+    return Response.json({ error: "Chat is unavailable because this connection is no longer active." }, { status: 403 })
+  }
+  try {
+    const rateLimit = await consumeRateLimit("messages:read-receipt", userId, 300, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many chat refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
 
   await db.message.updateMany({
     where: {
