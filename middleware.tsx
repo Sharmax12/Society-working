@@ -14,7 +14,9 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
-  const isLoggedIn = !!req.auth;
+  // Auth.js can expose an empty request auth object when there is no usable
+  // session. Only an actual session user should bypass the route guard.
+  const isLoggedIn = Boolean(req.auth?.user);
 
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicApiRoute = publicApiRoutes.some((route) =>
