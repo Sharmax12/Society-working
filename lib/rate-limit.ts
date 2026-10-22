@@ -14,14 +14,18 @@ export type RateLimitResult = {
  * these headers are overwritten at its edge to prevent client IP spoofing.
  * If no trusted IP is available, fail closed into a single fallback bucket.
  */
-export function getClientIp(request: Request): string {
+export function getClientIpFromHeaders(headers: Pick<Headers, "get">): string {
   const raw =
-    request.headers.get("x-vercel-forwarded-for") ??
-    request.headers.get("x-forwarded-for") ??
-    request.headers.get("x-real-ip");
+    headers.get("x-vercel-forwarded-for") ??
+    headers.get("x-forwarded-for") ??
+    headers.get("x-real-ip");
 
   const candidate = raw?.split(",").map((part) => part.trim()).filter(Boolean).at(-1);
   return candidate && isIP(candidate) ? candidate : "unknown-client-ip";
+}
+
+export function getClientIp(request: Request): string {
+  return getClientIpFromHeaders(request.headers);
 }
 
 /**
