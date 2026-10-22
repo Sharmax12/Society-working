@@ -4,6 +4,7 @@ import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
+import { isAllowedCollegeEmail } from "./modules/auth/college-email";
 import { verifyPassword } from "./modules/auth/password";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -12,6 +13,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!user || !account || !user.email) return false;
 
       const email = user.email.trim().toLowerCase();
+
+      // Enforce the same server-side college allowlist for every provider.
+      // Registration checks this too, but sign-in must not rely on that path.
+      if (!isAllowedCollegeEmail(email)) return false;
+
       // Credentials users have already passed the local password check.
       if (account.provider === "credentials") return true;
 
