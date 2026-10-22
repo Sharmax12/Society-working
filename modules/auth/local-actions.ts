@@ -1,7 +1,9 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { db } from "@/lib/db";
+import { consumeRateLimit, getClientIpFromHeaders } from "@/lib/rate-limit";
 import { isAllowedCollegeEmail } from "@/modules/auth/college-email";
 import { hashPassword } from "@/modules/auth/password";
 
@@ -32,6 +34,19 @@ export async function registerLocalAccount(formData: FormData): Promise<never> {
   if (password !== confirmPassword) {
     redirect("/auth/register?error=mismatch");
   }
+
+  let registrationAllowed = false;
+  try {
+    const requestHeaders = await headers();
+    const [ipLimit, emailLimit] = await Promise.all([
+      consumeRateLimit("auth:register:ip", getClientIpFromHeaders(requestHeaders), 10, 60 * 60),
+      consumeRateLimit("auth:register:email", email, 3, 60 * 60),
+    ]);
+    registrationAllowed = ipLimit.allowed && emailLimit.allowed;
+  } catch {
+    redirect("/auth/register?error=unavailable");
+  }
+  if (!registrationAllowed) redirect("/auth/register?error=rate");
 
   const existingUser = await db.user.findUnique({
     where: { email },
