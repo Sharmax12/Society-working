@@ -16,11 +16,13 @@ export type RateLimitResult = {
  */
 export function getClientIpFromHeaders(headers: Pick<Headers, "get">): string {
   const raw =
+    headers.get("x-real-ip") ??
     headers.get("x-vercel-forwarded-for") ??
-    headers.get("x-forwarded-for") ??
-    headers.get("x-real-ip");
+    headers.get("x-forwarded-for");
 
-  const candidate = raw?.split(",").map((part) => part.trim()).filter(Boolean).at(-1);
+  // Trusted edge headers normally contain one address; if a proxy chain is
+  // present, the client address is the leftmost entry (not the last proxy).
+  const candidate = raw?.split(",").map((part) => part.trim()).filter(Boolean).at(0);
   return candidate && isIP(candidate) ? candidate : "unknown-client-ip";
 }
 
