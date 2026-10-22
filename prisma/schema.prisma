@@ -266,3 +266,15 @@ model Post {
   @@index([authorId, createdAt])
   @@index([createdAt])
 }
+
+
+// Shared PostgreSQL-backed rate-limit counters. Keys are one-way hashes of
+// scope + identity; raw IP addresses/emails are never stored in this table.
+model RateLimitBucket {
+  key       String   @id @db.VarChar(64)
+  count     Int      @default(0)
+  resetAt   DateTime @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(3)
+
+  @@index([resetAt])
+}
