@@ -61,7 +61,7 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const updated = await db.connection.update({
     where: { id: connectionId },
-    data: { status: "BLOCKED" },
+    data: { status: "BLOCKED", blockedById: userId },
   })
 
   return Response.json({ connection: updated })
@@ -77,7 +77,7 @@ export async function DELETE(request: Request, context: RouteContext) {
 
   const connection = await db.connection.findUnique({
     where: { id: connectionId },
-    select: { id: true, requesterId: true, recipientId: true },
+    select: { id: true, requesterId: true, recipientId: true, status: true, blockedById: true },
   })
 
   if (!connection) {
@@ -89,6 +89,17 @@ export async function DELETE(request: Request, context: RouteContext) {
     connection.recipientId !== session.user.id
   ) {
     return Response.json({ error: "You cannot remove this connection." }, { status: 403 })
+  }
+
+  // On newly blocked edges only the user who created the block may undo it.
+  // Legacy blocked rows have blockedById=null and remain removable by either
+  // participant so an old block cannot become permanent after this migration.
+  if (
+    connection.status === "BLOCKED" &&
+    connection.blockedById !== null &&
+    connection.blockedById !== session.user.id
+  ) {
+    return Response.json({ error: "Only the person who blocked this connection can unblock it." }, { status: 403 })
   }
 
   await db.connection.delete({ where: { id: connectionId } })
