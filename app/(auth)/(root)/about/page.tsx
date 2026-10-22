@@ -104,7 +104,7 @@ export default function AboutPage() {
           </article>
           <article className="flex gap-4 rounded-2xl border border-border p-5">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-            <div><h3 className="font-semibold">Visibility and moderation matter</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">The plan keeps profiles and posts within a student's college by default and includes report, block, and mute controls.</p></div>
+            <div><h3 className="font-semibold">Visibility and moderation matter</h3><p className="mt-1 text-sm leading-6 text-muted-foreground">The plan keeps profiles and posts within a student&apos;s college by default and includes report, block, and mute controls.</p></div>
           </article>
           <article className="flex gap-4 rounded-2xl border border-border p-5">
             <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
