@@ -8,9 +8,10 @@ export default async function AdminEventsPage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
   const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
-  if (session.user.role !== "ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
+  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
+  if (!isGlobalAdmin && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
 
-  const events = await getManagedEvents(session.user.id)
+  const events = await getManagedEvents(session.user.id, isGlobalAdmin)
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
@@ -21,7 +22,7 @@ export default async function AdminEventsPage() {
           </Link>
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">Programming</p>
           <h1 className="mt-1 text-4xl font-black tracking-[-0.04em]">Events</h1>
-          <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">Shape what happens next. Publish and manage events for the societies you run.</p>
+          <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base">Publish and manage society-hosted events or standalone campus activities.</p>
         </div>
         <Link href="/admin/events/new" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition hover:-translate-y-0.5 hover:shadow-xl">
           <Plus className="h-4 w-4" /> Create event
@@ -51,7 +52,7 @@ export default async function AdminEventsPage() {
                     <h2 className="truncate text-lg font-bold tracking-tight">{event.title}</h2>
                     <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent" />
                   </div>
-                  <p className="mt-1 truncate text-sm font-medium text-muted-foreground">{event.society?.name ?? "Standalone event"}</p>
+                  <p className="mt-1 truncate text-sm font-medium text-muted-foreground">{event.society?.name ?? event.organizerName ?? "Standalone event"}</p>
                   <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     <span>{new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
                     <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
