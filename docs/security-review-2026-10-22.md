@@ -31,9 +31,9 @@ Local password accounts are created with `emailVerified = null`; Credentials sig
 
 **Still required before launch:** complete the latest CI run; test actual mail delivery and token expiry/single-use behavior; configure `NEXT_PUBLIC_APP_URL` to the exact production origin; and decide how existing password users with `emailVerified = null` will re-verify. A database migration intentionally does not mark legacy password accounts as verified.
 
-### High: no shared distributed rate limiting
+### Medium-high: shared rate limiting is implemented and needs production tuning
 
-The public campus-lead endpoint can send email, and sign-in, registration, connection requests, and chat/post writes have no shared, deployment-safe rate limit. Request-body caps help with oversized payloads but do not prevent repeated valid requests. Add a shared limiter (for example, a managed Redis/KV or a database-backed limiter with cleanup and atomic limits), especially for credentials login and email-triggering endpoints. An in-memory map is not sufficient across serverless instances.
+A PostgreSQL-backed atomic fixed-window limiter is wired into local sign-in/registration, verification resend, password-reset requests, campus-lead email, applications, posts, connection mutations, messaging, event creation/deletion, and society creation. Identifiers are HMAC-protected, so raw email addresses and IPs are not stored in the bucket table. Thresholds need to be tuned against actual pilot traffic, and alerting/telemetry plus testing of trusted forwarded-IP headers are still required. The `RateLimitBucket` migration must be applied before deploying these code paths.
 
 ### High: Content Security Policy remains report-only
 
