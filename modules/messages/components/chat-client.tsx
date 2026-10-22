@@ -43,9 +43,12 @@ export function ChatClient({ conversationId, userId }: { conversationId: string;
   }, [conversationId])
 
   useEffect(() => {
-    void load()
-    const timer = window.setInterval(() => void load(true), 4000)
-    return () => window.clearInterval(timer)
+    const initialTimer = window.setTimeout(() => { void load() }, 0)
+    const intervalTimer = window.setInterval(() => { void load(true) }, 4000)
+    return () => {
+      window.clearTimeout(initialTimer)
+      window.clearInterval(intervalTimer)
+    }
   }, [load])
 
   useEffect(() => {
