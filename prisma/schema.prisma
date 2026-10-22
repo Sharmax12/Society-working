@@ -205,6 +205,7 @@ model Connection {
   id          String           @id @default(cuid())
   requesterId String
   recipientId String
+  pairKey     String           @unique @db.VarChar(128)
   status      ConnectionStatus @default(PENDING)
   blockedById String?
 
