@@ -6,6 +6,7 @@ import authConfig from "./auth.config";
 import { db } from "./lib/db";
 import { isAllowedCollegeEmail } from "./modules/auth/college-email";
 import { verifyPassword } from "./modules/auth/password";
+import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
@@ -130,7 +131,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email", placeholder: "you@college.edu" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email =
           typeof credentials?.email === "string"
             ? credentials.email.trim().toLowerCase()
@@ -144,6 +145,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           email.length > 254 ||
           password.length > 128
         ) {
+          return null;
+        }
+
+        // Apply shared rate limits before password verification to make
+        // distributed credential-stuffing attempts expensive and bounded.
+        try {
+          const [ipLimit, emailLimit] = await Promise.all([
+            consumeRateLimit("auth:signin:ip", getClientIp(request), 60, 15 * 60),
+            consumeRateLimit("auth:signin:email", email, 10, 15 * 60),
+          ]);
+          if (!ipLimit.allowed || !emailLimit.allowed) return null;
+        } catch {
+          // Fail closed if the limiter table/database is unavailable.
           return null;
         }
 
