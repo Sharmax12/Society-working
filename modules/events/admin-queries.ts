@@ -19,6 +19,35 @@ function assertSafeUrl(value: string, label: string) {
   }
 }
 
+// datetime-local inputs have no timezone marker. Treat the entered wall-clock
+// time as Asia/Kolkata, then store the equivalent UTC instant.
+function parseIndiaDateTime(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value.trim())
+  if (!match) return null
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const hour = Number(match[4])
+  const minute = Number(match[5])
+  const second = Number(match[6] ?? 0)
+  const wallClockAsUtc = Date.UTC(year, month - 1, day, hour, minute, second)
+  const check = new Date(wallClockAsUtc)
+
+  if (
+    check.getUTCFullYear() !== year ||
+    check.getUTCMonth() !== month - 1 ||
+    check.getUTCDate() !== day ||
+    check.getUTCHours() !== hour ||
+    check.getUTCMinutes() !== minute ||
+    check.getUTCSeconds() !== second
+  ) {
+    return null
+  }
+
+  return new Date(wallClockAsUtc - 330 * 60 * 1000)
+}
+
 // Societies the current admin manages, with how many events each has —
 // used to pick which society an event belongs to.
 export async function getManagedSocietiesForEvents(adminId: string, isGlobalAdmin = false) {
@@ -61,8 +90,10 @@ export async function createEvent(formData: FormData) {
   if (!societyId) throw new Error("Choose a society for this event")
   if (!title?.trim()) throw new Error("Event title is required")
   if (!description?.trim()) throw new Error("Description is required")
-  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
-  if (endDate && (Number.isNaN(new Date(endDate).getTime()) || new Date(endDate) < new Date(date))) throw new Error("End date and time must be after the start date and time")
+  const parsedDate = parseIndiaDateTime(date)
+  const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
+  if (!parsedDate) throw new Error("A valid event date and time in India is required")
+  if (endDate && (!parsedEndDate || parsedEndDate < parsedDate)) throw new Error("End date and time must be after the start date and time")
   if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
   if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
 
@@ -81,8 +112,8 @@ export async function createEvent(formData: FormData) {
       createdById: session.user.id,
       title: title.trim(),
       description: description.trim(),
-      date: new Date(date),
-      endDate: endDate ? new Date(endDate) : undefined,
+      date: parsedDate,
+      endDate: parsedEndDate ?? undefined,
       location: location?.trim() || undefined,
       imageUrl: imageUrl?.trim() || undefined,
       inviteLink: inviteLink?.trim() || undefined,
@@ -114,8 +145,10 @@ export async function createQuickEvent(formData: FormData) {
   if (!organizerName) throw new Error("Event host / organiser name is required")
   if (!title) throw new Error("Event title is required")
   if (!description) throw new Error("Description is required")
-  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
-  if (endDate && (Number.isNaN(new Date(endDate).getTime()) || new Date(endDate) < new Date(date))) throw new Error("End date and time must be after the start date and time")
+  const parsedDate = parseIndiaDateTime(date)
+  const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
+  if (!parsedDate) throw new Error("A valid event date and time in India is required")
+  if (endDate && (!parsedEndDate || parsedEndDate < parsedDate)) throw new Error("End date and time must be after the start date and time")
   if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
   if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
@@ -126,8 +159,8 @@ export async function createQuickEvent(formData: FormData) {
       organizerName,
       title,
       description,
-      date: new Date(date),
-      endDate: endDate ? new Date(endDate) : undefined,
+      date: parsedDate,
+      endDate: parsedEndDate ?? undefined,
       location: location || undefined,
       imageUrl: imageUrl || undefined,
       inviteLink: inviteLink || undefined,
