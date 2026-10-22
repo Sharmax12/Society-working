@@ -46,7 +46,7 @@ export async function consumeRateLimit(
     VALUES (
       ${key},
       1,
-      NOW() + (${windowSeconds} * INTERVAL '1 second'),
+      NOW() + (CAST(${windowSeconds} AS INTEGER) * INTERVAL '1 second'),
       NOW()
     )
     ON CONFLICT ("key") DO UPDATE SET
