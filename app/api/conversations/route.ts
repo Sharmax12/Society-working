@@ -26,6 +26,18 @@ export async function GET() {
   if (!session?.user?.id) return Response.json({ error: "Unauthorized." }, { status: 401 })
 
   const userId = session.user.id
+  try {
+    const rateLimit = await consumeRateLimit("conversations:list", userId, 120, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many conversation refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
+
   const conversations = await db.conversation.findMany({
     where: { OR: [{ participantAId: userId }, { participantBId: userId }] },
     orderBy: { updatedAt: "desc" },
@@ -40,20 +52,51 @@ export async function GET() {
     },
   })
 
-  return Response.json({
-    conversations: conversations.map((conversation) => {
-      const user =
-        conversation.participantAId === userId
-          ? conversation.participantB
-          : conversation.participantA
-      return {
-        id: conversation.id,
-        updatedAt: conversation.updatedAt,
-        user,
-        lastMessage: conversation.messages[0] ?? null,
-      }
-    }),
+  // Do not leak cached last-message content for conversations whose
+  // underlying connection has since been blocked or removed.
+  const otherUserIds = conversations.map((conversation) =>
+    conversation.participantAId === userId
+      ? conversation.participantBId
+      : conversation.participantAId,
+  )
+  const activeConnections = await db.connection.findMany({
+    where: {
+      status: "ACCEPTED",
+      OR: [
+        { requesterId: userId, recipientId: { in: otherUserIds } },
+        { requesterId: { in: otherUserIds }, recipientId: userId },
+      ],
+    },
+    select: { requesterId: true, recipientId: true },
   })
+  const activeUserIds = new Set(
+    activeConnections.map((connection) =>
+      connection.requesterId === userId ? connection.recipientId : connection.requesterId,
+    ),
+  )
+
+  return Response.json({
+    conversations: conversations
+      .filter((conversation) => {
+        const otherId =
+          conversation.participantAId === userId
+            ? conversation.participantBId
+            : conversation.participantAId
+        return activeUserIds.has(otherId)
+      })
+      .map((conversation) => {
+        const user =
+          conversation.participantAId === userId
+            ? conversation.participantB
+            : conversation.participantA
+        return {
+          id: conversation.id,
+          updatedAt: conversation.updatedAt,
+          user,
+          lastMessage: conversation.messages[0] ?? null,
+        }
+      }),
+  }, { headers: { "Cache-Control": "private, no-store" } })
 }
 
 export async function POST(request: Request) {
