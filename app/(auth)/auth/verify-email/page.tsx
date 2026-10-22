@@ -23,7 +23,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
       <CardHeader className="px-7 pb-5 pt-7 sm:px-8">
         <CardTitle className="text-2xl font-black tracking-tight">{token ? "Confirm your email" : "Send a verification link"}</CardTitle>
         <CardDescription className="leading-6">
-          {token ? "Submit this confirmation to activate your account. Opening the link alone does not consume it." : "Enter your college email and we'll send a fresh link if an unverified account exists."}
+          {token ? "Submit this confirmation to activate your account. Opening the link alone does not consume it." : "Enter your college email and we&apos;ll send a fresh link if an unverified account exists."}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4 px-7 pb-7 sm:px-8">
