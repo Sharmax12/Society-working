@@ -44,7 +44,7 @@ export async function GET(_request: Request, context: RouteContext) {
 
   const messages = await db.message.findMany({
     where: { conversationId },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
     take: 100,
     select: {
       id: true,
@@ -55,7 +55,10 @@ export async function GET(_request: Request, context: RouteContext) {
     },
   })
 
-  return Response.json({ messages })
+  // Return the newest 100 messages, but keep the UI's chronological display order.
+  return Response.json({ messages: messages.reverse() }, {
+    headers: { "Cache-Control": "private, no-store" },
+  })
 }
 
 export async function POST(request: Request, context: RouteContext) {
