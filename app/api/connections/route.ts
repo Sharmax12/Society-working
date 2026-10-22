@@ -36,6 +36,7 @@ export async function GET() {
       OR: [{ requesterId: userId }, { recipientId: userId }],
     },
     orderBy: { updatedAt: "desc" },
+    take: 300,
     include: {
       requester: {
         select: { id: true, name: true, image: true },
