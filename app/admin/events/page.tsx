@@ -11,7 +11,7 @@ export default async function AdminEventsPage() {
   const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   if (!isGlobalAdmin && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
 
-  const events = await getManagedEvents(session.user.id, isGlobalAdmin)
+  const events = await getManagedEvents()
 
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
