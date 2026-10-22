@@ -133,14 +133,46 @@ export async function POST(request: Request) {
     }
 
     if (existing.requesterId === requesterId) {
-      const connection = await db.connection.update({
-        where: { id: existing.id },
+      // Resending a rejected request must not overwrite a block applied after
+      // the initial read. Include current status and owner in the write filter.
+      const result = await db.connection.updateMany({
+        where: {
+          id: existing.id,
+          requesterId,
+          recipientId,
+          status: "REJECTED",
+        },
         data: { status: "PENDING" },
+      })
+      if (result.count !== 1) {
+        return Response.json(
+          { error: "This connection changed. Refresh and try again." },
+          { status: 409 },
+        )
+      }
+      const connection = await db.connection.findUnique({
+        where: { id: existing.id },
+        select: { id: true, requesterId: true, recipientId: true, status: true, createdAt: true, updatedAt: true },
       })
       return Response.json({ connection }, { status: 201 })
     }
 
-    await db.connection.delete({ where: { id: existing.id } })
+    // Only remove the reverse rejected row if it is still rejected. Otherwise
+    // a simultaneous block could be deleted by a stale connection request.
+    const deleted = await db.connection.deleteMany({
+      where: {
+        id: existing.id,
+        requesterId: recipientId,
+        recipientId: requesterId,
+        status: "REJECTED",
+      },
+    })
+    if (deleted.count !== 1) {
+      return Response.json(
+        { error: "This connection changed. Refresh and try again." },
+        { status: 409 },
+      )
+    }
   }
 
   try {
