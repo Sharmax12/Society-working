@@ -1,3 +1,4 @@
+import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
 
@@ -15,8 +16,11 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   let body: unknown
   try {
-    body = await request.json()
-  } catch {
+    body = await readJsonBody(request, 4 * 1024)
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "Request body is too large." }, { status: 413 })
+    }
     return Response.json({ error: "Invalid request." }, { status: 400 })
   }
 
