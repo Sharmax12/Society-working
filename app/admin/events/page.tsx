@@ -54,7 +54,7 @@ export default async function AdminEventsPage() {
                   </div>
                   <p className="mt-1 truncate text-sm font-medium text-muted-foreground">{event.society?.name ?? event.organizerName ?? "Standalone event"}</p>
                   <div className="mt-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    <span>{new Date(event.date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                    <span>{new Date(event.date).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", month: "short", day: "numeric", year: "numeric" })}</span>
                     <span className="h-1 w-1 rounded-full bg-muted-foreground/40" />
                     <span>Published</span>
                   </div>
