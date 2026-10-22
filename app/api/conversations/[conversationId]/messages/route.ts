@@ -1,6 +1,7 @@
 import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 type RouteContext = {
   params: Promise<{ conversationId: string }>
@@ -76,6 +77,18 @@ export async function POST(request: Request, context: RouteContext) {
 
   if (!(await areConnected(userId, otherUserId))) {
     return Response.json({ error: "Messaging is only available to accepted connections." }, { status: 403 })
+  }
+
+  try {
+    const rateLimit = await consumeRateLimit("messages:create", userId, 30, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "You're sending messages too quickly. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
   }
 
   let body: unknown
