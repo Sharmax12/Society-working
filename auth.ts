@@ -25,8 +25,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // Only accept Google and require Google's verified-email claim before
       // attaching an OAuth identity to an account that may already exist.
       if (account.provider !== "google") return false;
-      const googleProfile = profile as { email_verified?: unknown } | undefined;
-      if (googleProfile?.email_verified !== true) return false;
+      const googleProfile = profile as
+        | { email?: unknown; email_verified?: unknown }
+        | undefined;
+      if (
+        googleProfile?.email_verified !== true ||
+        typeof googleProfile.email !== "string" ||
+        googleProfile.email.trim().toLowerCase() !== email
+      ) {
+        return false;
+      }
 
       const existingUser = await db.user.findUnique({ where: { email } });
 
@@ -57,14 +65,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         },
       });
 
-      // Never reassign a provider identity that is already linked to another user.
+      // Never reassign a provider identity already linked to another user.
       if (existingAccount && existingAccount.userId !== existingUser.id) return false;
 
+      // A freshly verified Google account must not silently attach itself to a
+      // password account whose mailbox was never verified. Without this guard,
+      // an attacker could pre-register a victim's email and retain password access
+      // after the victim signs in with Google.
+      if (!existingAccount && existingUser.passwordHash) return false;
+
+      // Preserve profile edits: hydrate missing values, don't overwrite user edits
+      // with the Google profile on every sign-in.
       await db.user.update({
         where: { id: existingUser.id },
         data: {
-          name: user.name ?? existingUser.name,
-          image: user.image ?? existingUser.image,
+          name: existingUser.name ?? user.name,
+          image: existingUser.image ?? user.image,
         },
       });
 
