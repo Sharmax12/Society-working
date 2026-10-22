@@ -8,8 +8,8 @@ WITH ranked AS (
   SELECT
     "id",
     ROW_NUMBER() OVER (
-      PARTITION BY LEAST("requesterId", "recipientId"),
-                   GREATEST("requesterId", "recipientId")
+      PARTITION BY LEAST("requesterId" COLLATE "C", "recipientId" COLLATE "C"),
+                   GREATEST("requesterId" COLLATE "C", "recipientId" COLLATE "C")
       ORDER BY
         CASE
           WHEN "status" = 'BLOCKED'::"ConnectionStatus" THEN 4
@@ -30,7 +30,7 @@ WHERE connection."id" = ranked."id"
 
 UPDATE "Connection"
 SET "pairKey" = CASE
-  WHEN "requesterId" < "recipientId"
+  WHEN "requesterId" COLLATE "C" < "recipientId" COLLATE "C"
     THEN "requesterId" || ':' || "recipientId"
   ELSE "recipientId" || ':' || "requesterId"
 END;
