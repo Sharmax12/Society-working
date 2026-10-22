@@ -2,7 +2,7 @@ import SignInFormClient from "@/modules/auth/components/sign-in-form-client";
 import Image from "next/image";
 
 type SignInPageProps = {
-  searchParams: Promise<{ error?: string; registered?: string }>;
+  searchParams: Promise<{ error?: string; verification?: string; verified?: string; passwordReset?: string }>;
 };
 
 export default async function SignInPage({ searchParams }: SignInPageProps) {
@@ -18,7 +18,9 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
       </div>
       <SignInFormClient
         showCredentialsError={params.error === "CredentialsSignin"}
-        registered={params.registered === "1"}
+        verificationSent={params.verification === "sent"}
+        verified={params.verified === "1"}
+        passwordReset={params.passwordReset === "1"}
       />
     </div>
   );
