@@ -8,7 +8,7 @@ type Person = {
   id: string
   name: string | null
   image: string | null
-  rollNumber: string | null
+  rollNumber?: string | null
 }
 
 type Request = {
