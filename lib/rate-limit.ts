@@ -56,7 +56,7 @@ export async function consumeRateLimit(
       END,
       "resetAt" = CASE
         WHEN "RateLimitBucket"."resetAt" <= NOW()
-          THEN NOW() + (${windowSeconds} * INTERVAL '1 second')
+          THEN NOW() + (CAST(${windowSeconds} AS INTEGER) * INTERVAL '1 second')
         ELSE "RateLimitBucket"."resetAt"
       END,
       "updatedAt" = NOW()
