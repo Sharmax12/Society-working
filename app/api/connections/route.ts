@@ -1,6 +1,7 @@
 import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 function isValidId(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0
@@ -46,6 +47,18 @@ export async function POST(request: Request) {
   const session = await auth()
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized." }, { status: 401 })
+  }
+
+  try {
+    const rateLimit = await consumeRateLimit("connections:create", session.user.id, 20, 60 * 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many connection requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Connection requests are temporarily unavailable." }, { status: 503 })
   }
 
   let body: unknown
