@@ -99,9 +99,24 @@ export async function registerLocalAccount(formData: FormData): Promise<never> {
 
   const existingUser = await db.user.findUnique({
     where: { email },
-    select: { id: true },
+    select: { id: true, name: true, passwordHash: true, emailVerified: true },
   });
-  if (existingUser) redirect("/auth/register?error=exists");
+  if (existingUser) {
+    // Do not reveal whether an address is registered. If this is an unverified
+    // password account, send a fresh verification link without changing its password.
+    if (existingUser.passwordHash && !existingUser.emailVerified) {
+      try {
+        const { rawToken, tokenHash } = await replaceAuthToken(existingUser.id, "EMAIL_VERIFICATION");
+        const sent = await sendEmailVerificationEmail({ email, name: existingUser.name, token: rawToken });
+        if (!sent) {
+          await db.authToken.deleteMany({ where: { userId: existingUser.id, tokenHash } }).catch(() => undefined);
+        }
+      } catch {
+        // Keep the response indistinguishable from a normal registration.
+      }
+    }
+    redirect("/auth/sign-in?verification=sent");
+  }
 
   const passwordHash = await hashPassword(password);
   const rawToken = createRawToken();
