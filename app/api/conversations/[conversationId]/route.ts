@@ -16,8 +16,8 @@ export async function GET(_request: Request, context: RouteContext) {
       OR: [{ participantAId: session.user.id }, { participantBId: session.user.id }],
     },
     include: {
-      participantA: { select: { id: true, name: true, image: true, rollNumber: true } },
-      participantB: { select: { id: true, name: true, image: true, rollNumber: true } },
+      participantA: { select: { id: true, name: true, image: true } },
+      participantB: { select: { id: true, name: true, image: true } },
     },
   })
 
