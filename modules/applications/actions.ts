@@ -72,10 +72,15 @@ export async function submitApplication(societyId: string, formData: FormData) {
   }
 
   const answers = society.questions.map((question) => {
-    const response = readFormString(formData, "question-" + question.id)
-    if (response === null) {
+    const rawResponse = formData.get("question-" + question.id)
+    if (rawResponse === null && !question.required) {
+      return { questionId: question.id, name: question.prompt, response: "" }
+    }
+    if (typeof rawResponse !== "string") {
       throw new Error("Invalid answer for: " + question.prompt)
     }
+
+    const response = rawResponse.trim()
     if (response.length > 2000) {
       throw new Error("Each answer must be 2,000 characters or fewer")
     }
