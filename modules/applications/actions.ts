@@ -112,6 +112,14 @@ export async function submitApplication(societyId: string, formData: FormData) {
     }
   })
 
+  await assertActionRateLimit(
+    "applications:submit",
+    studentId,
+    20,
+    60 * 60,
+    "Too many applications submitted. Please try again later.",
+  )
+
   // Keep the profile update and application write atomic. The database's
   // unique(studentId, societyId) constraint remains the final duplicate guard.
   const application = await db.$transaction(async (tx) => {
