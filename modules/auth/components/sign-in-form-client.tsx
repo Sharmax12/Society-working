@@ -88,7 +88,10 @@ const SignInFormClient = ({
         <div className="grid gap-2">
           <Label htmlFor="local-password">Password</Label>
           <Input id="local-password" name="password" type="password" autoComplete="current-password" maxLength={128} required className="h-11 rounded-xl" />
-          <div className="text-right"><Link href="/auth/forgot-password" className="text-xs font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground">Forgot password?</Link></div>
+          <div className="flex justify-between gap-3 text-xs">
+            <Link href="/auth/verify-email" className="font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground">Verify email</Link>
+            <Link href="/auth/forgot-password" className="font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground">Forgot password?</Link>
+          </div>
         </div>
         <Button type="submit" className="h-12 w-full rounded-xl font-semibold">Sign in with email</Button>
       </form>
