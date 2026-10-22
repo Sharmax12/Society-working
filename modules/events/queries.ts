@@ -22,8 +22,16 @@ export async function getPastEvents() {
 }
 
 export async function getEvent(eventId: string) {
-  return db.event.findUnique({
-    where: { id: eventId },
+  // Match the visibility rules used by the public event directory so that
+  // guessing an event ID cannot reveal a pending/suspended society's event.
+  return db.event.findFirst({
+    where: {
+      id: eventId,
+      OR: [
+        { societyId: null },
+        { society: { verificationStatus: "VERIFIED" } },
+      ],
+    },
     include: { society: { select: { id: true, name: true } } },
   })
 }
