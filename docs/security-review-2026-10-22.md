@@ -2,9 +2,9 @@
 
 ## Scope and method
 
-Reviewed the current repository tree from the live GitHub snapshot of `main` at `813a78fcf4a4a9a7115f5fbf065f70eaba3c4bdd`, including application routes, server actions, authentication, Prisma schema and migrations, API handlers, configuration, and reusable UI code. The review was performed against the repository contents, not cached conversation summaries.
+Reviewed the live GitHub snapshot of `main` at `813a78fcf4a4a9a7115f5fbf065f70eaba3c4bdd`, inventoried the repository tree, and performed a focused static review of security-sensitive API handlers, server actions, authentication, role/ownership checks, Prisma schema/migrations, dependency configuration, and selected pages. This was a fresh repository review, not a review based on chat summaries. It is **not yet an exhaustive line-by-line review of every UI component and source file**.
 
-This review is a code-level assessment, not a penetration test. No production database, deployment environment, DNS, provider console, secret history scanner, or authenticated live deployment was available. The new GitHub Actions workflow must run before a merge decision; a successful CI result has not yet been confirmed.
+This is a code-level assessment, not a penetration test. No production database, deployment environment, DNS, provider console, secret-history scanner, or authenticated live deployment was available. A CI run at commit `8bc24745fcd5232f9f5b707975287d66247c2905` passed install, migrations, lint, type-check, and production build, but failed the full dependency audit due to high-severity development-toolchain advisories. Follow-up dependency classification and CI audit-gate changes are being validated; do not merge until the latest run is green.
 
 ## Changes made on `security/hwl-audit-hardening`
 
@@ -37,9 +37,11 @@ The public campus-lead endpoint can send email, and sign-in, registration, conne
 
 The current CSP is intentionally `Content-Security-Policy-Report-Only` and permits broad `https:` sources, inline scripts, and `unsafe-eval`. Keep it report-only until reports and browser checks identify required sources, then tighten it (ideally nonce-based scripts) and enforce it gradually. This patch does not claim CSP enforcement.
 
-### Medium: dependency audit and build status still need actual execution
+### Medium: dependency audit — runtime gate improved, development-tool findings unresolved
 
-The GitHub Actions workflow has been added, but it must execute on this branch/PR. Review lint/type/migration/build/audit results, fix all failures, and rerun. The manifest has been updated to pin Next.js 16.4.2 (the patched release indicated by the audit), while next-auth remains 5.0.0-beta.32. The current `package-lock.json` still needs regeneration to match the manifest and receive the compatible transitive fixes; until that is committed and `npm ci` plus `npm audit` pass, the dependency remediation is incomplete and this branch must not be merged. The advisory references below describe the original audit findings, not a claim that the final lockfile has been cleared.
+The dependency audit at commit `8bc24745fcd5232f9f5b707975287d66247c2905` reported 12 high-severity findings, with the printed root causes including `braces` (GHSA-vfj7-8cjw-p6xm) through glob/micromatch tooling and `deepmerge-ts` (GHSA-ggr8-5vv4-36mx) through the Prisma CLI. The remediation path proposed by npm included breaking major-version changes, so `npm audit fix --force` was not applied. The CLI-only `shadcn` package has been moved from production dependencies to development dependencies, the manifest/lockfile root dependency categories were aligned, and CI now retains the full audit JSON as an artifact while gating production dependencies with `npm audit --omit=dev --audit-level=high`.
+
+This does **not** mean the full dependency tree is vulnerability-free. Review the full audit artifact, confirm that the root advisory paths are reachable only in development/build tooling, and time-box the unresolved advisories with owners/revisit dates. Do not downgrade the severity of these findings or claim a fully clean audit. Next.js is pinned to 16.4.2 in the reviewed branch; `next-auth` remains 5.0.0-beta.32.
 
 Relevant advisories:
 - Auth.js truthy-auth-object fail-open issue (affected through beta.31; fixed in beta.32): https://github.com/nextauthjs/next-auth/security/advisories/GHSA-8fpg-xm3f-6cx3
@@ -52,7 +54,7 @@ Enable GitHub secret scanning/push protection, Dependabot alerts, and branch pro
 
 ### Medium: broader abuse/privacy controls need a product policy
 
-Decide how students report/block abusive accounts, how account deletion/export is handled, how long messages/application answers are retained, and which profile fields are visible before a connection is accepted. The suggestions API no longer exposes roll numbers to strangers; accepted connections retain that field for now. Review this against the intended campus-identity policy.
+Decide how students report/block abusive accounts, how account deletion/export is handled, how long messages/application answers are retained, and which profile fields are visible before a connection is accepted. The connection, request, and conversation API projections now omit roll numbers; the authenticated user's own profile and authorized society application review may still expose them. Review this against the intended campus-identity policy.
 
 ## Recommended release gate
 
