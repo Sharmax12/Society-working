@@ -46,7 +46,7 @@ export async function consumeRateLimit(
 
   // HMAC prevents a database reader from dictionary-reversing common email
   // addresses or IPs from plain SHA-256 bucket identifiers.
-  const hmacSecret = process.env.RATE_LIMIT_SECRET ?? process.env.AUTH_SECRET;
+  const hmacSecret = process.env.RATE_LIMIT_SECRET?.trim() || process.env.AUTH_SECRET?.trim();
   if (!hmacSecret || hmacSecret.length < 32) {
     throw new Error("Configure RATE_LIMIT_SECRET (32+ chars) or AUTH_SECRET");
   }
