@@ -94,7 +94,6 @@ export async function PATCH(request: Request, context: RouteContext) {
         {
           OR: [
             { status: { not: "BLOCKED" } },
-            { blockedById: null },
             { blockedById: userId },
           ],
         },
@@ -110,8 +109,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (!current) {
       return Response.json({ error: "Connection not found." }, { status: 404, headers: privateHeaders })
     }
-    if (current.status === "BLOCKED" && current.blockedById !== null && current.blockedById !== userId) {
-      return Response.json({ error: "This connection is already blocked by the other participant." }, { status: 403, headers: privateHeaders })
+    if (current.status === "BLOCKED" && current.blockedById !== userId) {
+      return Response.json({ error: "This connection is already blocked, or its original blocker cannot be identified. Contact support to review legacy blocks." }, { status: 403, headers: privateHeaders })
     }
     return Response.json({ error: "This connection has changed. Refresh and try again." }, { status: 409, headers: privateHeaders })
   }
@@ -151,7 +150,6 @@ export async function DELETE(_request: Request, context: RouteContext) {
         {
           OR: [
             { status: { not: "BLOCKED" } },
-            { blockedById: null },
             { blockedById: userId },
           ],
         },
@@ -170,8 +168,8 @@ export async function DELETE(_request: Request, context: RouteContext) {
     if (connection.requesterId !== userId && connection.recipientId !== userId) {
       return Response.json({ error: "You cannot remove this connection." }, { status: 403, headers: privateHeaders })
     }
-    if (connection.status === "BLOCKED" && connection.blockedById !== null && connection.blockedById !== userId) {
-      return Response.json({ error: "Only the person who blocked this connection can unblock it." }, { status: 403, headers: privateHeaders })
+    if (connection.status === "BLOCKED" && connection.blockedById !== userId) {
+      return Response.json({ error: "Only the recorded blocker can unblock this connection. A legacy block with unknown ownership needs support review." }, { status: 403, headers: privateHeaders })
     }
     return Response.json({ error: "This connection has changed. Refresh and try again." }, { status: 409, headers: privateHeaders })
   }
