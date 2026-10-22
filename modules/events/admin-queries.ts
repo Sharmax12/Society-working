@@ -4,6 +4,7 @@ import { auth } from "@/auth"
 import { hasSocietyAdminAccess } from "@/modules/auth/authorization"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 // Only allow http(s) links for admin-supplied URLs — these get rendered
 // as <img src> / <a href> for every visitor, so reject executable schemes.
@@ -31,6 +32,22 @@ function readText(formData: FormData, name: string): string {
 
 function assertLength(value: string, max: number, label: string) {
   if (value.length > max) throw new Error(`${label} must be ${max} characters or fewer`)
+}
+
+async function assertEventRateLimit(
+  scope: string,
+  userId: string,
+  limit: number,
+  windowSeconds: number,
+  message: string,
+) {
+  let result
+  try {
+    result = await consumeRateLimit(scope, userId, limit, windowSeconds)
+  } catch {
+    throw new Error("Event management is temporarily unavailable. Please try again later.")
+  }
+  if (!result.allowed) throw new Error(message)
 }
 
 // Read the current identity and derive the access scope on the server.
@@ -113,6 +130,14 @@ export async function createEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
 
+  await assertEventRateLimit(
+    "events:create",
+    session.user.id,
+    30,
+    60 * 60,
+    "Too many events created. Please try again later.",
+  )
+
   const societyId = readText(formData, "societyId")
   const title = readText(formData, "title")
   const description = readText(formData, "description")
@@ -187,6 +212,14 @@ export async function createQuickEvent(formData: FormData) {
     throw new Error("You are not allowed to create events")
   }
 
+  await assertEventRateLimit(
+    "events:create",
+    session.user.id,
+    30,
+    60 * 60,
+    "Too many events created. Please try again later.",
+  )
+
   const organizerName = readText(formData, "organizerName")
   const title = readText(formData, "title")
   const description = readText(formData, "description")
@@ -240,6 +273,17 @@ export async function createQuickEvent(formData: FormData) {
 export async function deleteEvent(eventId: string) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
+
+  if (typeof eventId !== "string" || !eventId.trim() || eventId.length > 128) {
+    throw new Error("Invalid event ID")
+  }
+  await assertEventRateLimit(
+    "events:delete",
+    session.user.id,
+    60,
+    60 * 60,
+    "Too many event changes. Please try again later.",
+  )
 
   const isGlobalAdmin =
     session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
