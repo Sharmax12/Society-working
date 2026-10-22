@@ -18,6 +18,17 @@ export async function GET() {
   }
 
   const userId = session.user.id
+  try {
+    const rateLimit = await consumeRateLimit("connections:list", userId, 120, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many connection refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Connections are temporarily unavailable." }, { status: 503 })
+  }
 
   const connections = await db.connection.findMany({
     where: {
