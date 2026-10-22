@@ -44,7 +44,7 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
         ) : (
           <div className="grid gap-3">
             <p className="text-sm text-muted-foreground">The reset link is missing or malformed.</p>
-            <Button asChild className="h-11 w-full rounded-xl"><Link href="/auth/forgot-password">Request another link</Link></Button>
+            <Link href="/auth/forgot-password" className="inline-flex h-11 w-full items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground">Request another link</Link>
           </div>
         )}
         <p className="text-center text-sm text-muted-foreground"><Link href="/auth/sign-in" className="font-semibold underline underline-offset-4">Back to sign in</Link></p>
