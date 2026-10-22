@@ -34,7 +34,6 @@ export async function GET() {
       id: true,
       name: true,
       image: true,
-      rollNumber: true,
     },
     orderBy: { createdAt: "desc" },
     take: 30,
