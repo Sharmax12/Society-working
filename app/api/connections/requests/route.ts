@@ -15,7 +15,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: {
       requester: {
-        select: { id: true, name: true, image: true, rollNumber: true },
+        select: { id: true, name: true, image: true },
       },
     },
   })
