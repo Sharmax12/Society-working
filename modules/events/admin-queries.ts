@@ -93,7 +93,7 @@ export async function createEvent(formData: FormData) {
   const parsedDate = parseIndiaDateTime(date)
   const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
   if (!parsedDate) throw new Error("A valid event date and time in India is required")
-  if (endDate && (!parsedEndDate || parsedEndDate < parsedDate)) throw new Error("End date and time must be after the start date and time")
+  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) throw new Error("End date and time must be after the start date and time")
   if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
   if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
 
@@ -148,7 +148,7 @@ export async function createQuickEvent(formData: FormData) {
   const parsedDate = parseIndiaDateTime(date)
   const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
   if (!parsedDate) throw new Error("A valid event date and time in India is required")
-  if (endDate && (!parsedEndDate || parsedEndDate < parsedDate)) throw new Error("End date and time must be after the start date and time")
+  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) throw new Error("End date and time must be after the start date and time")
   if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
   if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
