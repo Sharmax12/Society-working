@@ -26,6 +26,7 @@ export async function GET() {
       status: "PENDING",
     },
     orderBy: { createdAt: "desc" },
+    take: 100,
     include: {
       requester: {
         select: { id: true, name: true, image: true },
