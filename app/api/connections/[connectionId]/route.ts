@@ -1,6 +1,7 @@
 import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 type RouteContext = {
   params: Promise<{ connectionId: string }>
@@ -15,6 +16,18 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const { connectionId } = await context.params
+
+  try {
+    const rateLimit = await consumeRateLimit("connections:mutate", session.user.id, 60, 60 * 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many connection changes. Please try again later." },
+        { status: 429, headers: { ...privateHeaders, "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Connection changes are temporarily unavailable." }, { status: 503, headers: privateHeaders })
+  }
 
   let body: unknown
   try {
@@ -111,6 +124,18 @@ export async function DELETE(_request: Request, context: RouteContext) {
   const session = await auth()
   if (!session?.user?.id) {
     return Response.json({ error: "Unauthorized." }, { status: 401, headers: privateHeaders })
+  }
+
+  try {
+    const rateLimit = await consumeRateLimit("connections:mutate", session.user.id, 60, 60 * 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many connection changes. Please try again later." },
+        { status: 429, headers: { ...privateHeaders, "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Connection changes are temporarily unavailable." }, { status: 503, headers: privateHeaders })
   }
 
   const { connectionId } = await context.params
