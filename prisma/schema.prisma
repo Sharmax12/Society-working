@@ -274,7 +274,7 @@ model Post {
 model RateLimitBucket {
   key       String   @id @db.VarChar(64)
   count     Int      @default(0)
-  resetAt   DateTime @db.Timestamp(3)
+  resetAt   DateTime @db.Timestamptz(3)
   updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(3)
 
   @@index([resetAt])
