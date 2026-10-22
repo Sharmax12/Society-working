@@ -238,3 +238,44 @@ export async function sendConnectSignupEmail(email: string) {
     </div>`,
   })
 }
+
+
+export async function sendEmailVerificationEmail({
+  email,
+  name,
+  token,
+}: {
+  email: string
+  name: string | null
+  token: string
+}) {
+  const safeName = escapeHtml(name?.trim() || "there")
+  const verifyUrl = `${siteConfig.url}/auth/verify-email?token=${encodeURIComponent(token)}`
+  return sendEmail({
+    to: email,
+    subject: "Verify your HallWayLoop email",
+    idempotencyKey: `email-verification-${createHash("sha256").update(token).digest("hex")}`,
+    text: `Hi ${name?.trim() || "there"},\n\nVerify your email address to activate your HallWayLoop account:\n${verifyUrl}\n\nThis link expires in 30 minutes and can only be used once. If you did not request this, you can ignore this email.\n`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937"><h2>Verify your email</h2><p>Hi ${safeName},</p><p>Confirm this email address to activate your HallWayLoop account.</p><p><a href="${verifyUrl}" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#0c0a09;color:#fff;text-decoration:none">Verify email</a></p><p>This link expires in 30 minutes and can only be used once. If you did not request this, you can ignore this email.</p></div>`,
+  })
+}
+
+export async function sendPasswordResetEmail({
+  email,
+  name,
+  token,
+}: {
+  email: string
+  name: string | null
+  token: string
+}) {
+  const safeName = escapeHtml(name?.trim() || "there")
+  const resetUrl = `${siteConfig.url}/auth/reset-password?token=${encodeURIComponent(token)}`
+  return sendEmail({
+    to: email,
+    subject: "Reset your HallWayLoop password",
+    idempotencyKey: `password-reset-${createHash("sha256").update(token).digest("hex")}`,
+    text: `Hi ${name?.trim() || "there"},\n\nUse the link below to choose a new HallWayLoop password:\n${resetUrl}\n\nThis link expires in 30 minutes and can only be used once. If you did not request this, you can ignore this email.\n`,
+    html: `<div style="font-family:Arial,sans-serif;line-height:1.6;color:#1f2937"><h2>Reset your password</h2><p>Hi ${safeName},</p><p>Use this link to choose a new HallWayLoop password.</p><p><a href="${resetUrl}" style="display:inline-block;padding:12px 18px;border-radius:8px;background:#0c0a09;color:#fff;text-decoration:none">Reset password</a></p><p>This link expires in 30 minutes and can only be used once. If you did not request this, you can ignore this email.</p></div>`,
+  })
+}
