@@ -60,11 +60,13 @@ Decide how students report/block abusive accounts, how account deletion/export i
 
 ## Recommended release gate
 
-1. Run the new CI workflow and resolve every failing check.
-2. Add email ownership verification and password reset before enabling email/password login for a public launch.
-3. Add shared rate limits and telemetry to auth, campus-lead email, connections, and messaging endpoints.
-4. Validate CSP in the deployed app, then enforce a stricter policy.
-5. Confirm the new `Connection.blockedById` migration is applied before deploying code that writes/reads it.
-6. Enable repository security settings and complete the production configuration/secret-history review.
+1. Confirm the latest CI run on the final PR head is green (migration deploy, lint, type-check, production build, and production dependency audit); inspect the retained full audit artifact.
+2. Configure `NEXT_PUBLIC_APP_URL`, `AUTH_SECRET`, `RATE_LIMIT_SECRET` (optional but recommended), approved college domains, Google OAuth callback URLs, and a verified Resend sending domain; test actual delivery to allowed and disallowed accounts.
+3. Review a production-data copy before applying the `Connection.blockedById`, canonical `Connection.pairKey`, `RateLimitBucket`, and `AuthToken` migrations. The pair-key migration consolidates legacy duplicates; confirm the intended retained relationship for any conflicting pair.
+4. Test registration/verification/resend/password-reset flows, token expiry and replay, rate-limit failures, sign-in with unverified accounts, Google account linking, and password-reset session revocation.
+5. Validate CSP in the deployed app, then enforce a stricter policy after browser testing.
+6. Enable repository secret scanning/push protection, Dependabot alerts, and branch protection requiring CI/review. Scan full Git history and rotate any credential ever committed.
+7. Verify production database TLS/least-privilege credentials, backups and restore, OAuth redirects, email DNS (SPF/DKIM/DMARC), account MFA, reporting/blocking abuse flows, and privacy/retention/export handling.
+8. Do not deploy until the final CI result is green and these production-only checks are signed off.
 
 **Overall assessment:** this branch closes multiple high-impact authorization and data-exposure flaws, but the app should not be described as fully security-hardened or production-ready until the high residual risks above are addressed and CI/deployment checks pass.
