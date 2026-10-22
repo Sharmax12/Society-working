@@ -53,6 +53,7 @@ model User {
 
   sentConnections     Connection[] @relation("ConnectionRequester")
   receivedConnections Connection[] @relation("ConnectionRecipient")
+  blockedConnections  Connection[] @relation("ConnectionBlocker")
   conversationsAsA    Conversation[] @relation("ConversationParticipantA")
   conversationsAsB    Conversation[] @relation("ConversationParticipantB")
   messages            Message[] @relation("MessageSender")
@@ -205,9 +206,11 @@ model Connection {
   requesterId String
   recipientId String
   status      ConnectionStatus @default(PENDING)
+  blockedById String?
 
-  requester User @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
-  recipient User @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  requester User  @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient User  @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  blockedBy User? @relation("ConnectionBlocker", fields: [blockedById], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -215,6 +218,7 @@ model Connection {
   @@unique([requesterId, recipientId])
   @@index([requesterId, status])
   @@index([recipientId, status])
+  @@index([blockedById])
 }
 
 model Conversation {
