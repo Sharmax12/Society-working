@@ -29,10 +29,18 @@ export async function getManagedSocietiesForEvents(adminId: string) {
   })
 }
 
-// All events (past + upcoming) across the societies this admin manages.
-export async function getManagedEvents(adminId: string) {
+// Events across societies this admin manages, plus standalone events they created.
+// Platform admins can manage all events; society admins stay scoped to their own work.
+export async function getManagedEvents(adminId: string, isGlobalAdmin = false) {
   return db.event.findMany({
-    where: { OR: [{ society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } }, { societyId: null }] },
+    where: isGlobalAdmin
+      ? {}
+      : {
+          OR: [
+            { society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } },
+            { societyId: null, createdById: adminId },
+          ],
+        },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
   })
@@ -67,6 +75,7 @@ export async function createEvent(formData: FormData) {
   const event = await db.event.create({
     data: {
       societyId,
+      createdById: session.user.id,
       title: title.trim(),
       description: description.trim(),
       date: new Date(date),
@@ -90,7 +99,7 @@ export async function createQuickEvent(formData: FormData) {
     throw new Error("You are not allowed to create events")
   }
 
-  const societyName = String(formData.get("societyName") ?? "").trim()
+  const organizerName = String(formData.get("organizerName") ?? "").trim().slice(0, 120)
   const title = String(formData.get("title") ?? "").trim()
   const description = String(formData.get("description") ?? "").trim()
   const date = String(formData.get("date") ?? "")
@@ -99,7 +108,7 @@ export async function createQuickEvent(formData: FormData) {
   const imageUrl = String(formData.get("imageUrl") ?? "").trim()
   const inviteLink = String(formData.get("inviteLink") ?? "").trim()
 
-  if (!societyName) throw new Error("Society name is required")
+  if (!organizerName) throw new Error("Event host / organiser name is required")
   if (!title) throw new Error("Event title is required")
   if (!description) throw new Error("Description is required")
   if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
@@ -107,21 +116,11 @@ export async function createQuickEvent(formData: FormData) {
   if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
   if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
-  const society = await db.society.create({
-    data: {
-      name: societyName,
-      description: description,
-      category: "General",
-      verificationStatus: "VERIFIED",
-      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-      adminId: session.user.id,
-      admins: { create: { userId: session.user.id } },
-    },
-  })
-
   const event = await db.event.create({
     data: {
-      societyId: society.id,
+      societyId: null,
+      createdById: session.user.id,
+      organizerName,
       title,
       description,
       date: new Date(date),
@@ -133,6 +132,7 @@ export async function createQuickEvent(formData: FormData) {
   })
 
   revalidatePath("/events")
+  revalidatePath("/")
   revalidatePath("/admin")
   revalidatePath("/admin/events")
   redirect(`/events/${event.id}`)
@@ -141,8 +141,17 @@ export async function createQuickEvent(formData: FormData) {
 export async function deleteEvent(eventId: string) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
+  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   const event = await db.event.findFirst({
-    where: { id: eventId, society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
+    where: isGlobalAdmin
+      ? { id: eventId }
+      : {
+          id: eventId,
+          OR: [
+            { createdById: session.user.id },
+            { society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
+          ],
+        },
   })
   if (!event) throw new Error("Event not found")
 
