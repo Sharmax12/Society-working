@@ -155,6 +155,20 @@ export async function POST(request: Request) {
 
     return Response.json({ connection }, { status: 201 })
   } catch (error) {
+    // The canonical unique pair key is the database-level race guard. A
+    // simultaneous request in the opposite direction becomes a conflict,
+    // not a duplicate edge or an opaque server error.
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return Response.json(
+        { error: "A connection request for this student already exists. Refresh and try again." },
+        { status: 409 },
+      )
+    }
     console.error("Connection request failed:", error)
     return Response.json({ error: "Unable to send the connection request." }, { status: 500 })
   }
