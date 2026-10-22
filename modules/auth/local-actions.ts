@@ -202,26 +202,27 @@ export async function verifyEmail(formData: FormData): Promise<never> {
   }
 
   const tokenHash = hashToken(token);
-  const now = new Date();
   const verified = await db.$transaction(async (tx) => {
+    const lookupTime = new Date();
     const record = await tx.authToken.findFirst({
       where: {
         tokenHash,
         purpose: "EMAIL_VERIFICATION",
         usedAt: null,
-        expiresAt: { gt: now },
+        expiresAt: { gt: lookupTime },
       },
       select: { id: true, userId: true },
     });
     if (!record) return false;
 
+    const consumedAt = new Date();
     const consumed = await tx.authToken.updateMany({
       where: {
         id: record.id,
         usedAt: null,
-        expiresAt: { gt: now },
+        expiresAt: { gt: consumedAt },
       },
-      data: { usedAt: now },
+      data: { usedAt: consumedAt },
     });
     if (consumed.count !== 1) return false;
 
@@ -311,15 +312,18 @@ export async function resetPassword(formData: FormData): Promise<never> {
 
   const passwordHash = await hashPassword(password);
   const applied = await db.$transaction(async (tx) => {
+    // Re-check expiry immediately before consuming: password hashing may take
+    // long enough for a token that was initially valid to expire.
+    const consumedAt = new Date();
     const consumed = await tx.authToken.updateMany({
       where: {
         id: record.id,
         userId: record.userId,
         purpose: "PASSWORD_RESET",
         usedAt: null,
-        expiresAt: { gt: now },
+        expiresAt: { gt: consumedAt },
       },
-      data: { usedAt: now },
+      data: { usedAt: consumedAt },
     });
     if (consumed.count !== 1) return false;
 
