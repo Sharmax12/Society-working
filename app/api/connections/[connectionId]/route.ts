@@ -71,14 +71,35 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   // Keep the participant check inside the write as well as above, so a
   // concurrent delete cannot turn this into an unscoped mutation.
+  // Do not let the other participant overwrite an existing block. The same
+  // ownership condition is applied in the write to prevent a stale-read race.
   const result = await db.connection.updateMany({
     where: {
       id: connectionId,
-      OR: [{ requesterId: userId }, { recipientId: userId }],
+      AND: [
+        { OR: [{ requesterId: userId }, { recipientId: userId }] },
+        {
+          OR: [
+            { status: { not: "BLOCKED" } },
+            { blockedById: null },
+            { blockedById: userId },
+          ],
+        },
+      ],
     },
     data: { status: "BLOCKED", blockedById: userId },
   })
   if (result.count !== 1) {
+    const current = await db.connection.findUnique({
+      where: { id: connectionId },
+      select: { status: true, blockedById: true },
+    })
+    if (!current) {
+      return Response.json({ error: "Connection not found." }, { status: 404, headers: privateHeaders })
+    }
+    if (current.status === "BLOCKED" && current.blockedById !== null && current.blockedById !== userId) {
+      return Response.json({ error: "This connection is already blocked by the other participant." }, { status: 403, headers: privateHeaders })
+    }
     return Response.json({ error: "This connection has changed. Refresh and try again." }, { status: 409, headers: privateHeaders })
   }
 
