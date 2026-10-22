@@ -4,7 +4,11 @@ import { db } from "@/lib/db"
 import { consumeRateLimit } from "@/lib/rate-limit"
 
 function isValidId(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0
+  return typeof value === "string" && value.trim().length > 0 && value.trim().length <= 128
+}
+
+function connectionPairKey(userA: string, userB: string): string {
+  return userA < userB ? `${userA}:${userB}` : `${userB}:${userA}`
 }
 
 export async function GET() {
@@ -144,6 +148,7 @@ export async function POST(request: Request) {
       data: {
         requesterId,
         recipientId,
+        pairKey: connectionPairKey(requesterId, recipientId),
         status: "PENDING",
       },
     })
