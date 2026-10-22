@@ -3,6 +3,7 @@ import { db } from "@/lib/db"
 import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 export async function getOpenSocieties() {
   return db.society.findMany({
@@ -71,6 +72,16 @@ export async function createSociety(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
   if (session.user.role !== "ADMIN") throw new Error("Only society admins can create societies")
+
+  let creationLimit
+  try {
+    creationLimit = await consumeRateLimit("societies:create", session.user.id, 10, 24 * 60 * 60)
+  } catch {
+    throw new Error("Society creation is temporarily unavailable. Please try again later.")
+  }
+  if (!creationLimit.allowed) {
+    throw new Error("Too many societies created. Please try again tomorrow.")
+  }
 
   const name = formData.get("name") as string
   const description = formData.get("description") as string
