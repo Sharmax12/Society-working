@@ -9,7 +9,7 @@ export default async function QuickCreateEventPage() {
   if (!session?.user?.id) redirect("/auth/sign-in")
 
   const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
-  if (session.user.role !== "ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) {
+  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) {
     redirect("/dashboard")
   }
 
@@ -41,8 +41,8 @@ export default async function QuickCreateEventPage() {
         <form action={createQuickEvent} className="space-y-8">
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label className="text-sm font-semibold">Society name</label>
-              <input name="societyName" required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. CS Society" />
+              <label className="text-sm font-semibold">Host / organiser name</label>
+              <input name="organizerName" maxLength={120} required className="mt-2 w-full rounded-xl border bg-background/70 px-3.5 py-3 text-sm outline-none transition placeholder:text-muted-foreground/60 focus:border-primary focus:ring-4 focus:ring-primary/10" placeholder="e.g. NSUT Student Affairs or independent organiser" />
             </div>
             <div>
               <label className="text-sm font-semibold">Event title</label>

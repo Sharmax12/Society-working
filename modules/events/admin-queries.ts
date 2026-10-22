@@ -19,20 +19,57 @@ function assertSafeUrl(value: string, label: string) {
   }
 }
 
+// datetime-local inputs have no timezone marker. Treat the entered wall-clock
+// time as Asia/Kolkata, then store the equivalent UTC instant.
+function parseIndiaDateTime(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value.trim())
+  if (!match) return null
+
+  const year = Number(match[1])
+  const month = Number(match[2])
+  const day = Number(match[3])
+  const hour = Number(match[4])
+  const minute = Number(match[5])
+  const second = Number(match[6] ?? 0)
+  const wallClockAsUtc = Date.UTC(year, month - 1, day, hour, minute, second)
+  const check = new Date(wallClockAsUtc)
+
+  if (
+    check.getUTCFullYear() !== year ||
+    check.getUTCMonth() !== month - 1 ||
+    check.getUTCDate() !== day ||
+    check.getUTCHours() !== hour ||
+    check.getUTCMinutes() !== minute ||
+    check.getUTCSeconds() !== second
+  ) {
+    return null
+  }
+
+  return new Date(wallClockAsUtc - 330 * 60 * 1000)
+}
+
 // Societies the current admin manages, with how many events each has —
 // used to pick which society an event belongs to.
-export async function getManagedSocietiesForEvents(adminId: string) {
+export async function getManagedSocietiesForEvents(adminId: string, isGlobalAdmin = false) {
   return db.society.findMany({
-    where: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
+    where: isGlobalAdmin ? {} : { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
     include: { _count: { select: { events: true } } },
     orderBy: { createdAt: "desc" },
   })
 }
 
-// All events (past + upcoming) across the societies this admin manages.
-export async function getManagedEvents(adminId: string) {
+// Events across societies this admin manages, plus standalone events they created.
+// Platform admins can manage all events; society admins stay scoped to their own work.
+export async function getManagedEvents(adminId: string, isGlobalAdmin = false) {
   return db.event.findMany({
-    where: { OR: [{ society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } }, { societyId: null }] },
+    where: isGlobalAdmin
+      ? {}
+      : {
+          OR: [
+            { society: { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] } },
+            { societyId: null, createdById: adminId },
+          ],
+        },
     include: { society: { select: { id: true, name: true } } },
     orderBy: { date: "desc" },
   })
@@ -53,24 +90,30 @@ export async function createEvent(formData: FormData) {
   if (!societyId) throw new Error("Choose a society for this event")
   if (!title?.trim()) throw new Error("Event title is required")
   if (!description?.trim()) throw new Error("Description is required")
-  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
-  if (endDate && (Number.isNaN(new Date(endDate).getTime()) || new Date(endDate) < new Date(date))) throw new Error("End date and time must be after the start date and time")
+  const parsedDate = parseIndiaDateTime(date)
+  const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
+  if (!parsedDate) throw new Error("A valid event date and time in India is required")
+  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) throw new Error("End date and time must be after the start date and time")
   if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
   if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
 
-  // Make sure this admin actually manages the society they're posting to.
+  // Society admins can post only to their own societies; platform admins can post to any society.
+  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   const society = await db.society.findFirst({
-    where: { id: societyId, OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] },
+    where: isGlobalAdmin
+      ? { id: societyId }
+      : { id: societyId, OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] },
   })
   if (!society) throw new Error("You don't manage this society")
 
   const event = await db.event.create({
     data: {
       societyId,
+      createdById: session.user.id,
       title: title.trim(),
       description: description.trim(),
-      date: new Date(date),
-      endDate: endDate ? new Date(endDate) : undefined,
+      date: parsedDate,
+      endDate: parsedEndDate ?? undefined,
       location: location?.trim() || undefined,
       imageUrl: imageUrl?.trim() || undefined,
       inviteLink: inviteLink?.trim() || undefined,
@@ -90,7 +133,7 @@ export async function createQuickEvent(formData: FormData) {
     throw new Error("You are not allowed to create events")
   }
 
-  const societyName = String(formData.get("societyName") ?? "").trim()
+  const organizerName = String(formData.get("organizerName") ?? "").trim().slice(0, 120)
   const title = String(formData.get("title") ?? "").trim()
   const description = String(formData.get("description") ?? "").trim()
   const date = String(formData.get("date") ?? "")
@@ -99,33 +142,25 @@ export async function createQuickEvent(formData: FormData) {
   const imageUrl = String(formData.get("imageUrl") ?? "").trim()
   const inviteLink = String(formData.get("inviteLink") ?? "").trim()
 
-  if (!societyName) throw new Error("Society name is required")
+  if (!organizerName) throw new Error("Event host / organiser name is required")
   if (!title) throw new Error("Event title is required")
   if (!description) throw new Error("Description is required")
-  if (!date || Number.isNaN(new Date(date).getTime())) throw new Error("A valid event date is required")
-  if (endDate && (Number.isNaN(new Date(endDate).getTime()) || new Date(endDate) < new Date(date))) throw new Error("End date and time must be after the start date and time")
+  const parsedDate = parseIndiaDateTime(date)
+  const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
+  if (!parsedDate) throw new Error("A valid event date and time in India is required")
+  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) throw new Error("End date and time must be after the start date and time")
   if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
   if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
-  const society = await db.society.create({
-    data: {
-      name: societyName,
-      description: description,
-      category: "General",
-      verificationStatus: "VERIFIED",
-      deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
-      adminId: session.user.id,
-      admins: { create: { userId: session.user.id } },
-    },
-  })
-
   const event = await db.event.create({
     data: {
-      societyId: society.id,
+      societyId: null,
+      createdById: session.user.id,
+      organizerName,
       title,
       description,
-      date: new Date(date),
-      endDate: endDate ? new Date(endDate) : undefined,
+      date: parsedDate,
+      endDate: parsedEndDate ?? undefined,
       location: location || undefined,
       imageUrl: imageUrl || undefined,
       inviteLink: inviteLink || undefined,
@@ -133,6 +168,7 @@ export async function createQuickEvent(formData: FormData) {
   })
 
   revalidatePath("/events")
+  revalidatePath("/")
   revalidatePath("/admin")
   revalidatePath("/admin/events")
   redirect(`/events/${event.id}`)
@@ -141,8 +177,17 @@ export async function createQuickEvent(formData: FormData) {
 export async function deleteEvent(eventId: string) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
+  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   const event = await db.event.findFirst({
-    where: { id: eventId, society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
+    where: isGlobalAdmin
+      ? { id: eventId }
+      : {
+          id: eventId,
+          OR: [
+            { createdById: session.user.id, societyId: null },
+            { society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
+          ],
+        },
   })
   if (!event) throw new Error("Event not found")
 

@@ -70,7 +70,7 @@ export default async function EventsPage() {
     ...(event.location ? { location: { "@type": "Place", name: event.location } } : {}),
     organizer: {
       "@type": "Organization",
-      name: event.society?.name ?? "HallWayLoop Community",
+      name: event.society?.name ?? event.organizerName ?? "HallWayLoop Community",
       ...(event.society ? { url: siteConfig.url + "/societies/" + event.society.id } : {}),
     },
   }));
@@ -108,7 +108,7 @@ export default async function EventsPage() {
                 <Link key={event.id} href={`/events/${event.id}`} className="group flex items-center justify-between gap-4 py-4">
                   <div>
                     <p className="font-medium group-hover:text-primary">{event.title}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{event.society?.name ?? "Community event"} · {formatEventDate(event.date)}</p>
+                    <p className="mt-1 text-xs text-muted-foreground">{event.society?.name ?? event.organizerName ?? "Community event"} · {formatEventDate(event.date)}</p>
                   </div>
                   <ArrowUpRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </Link>
@@ -142,7 +142,7 @@ export default async function EventsPage() {
                     {event.imageUrl ? <img src={event.imageUrl} alt={event.title} className="aspect-[4/3] w-full object-cover" /> : <div className="grid aspect-[4/3] place-items-center"><CalendarDays className="h-7 w-7 text-muted-foreground" /></div>}
                   </div>
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2"><Badge variant="secondary" className="rounded-full font-medium">{event.society?.name ?? "Community event"}</Badge><span className="text-xs text-muted-foreground">{formatEventDate(event.date)}{event.endDate ? ` – ${formatEventDate(event.endDate)}` : ""}</span></div>
+                    <div className="flex flex-wrap items-center gap-2"><Badge variant="secondary" className="rounded-full font-medium">{event.society?.name ?? event.organizerName ?? "Community event"}</Badge><span className="text-xs text-muted-foreground">{formatEventDate(event.date)}{event.endDate ? ` – ${formatEventDate(event.endDate)}` : ""}</span></div>
                     <h3 className="mt-2 text-xl font-semibold tracking-tight transition group-hover:text-primary">{event.title}</h3>
                     <p className="mt-1 line-clamp-2 max-w-2xl text-sm leading-6 text-muted-foreground">{event.description}</p>
                     {event.location && <p className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground"><MapPin className="h-3.5 w-3.5" />{event.location}</p>}
