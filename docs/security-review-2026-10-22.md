@@ -39,7 +39,7 @@ The current CSP is intentionally `Content-Security-Policy-Report-Only` and permi
 
 ### Medium: dependency audit and build status still need actual execution
 
-The GitHub Actions workflow has been added, but it must execute on this branch/PR. Review lint/type/migration/build/audit results, fix all failures, and rerun. Current manifest pins Next.js 16.3.3 and next-auth 5.0.0-beta.32; these versions were above the versions fixed in the Auth.js existence-check advisory and the Next.js RSC advisory examined during this review. That is not a substitute for a fresh `npm audit` result against the actual lockfile.
+The GitHub Actions workflow has been added, but it must execute on this branch/PR. Review lint/type/migration/build/audit results, fix all failures, and rerun. The manifest has been updated to pin Next.js 16.4.2 (the patched release indicated by the audit), while next-auth remains 5.0.0-beta.32. The current `package-lock.json` still needs regeneration to match the manifest and receive the compatible transitive fixes; until that is committed and `npm ci` plus `npm audit` pass, the dependency remediation is incomplete and this branch must not be merged. The advisory references below describe the original audit findings, not a claim that the final lockfile has been cleared.
 
 Relevant advisories:
 - Auth.js truthy-auth-object fail-open issue (affected through beta.31; fixed in beta.32): https://github.com/nextauthjs/next-auth/security/advisories/GHSA-8fpg-xm3f-6cx3
