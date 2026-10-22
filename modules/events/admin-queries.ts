@@ -1,12 +1,12 @@
 "use server"
 import { db } from "@/lib/db"
 import { auth } from "@/auth"
+import { hasSocietyAdminAccess } from "@/modules/auth/authorization"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
 
 // Only allow http(s) links for admin-supplied URLs — these get rendered
-// as <img src> / <a href> for every visitor, so reject schemes like
-// "javascript:" that could otherwise run in a viewer's browser.
+// as <img src> / <a href> for every visitor, so reject executable schemes.
 function assertSafeUrl(value: string, label: string) {
   let parsed: URL
   try {
@@ -14,9 +14,41 @@ function assertSafeUrl(value: string, label: string) {
   } catch {
     throw new Error(`${label} must be a valid URL`)
   }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    throw new Error(`${label} must be an http:// or https:// link`)
+  if (
+    (parsed.protocol !== "http:" && parsed.protocol !== "https:") ||
+    !parsed.hostname ||
+    parsed.username ||
+    parsed.password
+  ) {
+    throw new Error(`${label} must be a valid http:// or https:// link`)
   }
+}
+
+function readText(formData: FormData, name: string): string {
+  const value = formData.get(name)
+  return typeof value === "string" ? value.trim() : ""
+}
+
+function assertLength(value: string, max: number, label: string) {
+  if (value.length > max) throw new Error(`${label} must be ${max} characters or fewer`)
+}
+
+// Read the current identity and derive the access scope on the server.
+// Never trust caller-supplied user IDs or an "isGlobalAdmin" boolean in a
+// server action: those arguments are under the caller's control.
+async function requireEventAdminScope() {
+  const session = await auth()
+  if (!session?.user?.id) throw new Error("Not authorized")
+
+  const adminId = session.user.id
+  const isGlobalAdmin =
+    session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
+
+  if (!isGlobalAdmin && !(await hasSocietyAdminAccess(adminId))) {
+    throw new Error("You are not allowed to manage events")
+  }
+
+  return { adminId, isGlobalAdmin }
 }
 
 // datetime-local inputs have no timezone marker. Treat the entered wall-clock
@@ -48,19 +80,21 @@ function parseIndiaDateTime(value: string): Date | null {
   return new Date(wallClockAsUtc - 330 * 60 * 1000)
 }
 
-// Societies the current admin manages, with how many events each has —
-// used to pick which society an event belongs to.
-export async function getManagedSocietiesForEvents(adminId: string, isGlobalAdmin = false) {
+// Societies the signed-in admin manages. The scope comes from their session.
+export async function getManagedSocietiesForEvents() {
+  const { adminId, isGlobalAdmin } = await requireEventAdminScope()
   return db.society.findMany({
-    where: isGlobalAdmin ? {} : { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
+    where: isGlobalAdmin
+      ? {}
+      : { OR: [{ adminId }, { admins: { some: { userId: adminId } } }] },
     include: { _count: { select: { events: true } } },
     orderBy: { createdAt: "desc" },
   })
 }
 
 // Events across societies this admin manages, plus standalone events they created.
-// Platform admins can manage all events; society admins stay scoped to their own work.
-export async function getManagedEvents(adminId: string, isGlobalAdmin = false) {
+export async function getManagedEvents() {
+  const { adminId, isGlobalAdmin } = await requireEventAdminScope()
   return db.event.findMany({
     where: isGlobalAdmin
       ? {}
@@ -78,31 +112,47 @@ export async function getManagedEvents(adminId: string, isGlobalAdmin = false) {
 export async function createEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  const societyId = formData.get("societyId") as string
-  const title = formData.get("title") as string
-  const description = formData.get("description") as string
-  const date = formData.get("date") as string
-  const endDate = String(formData.get("endDate") ?? "").trim()
-  const location = formData.get("location") as string
-  const imageUrl = formData.get("imageUrl") as string
-  const inviteLink = formData.get("inviteLink") as string
+
+  const societyId = readText(formData, "societyId")
+  const title = readText(formData, "title")
+  const description = readText(formData, "description")
+  const date = readText(formData, "date")
+  const endDate = readText(formData, "endDate")
+  const location = readText(formData, "location")
+  const imageUrl = readText(formData, "imageUrl")
+  const inviteLink = readText(formData, "inviteLink")
 
   if (!societyId) throw new Error("Choose a society for this event")
-  if (!title?.trim()) throw new Error("Event title is required")
-  if (!description?.trim()) throw new Error("Description is required")
+  if (!title) throw new Error("Event title is required")
+  if (!description) throw new Error("Description is required")
+  assertLength(title, 120, "Event title")
+  assertLength(description, 5000, "Event description")
+  assertLength(location, 200, "Event location")
+  assertLength(imageUrl, 2048, "Photo URL")
+  assertLength(inviteLink, 2048, "Invite / RSVP link")
+
   const parsedDate = parseIndiaDateTime(date)
   const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
   if (!parsedDate) throw new Error("A valid event date and time in India is required")
-  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) throw new Error("End date and time must be after the start date and time")
-  if (imageUrl?.trim()) assertSafeUrl(imageUrl.trim(), "Photo URL")
-  if (inviteLink?.trim()) assertSafeUrl(inviteLink.trim(), "Invite / RSVP link")
+  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) {
+    throw new Error("End date and time must be after the start date and time")
+  }
+  if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
+  if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
   // Society admins can post only to their own societies; platform admins can post to any society.
-  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
+  const isGlobalAdmin =
+    session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   const society = await db.society.findFirst({
     where: isGlobalAdmin
       ? { id: societyId }
-      : { id: societyId, OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] },
+      : {
+          id: societyId,
+          OR: [
+            { adminId: session.user.id },
+            { admins: { some: { userId: session.user.id } } },
+          ],
+        },
   })
   if (!society) throw new Error("You don't manage this society")
 
@@ -110,13 +160,13 @@ export async function createEvent(formData: FormData) {
     data: {
       societyId,
       createdById: session.user.id,
-      title: title.trim(),
-      description: description.trim(),
+      title,
+      description,
       date: parsedDate,
       endDate: parsedEndDate ?? undefined,
-      location: location?.trim() || undefined,
-      imageUrl: imageUrl?.trim() || undefined,
-      inviteLink: inviteLink?.trim() || undefined,
+      location: location || undefined,
+      imageUrl: imageUrl || undefined,
+      inviteLink: inviteLink || undefined,
     },
   })
 
@@ -128,27 +178,40 @@ export async function createEvent(formData: FormData) {
 export async function createQuickEvent(formData: FormData) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
-  if (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN" && !(await hasSocietyAdminAccess(session.user.id))) {
+
+  if (
+    session.user.role !== "ADMIN" &&
+    session.user.role !== "SUPER_ADMIN" &&
+    !(await hasSocietyAdminAccess(session.user.id))
+  ) {
     throw new Error("You are not allowed to create events")
   }
 
-  const organizerName = String(formData.get("organizerName") ?? "").trim().slice(0, 120)
-  const title = String(formData.get("title") ?? "").trim()
-  const description = String(formData.get("description") ?? "").trim()
-  const date = String(formData.get("date") ?? "")
-  const endDate = String(formData.get("endDate") ?? "").trim()
-  const location = String(formData.get("location") ?? "").trim()
-  const imageUrl = String(formData.get("imageUrl") ?? "").trim()
-  const inviteLink = String(formData.get("inviteLink") ?? "").trim()
+  const organizerName = readText(formData, "organizerName")
+  const title = readText(formData, "title")
+  const description = readText(formData, "description")
+  const date = readText(formData, "date")
+  const endDate = readText(formData, "endDate")
+  const location = readText(formData, "location")
+  const imageUrl = readText(formData, "imageUrl")
+  const inviteLink = readText(formData, "inviteLink")
 
   if (!organizerName) throw new Error("Event host / organiser name is required")
   if (!title) throw new Error("Event title is required")
   if (!description) throw new Error("Description is required")
+  assertLength(organizerName, 120, "Event host / organiser name")
+  assertLength(title, 120, "Event title")
+  assertLength(description, 5000, "Event description")
+  assertLength(location, 200, "Event location")
+  assertLength(imageUrl, 2048, "Photo URL")
+  assertLength(inviteLink, 2048, "Invite / RSVP link")
+
   const parsedDate = parseIndiaDateTime(date)
   const parsedEndDate = endDate ? parseIndiaDateTime(endDate) : null
   if (!parsedDate) throw new Error("A valid event date and time in India is required")
-  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) throw new Error("End date and time must be after the start date and time")
+  if (endDate && (!parsedEndDate || parsedEndDate.getTime() <= parsedDate.getTime())) {
+    throw new Error("End date and time must be after the start date and time")
+  }
   if (imageUrl) assertSafeUrl(imageUrl, "Photo URL")
   if (inviteLink) assertSafeUrl(inviteLink, "Invite / RSVP link")
 
@@ -177,7 +240,9 @@ export async function createQuickEvent(formData: FormData) {
 export async function deleteEvent(eventId: string) {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/sign-in")
-  const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
+
+  const isGlobalAdmin =
+    session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   const event = await db.event.findFirst({
     where: isGlobalAdmin
       ? { id: eventId }
@@ -185,7 +250,14 @@ export async function deleteEvent(eventId: string) {
           id: eventId,
           OR: [
             { createdById: session.user.id, societyId: null },
-            { society: { OR: [{ adminId: session.user.id }, { admins: { some: { userId: session.user.id } } }] } },
+            {
+              society: {
+                OR: [
+                  { adminId: session.user.id },
+                  { admins: { some: { userId: session.user.id } } },
+                ],
+              },
+            },
           ],
         },
   })
