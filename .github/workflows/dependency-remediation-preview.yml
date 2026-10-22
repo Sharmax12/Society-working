@@ -1,0 +1,40 @@
+name: Dependency remediation preview
+
+on:
+  push:
+    branches:
+      - "security/hwl-audit-hardening"
+
+permissions:
+  contents: read
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Regenerate lockfile and apply compatible security updates
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          npm audit fix --package-lock-only || true
+      - name: Produce reviewable dependency diff
+        run: |
+          git diff -- package.json package-lock.json > dependency-remediation.patch
+          npm audit --json > npm-audit.json || true
+      - name: Upload dependency patch for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-remediation-preview
+          path: |
+            package.json
+            package-lock.json
+            dependency-remediation.patch
+            npm-audit.json
+          if-no-files-found: error
+          retention-days: 2
