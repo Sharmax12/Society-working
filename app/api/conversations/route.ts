@@ -1,6 +1,7 @@
 import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 function orderedPair(userA: string, userB: string) {
   return userA < userB ? [userA, userB] : [userB, userA]
@@ -58,6 +59,18 @@ export async function GET() {
 export async function POST(request: Request) {
   const session = await auth()
   if (!session?.user?.id) return Response.json({ error: "Unauthorized." }, { status: 401 })
+
+  try {
+    const rateLimit = await consumeRateLimit("conversations:create", session.user.id, 20, 60 * 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many new conversations. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
 
   let body: unknown
   try {
