@@ -11,7 +11,7 @@ export default async function NewEventPage() {
   const { hasSocietyAdminAccess } = await import("@/modules/auth/authorization")
   const isGlobalAdmin = session.user.role === "ADMIN" || session.user.role === "SUPER_ADMIN"
   if (!isGlobalAdmin && !(await hasSocietyAdminAccess(session.user.id))) redirect("/dashboard")
-  const societies = await getManagedSocietiesForEvents(session.user.id)
+  const societies = await getManagedSocietiesForEvents(session.user.id, isGlobalAdmin)
 
   if (societies.length === 0) return <main className="mx-auto flex min-h-[70vh] w-full max-w-3xl items-center px-4 py-12 sm:px-6"><div className="w-full rounded-[2rem] border border-dashed bg-card/70 p-8 text-center sm:p-14"><div className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary"><CalendarPlus className="h-6 w-6" /></div><h1 className="mt-5 text-2xl font-black">Create a quick event</h1><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">You can publish an event without first creating a full society profile. If you want a dedicated society page later, you can still create one separately.</p><div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row"><Link href="/admin/events/new/quick" className="inline-flex rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">Quick event</Link><Link href="/admin/societies/new" className="inline-flex rounded-xl border border-border bg-background px-5 py-2.5 text-sm font-bold">Create society</Link></div></div></main>
 
