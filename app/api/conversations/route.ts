@@ -41,6 +41,7 @@ export async function GET() {
   const conversations = await db.conversation.findMany({
     where: { OR: [{ participantAId: userId }, { participantBId: userId }] },
     orderBy: { updatedAt: "desc" },
+    take: 100,
     include: {
       participantA: { select: { id: true, name: true, image: true } },
       participantB: { select: { id: true, name: true, image: true } },
