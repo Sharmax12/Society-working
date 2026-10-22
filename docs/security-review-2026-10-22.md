@@ -25,9 +25,11 @@ This is a code-level assessment, not a penetration test. No production database,
 
 ## Residual risks — address before production launch
 
-### High: email address ownership is not verified for password registration
+### High: email verification and password recovery are implemented but require end-to-end verification
 
-The current local registration action creates a login-enabled user after validating the shape/domain of an email address; it does not prove the registrant controls that mailbox. Someone may register another student's address and create a password for that account. This can enable impersonation, and verified Google sign-in can potentially link to an existing user with that email. This was **not** changed in this patch because a safe fix requires an account-verification and recovery flow, including a rollout policy for existing accounts. Add mailbox verification before enabling credentials sign-in and carefully disable unsafe automatic linking to unverified credential accounts. Also add a secure password-reset flow.
+Local password accounts are created with `emailVerified = null`; Credentials sign-in rejects those users until a valid single-use, 30-minute verification token is submitted. Tokens are stored only as SHA-256 hashes in the database. Resending verification and password reset use generic responses to reduce account enumeration and database-backed rate limits to restrict repeated attempts. Resetting a password consumes a single-use token, changes the password hash, increments `authVersion`, and invalidates existing JWT sessions on their next request. Google sign-in requires Google's verified-email claim, an exact match to the returned email, and the configured college-domain allowlist; it will not silently attach to an unverified password account.
+
+**Still required before launch:** complete the latest CI run; test actual mail delivery and token expiry/single-use behavior; configure `NEXT_PUBLIC_APP_URL` to the exact production origin; and decide how existing password users with `emailVerified = null` will re-verify. A database migration intentionally does not mark legacy password accounts as verified.
 
 ### High: no shared distributed rate limiting
 
