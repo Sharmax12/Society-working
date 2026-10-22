@@ -191,6 +191,16 @@ export async function verifyEmail(formData: FormData): Promise<never> {
     redirect("/auth/verify-email?error=invalid");
   }
 
+  try {
+    const ip = await getRequestIdentity();
+    if (!(await actionRateAllowed("auth:verify:submit:ip", ip, 20, 60 * 60))) {
+      redirect("/auth/verify-email?error=invalid");
+    }
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    redirect("/auth/verify-email?error=invalid");
+  }
+
   const tokenHash = hashToken(token);
   const now = new Date();
   const verified = await db.$transaction(async (tx) => {
@@ -276,6 +286,17 @@ export async function resetPassword(formData: FormData): Promise<never> {
   }
 
   const tokenHash = hashToken(token);
+  try {
+    const ip = await getRequestIdentity();
+    const [ipAllowed, tokenAllowed] = await Promise.all([
+      actionRateAllowed("auth:password-reset:submit:ip", ip, 10, 60 * 60),
+      actionRateAllowed("auth:password-reset:submit:token", tokenHash, 5, 60 * 60),
+    ]);
+    if (!ipAllowed || !tokenAllowed) redirect("/auth/reset-password?error=invalid");
+  } catch (error) {
+    if (error && typeof error === "object" && "digest" in error) throw error;
+    redirect("/auth/reset-password?error=invalid");
+  }
   const now = new Date();
   const record = await db.authToken.findFirst({
     where: {
