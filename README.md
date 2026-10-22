@@ -27,13 +27,13 @@ The public directory and event pages only expose verified societies. Admin acces
 
 ## Authentication
 
-HallWayLoop uses Auth.js / NextAuth with a shared JWT session for Google, GitHub, and local email/password sign-in.
+HallWayLoop uses Auth.js / NextAuth with a shared JWT session for Google and local email/password sign-in.
 
-- Local registration creates a user with a salted scrypt password hash; plaintext passwords are never stored.
+- Local registration creates a user with a salted scrypt password hash and requires email verification before password sign-in; plaintext passwords are never stored.
 - Local sign-in uses the Auth.js Credentials provider and the same session callbacks as OAuth sign-in.
 - An email already registered with Google or GitHub cannot be claimed by creating a second local account.
-- Local registration does not verify college affiliation. College-only features need a separate verified-college check.
-- Before production use, add rate limiting / abuse controls, email verification, and password-reset / recovery support.
+- The college-domain allowlist restricts which addresses can register; it is not proof of enrollment or a college endorsement.
+- Auth flows include single-use email verification and password-reset links; configure a verified email sender and production app URL, then test delivery/expiry/replay before launch. Shared database-backed rate limits require the migrations to be applied.
 
 ## Why the project is structured this way
 
@@ -41,7 +41,7 @@ The main idea is to keep the student experience simple while keeping the rules o
 
 The database contains the campus relationships: users, societies, admins, applications, questions, answers, and events. Server actions handle changes to that data, while the App Router pages focus on showing the current state.
 
-Authentication is handled by Auth.js with Google, GitHub, and Credentials sign-in. Prisma is used for PostgreSQL access.
+Authentication is handled by Auth.js with Google and Credentials sign-in. Prisma is used for PostgreSQL access.
 
 ## Stack
 
@@ -106,8 +106,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - A society has a primary owner plus optional scoped admins.
 - Unverified societies are hidden from the public society and event pages.
 - Application and interview emails are best-effort; an email provider failure does not undo the database change.
-- The Connect area is currently a placeholder for the next part of the product.
-- Local account creation does not yet send email-verification links or support password resets; add those, plus rate limiting, before enabling public production registration.
+- Connect supports connection requests and direct messaging between accepted connections.
+- Existing password accounts without a verification timestamp must re-verify their email before credentials sign-in; plan this migration carefully and verify email/password reset delivery before opening registration to the public.
 
 ## Available scripts
 
