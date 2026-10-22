@@ -29,8 +29,8 @@ export async function GET() {
     where: { OR: [{ participantAId: userId }, { participantBId: userId }] },
     orderBy: { updatedAt: "desc" },
     include: {
-      participantA: { select: { id: true, name: true, image: true, rollNumber: true } },
-      participantB: { select: { id: true, name: true, image: true, rollNumber: true } },
+      participantA: { select: { id: true, name: true, image: true } },
+      participantB: { select: { id: true, name: true, image: true } },
       messages: {
         orderBy: { createdAt: "desc" },
         take: 1,
