@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHmac } from "node:crypto";
 import { isIP } from "node:net";
 import { db } from "@/lib/db";
 
@@ -44,7 +44,15 @@ export async function consumeRateLimit(
     throw new TypeError("Invalid rate-limit configuration");
   }
 
-  const key = createHash("sha256").update(`${scope}\n${identity}`).digest("hex");
+  // HMAC prevents a database reader from dictionary-reversing common email
+  // addresses or IPs from plain SHA-256 bucket identifiers.
+  const hmacSecret = process.env.RATE_LIMIT_SECRET ?? process.env.AUTH_SECRET;
+  if (!hmacSecret || hmacSecret.length < 32) {
+    throw new Error("Configure RATE_LIMIT_SECRET (32+ chars) or AUTH_SECRET");
+  }
+  const key = createHmac("sha256", hmacSecret)
+    .update(`${scope}\n${identity}`)
+    .digest("hex");
   const rows = await db.$queryRaw<Array<{ count: number; resetAt: Date }>>`
     INSERT INTO "RateLimitBucket" ("key", "count", "resetAt", "updatedAt")
     VALUES (
