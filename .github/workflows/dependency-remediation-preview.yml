@@ -23,6 +23,23 @@ jobs:
         run: |
           npm install --package-lock-only --ignore-scripts
           npm audit fix --package-lock-only || true
+      - name: Generate compact lockfile change set
+        run: |
+          node <<'NODE'
+          const fs = require("node:fs");
+          const { execFileSync } = require("node:child_process");
+          const original = JSON.parse(execFileSync("git", ["show", "HEAD:package-lock.json"], { encoding: "utf8" }));
+          const patched = JSON.parse(fs.readFileSync("package-lock.json", "utf8"));
+          const keys = new Set([...Object.keys(original.packages), ...Object.keys(patched.packages)]);
+          const changes = {};
+          for (const key of keys) {
+            if (JSON.stringify(original.packages[key]) !== JSON.stringify(patched.packages[key])) {
+              changes[key] = patched.packages[key] ?? null;
+            }
+          }
+          fs.writeFileSync("lockfile-changes.json", JSON.stringify({ lockfileVersion: patched.lockfileVersion, changes }));
+          console.log(`Changed lock entries: ${Object.keys(changes).length}; bytes: ${fs.statSync("lockfile-changes.json").size}`);
+          NODE
       - name: Produce reviewable dependency diff
         run: |
           git diff -- package.json package-lock.json > dependency-remediation.patch
@@ -35,6 +52,7 @@ jobs:
             package.json
             package-lock.json
             dependency-remediation.patch
+            lockfile-changes.json
             npm-audit.json
           if-no-files-found: error
           retention-days: 2
