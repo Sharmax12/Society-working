@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http";
 import { NextResponse } from "next/server";
+import { consumeRateLimit } from "@/lib/rate-limit";
 
 const privateHeaders = { "Cache-Control": "private, no-store" };
 
@@ -29,6 +30,18 @@ export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401, headers: privateHeaders });
+  }
+
+  try {
+    const rateLimit = await consumeRateLimit("posts:create", session.user.id, 10, 60 * 60);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        { error: "Too many posts. Please try again later." },
+        { status: 429, headers: { ...privateHeaders, "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      );
+    }
+  } catch {
+    return NextResponse.json({ error: "Publishing is temporarily unavailable." }, { status: 503, headers: privateHeaders });
   }
 
   let body: unknown;
