@@ -18,6 +18,19 @@ export async function setSocietyVerification(
 ) {
   await requireSuperAdmin()
 
+  if (
+    typeof societyId !== "string" ||
+    societyId.trim().length === 0 ||
+    societyId.length > 128
+  ) {
+    throw new Error("Invalid society")
+  }
+
+  // TypeScript types are not runtime validation for server actions.
+  if (status !== "VERIFIED" && status !== "SUSPENDED") {
+    throw new Error("Invalid verification status")
+  }
+
   await db.society.update({
     where: { id: societyId },
     data: { verificationStatus: status },
