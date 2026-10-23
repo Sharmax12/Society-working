@@ -75,19 +75,9 @@ export default function SignInFormClient({
     setCredentialsError(false);
 
     try {
-      const result = await signIn("google", {
-        redirect: false,
-        redirectTo: "/dashboard",
-      });
-
-      if (!result || result.error || !result.url) {
-        setAuthError("Google sign-in could not be started. Please try again.");
-        setBusy(false);
-        return;
-      }
-
-      // Navigate directly to the provider URL returned by Auth.js.
-      window.location.assign(result.url);
+      // OAuth sign-in uses Auth.js' normal redirect flow.
+      // Auth.js initiates the provider redirect and returns the browser to /dashboard.
+      await signIn("google", { redirectTo: "/dashboard" });
     } catch {
       setAuthError("Google sign-in could not be started. Please try again.");
       setBusy(false);
