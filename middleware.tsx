@@ -14,9 +14,10 @@ const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
   const { nextUrl } = req;
-  // Auth.js can expose an empty request auth object when there is no usable
-  // session. Only an actual session user should bypass the route guard.
-  const isLoggedIn = Boolean(req.auth?.user);
+  // A session may retain an email/name even when its JWT subject was
+  // invalidated. Match the header's identity check so stale tokens do not
+  // redirect a visible Sign in link straight back to the homepage.
+  const isLoggedIn = Boolean(req.auth?.user?.id);
 
   const isApiAuthRoute =
     nextUrl.pathname === apiAuthPrefix ||
