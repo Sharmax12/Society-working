@@ -28,6 +28,11 @@ enum ApplicationStatus {
   REJECTED
 }
 
+enum AuthTokenPurpose {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
 enum ConnectionStatus {
   PENDING
   ACCEPTED
@@ -46,13 +51,17 @@ model User {
   rollNumber   String?        // Student roll/registration number
   phone        String?        // Contact phone number
   passwordHash String?       // Hashed password (never plaintext)
+  emailVerified DateTime? @db.Timestamptz(3)
+  authVersion Int @default(0)
   role         Role          @default(STUDENT)
 
   accounts     Account[]
+  authTokens  AuthToken[]
   applications Application[] // Student's applications
 
   sentConnections     Connection[] @relation("ConnectionRequester")
   receivedConnections Connection[] @relation("ConnectionRecipient")
+  blockedConnections  Connection[] @relation("ConnectionBlocker")
   conversationsAsA    Conversation[] @relation("ConversationParticipantA")
   conversationsAsB    Conversation[] @relation("ConversationParticipantB")
   messages            Message[] @relation("MessageSender")
@@ -204,10 +213,13 @@ model Connection {
   id          String           @id @default(cuid())
   requesterId String
   recipientId String
+  pairKey     String           @unique @db.VarChar(128)
   status      ConnectionStatus @default(PENDING)
+  blockedById String?
 
-  requester User @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
-  recipient User @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  requester User  @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  recipient User  @relation("ConnectionRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  blockedBy User? @relation("ConnectionBlocker", fields: [blockedById], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -215,6 +227,7 @@ model Connection {
   @@unique([requesterId, recipientId])
   @@index([requesterId, status])
   @@index([recipientId, status])
+  @@index([blockedById])
 }
 
 model Conversation {
@@ -261,4 +274,32 @@ model Post {
 
   @@index([authorId, createdAt])
   @@index([createdAt])
+}
+
+
+// Shared PostgreSQL-backed rate-limit counters. Keys are one-way hashes of
+// scope + identity; raw IP addresses/emails are never stored in this table.
+model RateLimitBucket {
+  key       String   @id @db.VarChar(64)
+  count     Int      @default(0)
+  resetAt   DateTime @db.Timestamptz(3)
+  updatedAt DateTime @default(now()) @updatedAt @db.Timestamp(3)
+
+  @@index([resetAt])
+}
+
+
+// Single-use bearer tokens are stored only as SHA-256 hashes.
+model AuthToken {
+  id        String           @id @default(cuid())
+  userId    String
+  purpose   AuthTokenPurpose
+  tokenHash String           @unique @db.VarChar(64)
+  expiresAt DateTime         @db.Timestamptz(3)
+  usedAt    DateTime?        @db.Timestamptz(3)
+  createdAt DateTime         @default(now()) @db.Timestamptz(3)
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@index([purpose, expiresAt])
 }

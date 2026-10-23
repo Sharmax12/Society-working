@@ -22,7 +22,9 @@ const errorMessages: Record<string, string> = {
   invalid: "Check your details and use an email address from an approved college domain.",
   password: "Choose a password between 10 and 128 characters.",
   mismatch: "The passwords do not match. Please try again.",
-  exists: "An account with this email may already exist. Try signing in instead.",
+  exists: "An account with this email may already exist. Try signing in or requesting email verification.",
+  rate: "Too many registration attempts. Please wait and try again later.",
+  unavailable: "Registration is temporarily unavailable. Please try again shortly.",
 };
 
 export default async function RegisterPage({ searchParams }: RegisterPageProps) {

@@ -35,7 +35,10 @@ export function MessagesClient() {
     }
   }, [])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load() }, 0)
+    return () => window.clearTimeout(timer)
+  }, [load])
 
   const filtered = conversations.filter((conversation) =>
     name(conversation.user).toLowerCase().includes(query.trim().toLowerCase())

@@ -136,7 +136,7 @@ export function PhonePreview() {
                   <div className="mt-4 space-y-3 text-xs">
                     <p className="w-fit max-w-[85%] rounded-2xl rounded-tl-sm bg-[#f2ece5] px-3 py-2.5 text-[#51453e]">Are you going to the workshop?</p>
                     <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-tr-sm bg-[#d95743] px-3 py-2.5 text-white">Yes! See you there.</p>
-                    <p className="w-fit max-w-[85%] rounded-2xl rounded-tl-sm bg-[#f2ece5] px-3 py-2.5 text-[#51453e]">Great, I'll save you a seat.</p>
+                    <p className="w-fit max-w-[85%] rounded-2xl rounded-tl-sm bg-[#f2ece5] px-3 py-2.5 text-[#51453e]">Great, I&apos;ll save you a seat.</p>
                   </div>
                   <div className="mt-5 flex items-center gap-2 rounded-xl border border-[#e8ded6] px-3 py-2 text-[10px] text-[#9a8b80]">
                     <MessageCircle className="h-3.5 w-3.5" /> Example message · not a live chat

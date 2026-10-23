@@ -44,7 +44,17 @@ export async function getSocietyApplications(societyId: string, adminId: string)
   const applications = await db.application.findMany({
     where: { societyId },
     include: {
-      student: true,
+      // An explicit field allowlist prevents passwordHash and unrelated
+      // account/profile fields from crossing into the admin review UI.
+      student: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          rollNumber: true,
+        },
+      },
       answers: { include: { question: true } },
     },
     orderBy: { submittedAt: "asc" },

@@ -1,5 +1,7 @@
+import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 type RouteContext = {
   params: Promise<{ conversationId: string }>
@@ -42,9 +44,26 @@ export async function GET(_request: Request, context: RouteContext) {
   const conversation = await getConversationForUser(conversationId, userId)
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
 
+  const otherUserId =
+    conversation.participantAId === userId ? conversation.participantBId : conversation.participantAId
+  if (!(await areConnected(userId, otherUserId))) {
+    return Response.json({ error: "Chat is unavailable because this connection is no longer active." }, { status: 403 })
+  }
+  try {
+    const rateLimit = await consumeRateLimit("messages:read", userId, 300, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many chat refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
+
   const messages = await db.message.findMany({
     where: { conversationId },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "desc" },
     take: 100,
     select: {
       id: true,
@@ -55,7 +74,10 @@ export async function GET(_request: Request, context: RouteContext) {
     },
   })
 
-  return Response.json({ messages })
+  // Return the newest 100 messages, but keep the UI's chronological display order.
+  return Response.json({ messages: messages.reverse() }, {
+    headers: { "Cache-Control": "private, no-store" },
+  })
 }
 
 export async function POST(request: Request, context: RouteContext) {
@@ -74,10 +96,25 @@ export async function POST(request: Request, context: RouteContext) {
     return Response.json({ error: "Messaging is only available to accepted connections." }, { status: 403 })
   }
 
+  try {
+    const rateLimit = await consumeRateLimit("messages:create", userId, 30, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "You're sending messages too quickly. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
+
   let body: unknown
   try {
-    body = await request.json()
-  } catch {
+    body = await readJsonBody(request, 8 * 1024)
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "Request body is too large." }, { status: 413 })
+    }
     return Response.json({ error: "Invalid request." }, { status: 400 })
   }
 
@@ -111,6 +148,23 @@ export async function PATCH(_request: Request, context: RouteContext) {
   const { conversationId } = await context.params
   const conversation = await getConversationForUser(conversationId, userId)
   if (!conversation) return Response.json({ error: "Conversation not found." }, { status: 404 })
+
+  const otherUserId =
+    conversation.participantAId === userId ? conversation.participantBId : conversation.participantAId
+  if (!(await areConnected(userId, otherUserId))) {
+    return Response.json({ error: "Chat is unavailable because this connection is no longer active." }, { status: 403 })
+  }
+  try {
+    const rateLimit = await consumeRateLimit("messages:read-receipt", userId, 300, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many chat refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Messaging is temporarily unavailable." }, { status: 503 })
+  }
 
   await db.message.updateMany({
     where: {

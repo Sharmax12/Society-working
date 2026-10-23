@@ -1,4 +1,6 @@
+import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http";
 import { sendCampusLeadEmail } from "@/lib/email";
+import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 type LeadKind = "society" | "college";
 
@@ -6,8 +8,11 @@ export async function POST(request: Request) {
   let body: unknown;
 
   try {
-    body = await request.json();
-  } catch {
+    body = await readJsonBody(request, 8 * 1024);
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "Request body is too large." }, { status: 413 });
+    }
     return Response.json({ error: "Invalid request." }, { status: 400 });
   }
 
@@ -36,6 +41,25 @@ export async function POST(request: Request) {
   }
   if (!kind) {
     return Response.json({ error: "Choose a valid inquiry type." }, { status: 400 });
+  }
+
+  // This public endpoint triggers an outbound email. Limit valid submissions by
+  // trusted edge IP before contacting the email provider.
+  let rateLimit;
+  try {
+    rateLimit = await consumeRateLimit("campus-leads", getClientIp(request), 5, 60 * 60);
+  } catch {
+    // Fail closed if the shared limiter is unavailable; do not send unlimited mail.
+    return Response.json(
+      { error: "We couldn't process your request right now. Please try again later." },
+      { status: 503 },
+    );
+  }
+  if (!rateLimit.allowed) {
+    return Response.json(
+      { error: "Too many inquiries from this network. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+    );
   }
 
   const emailSent = await sendCampusLeadEmail({ name, organization, email, kind });

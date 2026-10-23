@@ -38,12 +38,16 @@ async function handleCredentialsSignIn(formData: FormData) {
 
 type SignInFormProps = {
   showCredentialsError?: boolean;
-  registered?: boolean;
+  verificationSent?: boolean;
+  verified?: boolean;
+  passwordReset?: boolean;
 };
 
 const SignInFormClient = ({
   showCredentialsError = false,
-  registered = false,
+  verificationSent = false,
+  verified = false,
+  passwordReset = false,
 }: SignInFormProps) => (
   <Card className="w-full overflow-hidden rounded-[1.75rem] border-foreground/10 bg-card/90 shadow-2xl shadow-primary/10 backdrop-blur-xl">
     <CardHeader className="px-7 pb-5 pt-7 text-center sm:px-8 sm:pt-8">
@@ -54,9 +58,20 @@ const SignInFormClient = ({
     </CardHeader>
 
     <CardContent className="grid gap-4 px-7 sm:px-8">
-      {registered && (
+      {verificationSent && (
+        <p role="status" className="rounded-xl border bg-muted/50 p-3 text-sm">
+          If your account was created or still needs verification, a verification email has been requested. Confirm your address before signing in.
+          {" "}<Link href="/auth/verify-email" className="font-semibold underline underline-offset-2">Resend link</Link>
+        </p>
+      )}
+      {verified && (
         <p role="status" className="rounded-xl border border-emerald-600/20 bg-emerald-600/10 p-3 text-sm text-emerald-800 dark:text-emerald-300">
-          Your account has been created. Sign in with your email and password.
+          Email verified. You can now sign in.
+        </p>
+      )}
+      {passwordReset && (
+        <p role="status" className="rounded-xl border border-emerald-600/20 bg-emerald-600/10 p-3 text-sm text-emerald-800 dark:text-emerald-300">
+          Password reset complete. Your other sessions have been revoked; sign in with the new password.
         </p>
       )}
       {showCredentialsError && (
@@ -73,6 +88,10 @@ const SignInFormClient = ({
         <div className="grid gap-2">
           <Label htmlFor="local-password">Password</Label>
           <Input id="local-password" name="password" type="password" autoComplete="current-password" maxLength={128} required className="h-11 rounded-xl" />
+          <div className="flex justify-between gap-3 text-xs">
+            <Link href="/auth/verify-email" className="font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground">Verify email</Link>
+            <Link href="/auth/forgot-password" className="font-semibold text-muted-foreground underline underline-offset-2 hover:text-foreground">Forgot password?</Link>
+          </div>
         </div>
         <Button type="submit" className="h-12 w-full rounded-xl font-semibold">Sign in with email</Button>
       </form>

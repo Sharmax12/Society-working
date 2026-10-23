@@ -1,14 +1,29 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { ArrowLeft, GraduationCap, LoaderCircle, MessageSquareText, Send, UserRound } from "lucide-react";
 
 type Post = { id: string; content: string; createdAt: string; author: { id: string; name: string | null; image: string | null; college: string | null } };
 export default function PostsPage() {
   const [posts,setPosts] = useState<Post[]>([]); const [content,setContent] = useState(""); const [loading,setLoading] = useState(true); const [posting,setPosting] = useState(false); const [error,setError] = useState("");
-  async function load() { try { const r=await fetch("/api/posts"); const d=await r.json(); if(!r.ok) throw new Error(d.error||"Could not load posts."); setPosts(d.posts); } catch(e) { setError(e instanceof Error?e.message:"Could not load posts."); } finally { setLoading(false); } }
-  useEffect(()=>{void load()},[]);
+  const load = useCallback(async () => {
+    try {
+      const response = await fetch("/api/posts", { cache: "no-store" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Could not load posts.");
+      setPosts(data.posts ?? []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not load posts.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => { void load(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [load]);
   async function publish(e:FormEvent) { e.preventDefault(); if(!content.trim()) return; setPosting(true); setError(""); try { const r=await fetch("/api/posts",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({content})}); const d=await r.json(); if(!r.ok) throw new Error(d.error||"Could not publish."); setPosts(p=>[d.post,...p]); setContent(""); } catch(e) { setError(e instanceof Error?e.message:"Could not publish post."); } finally { setPosting(false); } }
   return <main className="min-h-screen"><div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-12"><Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-foreground"><ArrowLeft className="h-4 w-4"/> Back to dashboard</Link><div className="mt-6"><p className="text-xs font-black uppercase tracking-[.18em] text-primary">Campus community</p><h1 className="mt-1 text-4xl font-black tracking-tight">Posts</h1><p className="mt-2 text-sm leading-6 text-muted-foreground">Share what you’re learning, building, looking for, or excited about.</p></div><form onSubmit={publish} className="mt-7 rounded-[1.6rem] border bg-card p-5 shadow-sm sm:p-6"><label htmlFor="post-content" className="text-sm font-bold">What’s on your mind?</label><textarea id="post-content" value={content} onChange={e=>setContent(e.target.value)} maxLength={2000} rows={4} placeholder="Start a conversation with your campus community…" className="mt-3 w-full resize-y rounded-xl border border-border bg-background px-4 py-3 text-sm leading-6 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15"/><div className="mt-3 flex items-center justify-between gap-3"><span className="text-xs text-muted-foreground">{content.length}/2000</span><button disabled={posting||!content.trim()} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50">{posting?<LoaderCircle className="h-4 w-4 animate-spin"/>:<Send className="h-4 w-4"/>}{posting?"Publishing…":"Publish post"}</button></div></form>{error&&<p role="alert" className="mt-4 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm">{error}</p>}<div className="mt-8 flex items-center gap-2"><MessageSquareText className="h-5 w-5 text-primary"/><h2 className="text-lg font-black">Community feed</h2><span className="rounded-full border px-2 py-0.5 text-xs font-bold">{posts.length}</span></div>{loading?<div className="py-12 text-center text-sm text-muted-foreground">Loading posts…</div>:posts.length===0?<div className="mt-4 rounded-[1.5rem] border border-dashed p-10 text-center"><MessageSquareText className="mx-auto h-8 w-8 text-muted-foreground/50"/><p className="mt-3 font-bold">It’s quiet here — for now.</p><p className="mt-1 text-sm text-muted-foreground">Be the first to share something with your campus community.</p></div>:<div className="mt-4 space-y-4">{posts.map(post=><article key={post.id} className="rounded-[1.5rem] border bg-card p-5 shadow-sm sm:p-6"><div className="flex items-center gap-3"><div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-muted">{post.author.image?<img src={post.author.image} alt="" className="h-full w-full object-cover"/>:<UserRound className="h-5 w-5 text-muted-foreground"/>}</div><div className="min-w-0 flex-1"><p className="truncate text-sm font-black">{post.author.name||"Campus member"}</p><div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">{post.author.college&&<span className="inline-flex items-center gap-1"><GraduationCap className="h-3 w-3"/>{post.author.college}</span>}<span>{new Date(post.createdAt).toLocaleString()}</span></div></div></div><p className="mt-4 whitespace-pre-wrap break-words text-sm leading-7">{post.content}</p></article>)}</div>}</div></main>;
 }

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - "security/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: hwl
+          POSTGRES_PASSWORD: hwl_ci_password
+          POSTGRES_DB: hwl_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U hwl -d hwl_ci"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://hwl:hwl_ci_password@localhost:5432/hwl_ci?schema=public
+      AUTH_SECRET: ci-only-secret-do-not-use-in-production-0123456789
+      AUTH_GOOGLE_ID: ci-client-id.apps.googleusercontent.com
+      AUTH_GOOGLE_SECRET: ci-only-google-secret
+      COLLEGE_EMAIL_DOMAINS: example.edu
+      EMAIL_FROM: HallWayLoop <ci@example.com>
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Apply database migrations
+        run: npx prisma migrate deploy
+      - name: Lint
+        run: npm run lint
+      - name: Type-check
+        run: npx tsc --noEmit
+      - name: Build production app
+        run: npm run build
+      # Keep the complete audit output as an artifact. At the current lockfile,
+      # known high findings are in development tools; do not silently discard them.
+      - name: Full dependency audit report
+        if: always()
+        run: npm audit --json > npm-audit-full.json || true
+      - name: Gate production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Upload full dependency audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-dependency-audit
+          path: npm-audit-full.json
+          if-no-files-found: warn
+          retention-days: 7

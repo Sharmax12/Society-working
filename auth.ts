@@ -4,7 +4,9 @@ import type { Role } from "@prisma/client";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
+import { isAllowedCollegeEmail } from "./modules/auth/college-email";
 import { verifyPassword } from "./modules/auth/password";
+import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
@@ -12,14 +14,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!user || !account || !user.email) return false;
 
       const email = user.email.trim().toLowerCase();
-      // Credentials users have already passed the local password check.
+      if (!isAllowedCollegeEmail(email)) return false;
+
+      // Credential accounts must have completed email verification in authorize().
       if (account.provider === "credentials") return true;
 
-      // Only accept Google and require Google's verified-email claim before
-      // attaching an OAuth identity to an account that may already exist.
       if (account.provider !== "google") return false;
-      const googleProfile = profile as { email_verified?: unknown } | undefined;
-      if (googleProfile?.email_verified !== true) return false;
+      const googleProfile = profile as
+        | { email?: unknown; email_verified?: unknown }
+        | undefined;
+      if (
+        googleProfile?.email_verified !== true ||
+        typeof googleProfile.email !== "string" ||
+        googleProfile.email.trim().toLowerCase() !== email
+      ) {
+        return false;
+      }
 
       const existingUser = await db.user.findUnique({ where: { email } });
 
@@ -29,6 +39,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             email,
             name: user.name,
             image: user.image,
+            emailVerified: new Date(),
             accounts: {
               create: {
                 type: account.type,
@@ -50,19 +61,25 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         },
       });
 
-      // Never reassign a provider identity that is already linked to another user.
       if (existingAccount && existingAccount.userId !== existingUser.id) return false;
+
+      // Do not let Google silently attach to a password account that has not
+      // proved ownership of its email. The user can verify using the email link.
+      if (!existingAccount && existingUser.passwordHash && !existingUser.emailVerified) {
+        return false;
+      }
 
       await db.user.update({
         where: { id: existingUser.id },
         data: {
-          name: user.name ?? existingUser.name,
-          image: user.image ?? existingUser.image,
+          name: existingUser.name ?? user.name,
+          image: existingUser.image ?? user.image,
+          emailVerified: existingUser.emailVerified ?? new Date(),
         },
       });
 
       if (existingAccount) {
-        // Remove tokens that may have been stored by an older version of the app.
+        // Google access/refresh tokens are not required for sign-in.
         await db.account.update({
           where: { id: existingAccount.id },
           data: { refreshToken: null, accessToken: null, idToken: null },
@@ -81,18 +98,30 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return true;
     },
 
-    async jwt({ token }) {
-      // Re-read the account whenever the session token is processed so that
-      // demoted users do not keep a stale privileged role in their JWT.
-      const existingUser = token.sub
-        ? await db.user.findUnique({ where: { id: token.sub } })
-        : token.email
-          ? await db.user.findUnique({ where: { email: token.email } })
-          : null;
+    async jwt({ token, user }) {
+      const existingUser = user?.id
+        ? await db.user.findUnique({ where: { id: user.id } })
+        : token.sub
+          ? await db.user.findUnique({ where: { id: token.sub } })
+          : token.email
+            ? await db.user.findUnique({ where: { email: token.email } })
+            : null;
 
       if (!existingUser) {
         token.role = "STUDENT";
         token.sub = undefined;
+        token.authVersion = undefined;
+        return token;
+      }
+
+      // Initialize the version on sign-in; thereafter a password reset bumps
+      // it, invalidating existing JWT sessions on their next use.
+      if (user) {
+        token.authVersion = existingUser.authVersion;
+      } else if (token.authVersion !== existingUser.authVersion) {
+        token.role = "STUDENT";
+        token.sub = undefined;
+        token.authVersion = undefined;
         return token;
       }
 
@@ -124,7 +153,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email", placeholder: "you@college.edu" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const email =
           typeof credentials?.email === "string"
             ? credentials.email.trim().toLowerCase()
@@ -132,12 +161,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const password =
           typeof credentials?.password === "string" ? credentials.password : "";
 
-        if (
-          !email ||
-          !password ||
-          email.length > 254 ||
-          password.length > 128
-        ) {
+        if (!email || !password || email.length > 254 || password.length > 128) {
+          return null;
+        }
+        if (!isAllowedCollegeEmail(email)) return null;
+
+        try {
+          const [ipLimit, emailLimit] = await Promise.all([
+            consumeRateLimit("auth:signin:ip", getClientIp(request), 60, 15 * 60),
+            consumeRateLimit("auth:signin:email", email, 10, 15 * 60),
+          ]);
+          if (!ipLimit.allowed || !emailLimit.allowed) return null;
+        } catch {
+          // Fail closed if the shared database-backed limiter is unavailable.
           return null;
         }
 
@@ -149,10 +185,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             name: true,
             image: true,
             passwordHash: true,
+            emailVerified: true,
           },
         });
 
-        if (!user?.passwordHash) return null;
+        if (!user?.passwordHash || !user.emailVerified) return null;
         if (!(await verifyPassword(password, user.passwordHash))) return null;
 
         return { id: user.id, email: user.email, name: user.name, image: user.image };

@@ -1,5 +1,6 @@
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 export async function GET() {
   const session = await auth()
@@ -8,6 +9,17 @@ export async function GET() {
   }
 
   const userId = session.user.id
+  try {
+    const rateLimit = await consumeRateLimit("connections:suggestions:list", userId, 60, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many suggestion refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Suggestions are temporarily unavailable." }, { status: 503 })
+  }
 
   const existingConnections = await db.connection.findMany({
     where: {
@@ -34,7 +46,6 @@ export async function GET() {
       id: true,
       name: true,
       image: true,
-      rollNumber: true,
     },
     orderBy: { createdAt: "desc" },
     take: 30,

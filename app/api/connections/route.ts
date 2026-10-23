@@ -1,8 +1,14 @@
+import { readJsonBody, RequestBodyTooLargeError } from "@/lib/http"
 import { auth } from "@/auth"
 import { db } from "@/lib/db"
+import { consumeRateLimit } from "@/lib/rate-limit"
 
 function isValidId(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0
+  return typeof value === "string" && value.trim().length > 0 && value.trim().length <= 128
+}
+
+function connectionPairKey(userA: string, userB: string): string {
+  return userA < userB ? `${userA}:${userB}` : `${userB}:${userA}`
 }
 
 export async function GET() {
@@ -12,6 +18,17 @@ export async function GET() {
   }
 
   const userId = session.user.id
+  try {
+    const rateLimit = await consumeRateLimit("connections:list", userId, 120, 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many connection refreshes. Please try again shortly." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Connections are temporarily unavailable." }, { status: 503 })
+  }
 
   const connections = await db.connection.findMany({
     where: {
@@ -19,12 +36,13 @@ export async function GET() {
       OR: [{ requesterId: userId }, { recipientId: userId }],
     },
     orderBy: { updatedAt: "desc" },
+    take: 300,
     include: {
       requester: {
-        select: { id: true, name: true, image: true, rollNumber: true },
+        select: { id: true, name: true, image: true },
       },
       recipient: {
-        select: { id: true, name: true, image: true, rollNumber: true },
+        select: { id: true, name: true, image: true },
       },
     },
   })
@@ -47,10 +65,25 @@ export async function POST(request: Request) {
     return Response.json({ error: "Unauthorized." }, { status: 401 })
   }
 
+  try {
+    const rateLimit = await consumeRateLimit("connections:create", session.user.id, 20, 60 * 60)
+    if (!rateLimit.allowed) {
+      return Response.json(
+        { error: "Too many connection requests. Please try again later." },
+        { status: 429, headers: { "Retry-After": String(rateLimit.retryAfterSeconds) } },
+      )
+    }
+  } catch {
+    return Response.json({ error: "Connection requests are temporarily unavailable." }, { status: 503 })
+  }
+
   let body: unknown
   try {
-    body = await request.json()
-  } catch {
+    body = await readJsonBody(request, 4 * 1024)
+  } catch (error) {
+    if (error instanceof RequestBodyTooLargeError) {
+      return Response.json({ error: "Request body is too large." }, { status: 413 })
+    }
     return Response.json({ error: "Invalid request." }, { status: 400 })
   }
 
@@ -112,14 +145,46 @@ export async function POST(request: Request) {
     }
 
     if (existing.requesterId === requesterId) {
-      const connection = await db.connection.update({
-        where: { id: existing.id },
+      // Resending a rejected request must not overwrite a block applied after
+      // the initial read. Include current status and owner in the write filter.
+      const result = await db.connection.updateMany({
+        where: {
+          id: existing.id,
+          requesterId,
+          recipientId,
+          status: "REJECTED",
+        },
         data: { status: "PENDING" },
+      })
+      if (result.count !== 1) {
+        return Response.json(
+          { error: "This connection changed. Refresh and try again." },
+          { status: 409 },
+        )
+      }
+      const connection = await db.connection.findUnique({
+        where: { id: existing.id },
+        select: { id: true, requesterId: true, recipientId: true, status: true, createdAt: true, updatedAt: true },
       })
       return Response.json({ connection }, { status: 201 })
     }
 
-    await db.connection.delete({ where: { id: existing.id } })
+    // Only remove the reverse rejected row if it is still rejected. Otherwise
+    // a simultaneous block could be deleted by a stale connection request.
+    const deleted = await db.connection.deleteMany({
+      where: {
+        id: existing.id,
+        requesterId: recipientId,
+        recipientId: requesterId,
+        status: "REJECTED",
+      },
+    })
+    if (deleted.count !== 1) {
+      return Response.json(
+        { error: "This connection changed. Refresh and try again." },
+        { status: 409 },
+      )
+    }
   }
 
   try {
@@ -127,12 +192,35 @@ export async function POST(request: Request) {
       data: {
         requesterId,
         recipientId,
+        pairKey: connectionPairKey(requesterId, recipientId),
         status: "PENDING",
+      },
+      select: {
+        id: true,
+        requesterId: true,
+        recipientId: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
       },
     })
 
     return Response.json({ connection }, { status: 201 })
   } catch (error) {
+    // The canonical unique pair key is the database-level race guard. A
+    // simultaneous request in the opposite direction becomes a conflict,
+    // not a duplicate edge or an opaque server error.
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2002"
+    ) {
+      return Response.json(
+        { error: "A connection request for this student already exists. Refresh and try again." },
+        { status: 409 },
+      )
+    }
     console.error("Connection request failed:", error)
     return Response.json({ error: "Unable to send the connection request." }, { status: 500 })
   }
