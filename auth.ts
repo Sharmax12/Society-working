@@ -100,12 +100,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token, user }) {
-      const existingUser = user?.id
-        ? await db.user.findUnique({ where: { id: user.id } })
-        : token.sub
-          ? await db.user.findUnique({ where: { id: token.sub } })
-          : token.email
-            ? await db.user.findUnique({ where: { email: token.email } })
+      // OAuth providers (such as Google) supply their own provider user ID.
+      // HallwayLoop uses a separate internal User.id, so resolve by the
+      // verified/canonical email first whenever a user just signed in or the
+      // JWT contains an email. Then place HallwayLoop's own ID into token.sub.
+      const emailToResolve =
+        typeof user?.email === "string"
+          ? user.email.trim().toLowerCase()
+          : typeof token.email === "string"
+            ? token.email.trim().toLowerCase()
+            : null;
+
+      const existingUser = emailToResolve
+        ? await db.user.findUnique({ where: { email: emailToResolve } })
+        : user?.id
+          ? await db.user.findUnique({ where: { id: user.id } })
+          : token.sub
+            ? await db.user.findUnique({ where: { id: token.sub } })
             : null;
 
       if (!existingUser) {
