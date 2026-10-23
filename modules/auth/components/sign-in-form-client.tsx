@@ -112,7 +112,7 @@ export default function SignInFormClient({
         )}
         {credentialsError && (
           <p role="alert" className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-            Email or password was not recognised. Please try again.
+            Email or password was not recognised. If you created your account using Google, choose “Continue with Google” instead; Google-only accounts do not have an email/password login yet.
           </p>
         )}
         {authError && (
