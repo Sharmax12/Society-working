@@ -9,6 +9,7 @@ import { verifyPassword } from "./modules/auth/password";
 import { consumeRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
+  ...authConfig,
   callbacks: {
     async signIn({ user, account, profile }) {
       if (!user || !account || !user.email) return false;
@@ -143,7 +144,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
   secret: process.env.AUTH_SECRET,
   session: { strategy: "jwt", maxAge: 60 * 60 },
-  ...authConfig,
   providers: [
     ...authConfig.providers,
     Credentials({
