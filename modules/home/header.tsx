@@ -53,9 +53,9 @@ export async function Header() {
               <SignOutButton />
             </>
           ) : (
-            <Link href="/auth/sign-in" className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted">
+            <a href="/auth/sign-in" className="rounded-full border border-border px-4 py-2 text-sm font-medium transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
               Sign in
-            </Link>
+            </a>
           )}
           <Link
             href={isLoggedIn ? "/events" : "/societies"}
