@@ -76,10 +76,10 @@
     "@types/three": "^0.180.0",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
-    "eslint-config-next": "16.4.2",
+    "eslint-config-next": "16.4.5",
     "prisma": "6.19.3",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "shadcn": "^4.19.0"
+    "shadcn": "^4.23.0"
   }
 }
